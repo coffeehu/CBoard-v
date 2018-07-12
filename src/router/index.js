@@ -11,11 +11,17 @@ export default new Router({
       path: '',
       component: Layout,
       redirect: 'dashboard',
-      children: [{
-      	path: 'dashboard',
-      	name: 'Dashboard',
-      	component: Dashboard,
-      }]
-    }
+      children: [
+        {
+        	path: 'dashboard',
+        	name: 'Dashboard',
+        	component: Dashboard,
+        },
+        {
+          path: ':id/:id',
+          component: Dashboard
+        }
+      ]
+    },
   ]
 })

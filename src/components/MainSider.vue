@@ -12,6 +12,7 @@
       <div class="tip-menu">MENU</div>
 
       <el-menu
+        router
         default-active="2"
         class="el-menu-vertical-demo"
         background-color="#222d32"
@@ -25,9 +26,9 @@
           </template>
 
           <template v-for="category in categoryList">
-      			<el-submenu v-if="hasChildren(category)" :index="'1-'+category.id" :key="category.id">
+      			<el-submenu v-if="hasChildren(category)" :index="'/'+category.name" :key="category.id">
       				<template slot="title"><i class="el-icon-document"></i>{{ category.name }}</template>
-      				<el-menu-item v-for="board in boardList" v-if="inTheCategory(category.id, board)" :index="'1-'+category.id+'-'+board.id" :key="board.id">
+      				<el-menu-item v-for="(board, index) in boardList" v-if="inTheCategory(category.id, board)" :index="'/'+category.name+'/'+index" :key="board.id">
       					<i class="el-icon-menu"></i>
       					<span slot="title">{{ board.name }}</span>
       				</el-menu-item>
@@ -44,7 +45,7 @@
     				<i class="el-icon-location"></i>
     				<span>{{ $t(menuItem.menuName) }}</span>
     			</template>
-    			<el-menu-item :index="'1-'+childItem.menuId" v-for="childItem in menuItem.children" :key="childItem.menuId">
+    			<el-menu-item index="/home" v-for="childItem in menuItem.children" :key="childItem.menuId">
     				<i class="el-icon-document"></i>
     				<span slot="title">{{$t(childItem.menuName)}}</span>
     			</el-menu-item>
@@ -77,7 +78,7 @@ export default {
 			req.get(api.getMenuList)
 			.then((response) => {
 				if(response.statusText === 'OK') {
-					console.log(response.data);
+					console.log('menuList', response.data);
 					this.menuList = this.formatMenuList(response.data);
 					console.log(1111111, this.menuList);
 				}
@@ -90,7 +91,7 @@ export default {
 			req.get(api.getCategoryList)
 			.then((response) => {
 				if(response.statusText === 'OK') {
-					console.log(response.data);
+					console.log('catgoryList',response.data);
 					this.categoryList = response.data;
 				}
 			})
@@ -102,7 +103,7 @@ export default {
 			req.get(api.getBoardList)
 			.then((response) => {
 				if(response.statusText === 'OK') {
-					console.log(response.data);
+					console.log('boardList',response.data);
 					this.boardList = response.data;
 				}
 			})
