@@ -13,19 +13,38 @@ import api from '@/utils/http/api';
 export default {
   name: 'Dashboard',
   mounted() {
-  	req.get(api.getBoardData)
-  		.then((response) => {
-  			console.log("getBoardData",response);
-  		});
+    this.getBoardData();
+  },
+  watch: {
+    '$route' (to, from) {
+      const id = to.params.id;
+      this.getBoardData(id);
+    }
   },
   computed: {
   	currentComponent: function() {
+      if(this.type === 'timeline') {
+        return Timeline;
+      }
   		return Grid;
   	}
   },
   data () {
     return {
-   		
+   		type: ''
+    }
+  },
+  methods: {
+    getBoardData(id) {
+      id = id ? id : this.$route.params.id;
+      console.log('id', id)
+      req.get(api.getBoardData + '?id=' + id)
+        .then((response) => {
+          console.log("getBoardData",response);
+          if(response.statusText === 'OK') {
+            this.type = response.data.layout.type || '';
+          }
+        });
     }
   }
 }

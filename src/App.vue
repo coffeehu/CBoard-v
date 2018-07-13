@@ -32,16 +32,8 @@ p {
 body {
   font-size: 13px;
 }
-
-.main-content {
-  min-height: 837px;
-  background-color: #ecf0f5;
-  margin-left: 230px;
-  z-index: 800;
-  -webkit-transition: -webkit-transform 0.3s ease-in-out, margin 0.3s ease-in-out;
-  -moz-transition: -moz-transform 0.3s ease-in-out, margin 0.3s ease-in-out;
-  -o-transition: -o-transform 0.3s ease-in-out, margin 0.3s ease-in-out;
-  transition: transform 0.3s ease-in-out, margin 0.3s ease-in-out;
+.pull-left {
+  float: left !important;
 }
 
 .main-footer {

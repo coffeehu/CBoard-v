@@ -26,9 +26,9 @@
           </template>
 
           <template v-for="category in categoryList">
-      			<el-submenu v-if="hasChildren(category)" :index="'/'+category.name" :key="category.id">
+      			<el-submenu v-if="hasChildren(category)" :index="'/dashboard/'+category.name" :key="category.id">
       				<template slot="title"><i class="el-icon-document"></i>{{ category.name }}</template>
-      				<el-menu-item v-for="(board, index) in boardList" v-if="inTheCategory(category.id, board)" :index="'/'+category.name+'/'+index" :key="board.id">
+      				<el-menu-item v-for="(board, index) in boardList" v-if="inTheCategory(category.id, board)" :index="'/dashboard/'+category.name+'/'+board.id" :key="board.id">
       					<i class="el-icon-menu"></i>
       					<span slot="title">{{ board.name }}</span>
       				</el-menu-item>
@@ -40,12 +40,12 @@
           </template>
         </el-submenu>
 
-        <el-submenu :index="'1-'+index" v-for="(menuItem, index) in menuList" :key="menuItem.menuId">
+        <el-submenu :index="'/'+menuItem.menuCode" v-for="(menuItem, index) in menuList" :key="menuItem.menuId">
     			<template slot="title">
     				<i class="el-icon-location"></i>
     				<span>{{ $t(menuItem.menuName) }}</span>
     			</template>
-    			<el-menu-item index="/home" v-for="childItem in menuItem.children" :key="childItem.menuId">
+    			<el-menu-item :index="formatRouteByMenuCode(childItem.menuCode)" v-for="childItem in menuItem.children" :key="childItem.menuId">
     				<i class="el-icon-document"></i>
     				<span slot="title">{{$t(childItem.menuName)}}</span>
     			</el-menu-item>
@@ -137,7 +137,11 @@ export default {
 				}
 			}
 			return menuData;
-		}
+		},
+    formatRouteByMenuCode(menuCode) {
+      const menuCodeArr = menuCode.split('.');
+      return '/' + menuCodeArr[0] + '/' +menuCodeArr[1];
+    }
 	}
 }
 </script>
@@ -151,9 +155,6 @@ export default {
   overflow: hidden;
   white-space: nowrap;
   overflow: hidden;
-}
-.pull-left {
-  float: left !important;
 }
 .user-panel > .image > img {
   width: 100%;

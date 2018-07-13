@@ -6,13 +6,13 @@
 		</a>
 
 		<nav class="navbar clearfix">
-			<a href="javascript:void(0);" class="sidebar-toggle clearfix"><i class="el-icon-menu"></i></a>
+			<a href="javascript:void(0);" class="navbar-toggle clearfix"><i class="el-icon-menu"></i></a>
 
 			<!--  -->
-			<div class="navbar-custom-menu">
-			  <ul class="nav navbar-nav">
+			<div class="navbar-usermenu">
+
 			      <!-- User Account Menu -->
-			      <li class="dropdown user user-menu">
+			      <div class="dropdown user user-menu">
 			          <!-- Menu Toggle Button -->
 			          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown">
 			              <!-- The user image in the navbar-->
@@ -39,8 +39,8 @@
 			                  </div>
 			              </li>
 			          </ul>
-			      </li>
-			  </ul>
+			      </div>
+
 			</div>
 			<!--  -->
 
@@ -61,6 +61,7 @@ export default {
   z-index: 1030;
   box-sizing: border-box;
 }
+/*左侧 logo*/
 .main-header .logo {
   -webkit-transition: width 0.3s ease-in-out;
   -o-transition: width 0.3s ease-in-out;
@@ -86,6 +87,7 @@ export default {
 .main-header .logo .logo-mini {
   display: none;
 }
+/*右侧内容*/
 .main-header .navbar {
   -webkit-transition: margin-left 0.3s ease-in-out;
   -o-transition: margin-left 0.3s ease-in-out;
@@ -98,37 +100,43 @@ export default {
   background-color: #3c8dbc;
   z-index: 1000;
 }
-
-.main-header .sidebar-toggle {
+/*右侧内容--左侧 toggle 按钮*/
+.navbar-toggle {
   float: left;
   background-color: transparent;
   background-image: none;
   padding: 15px 15px;
   font-family: fontAwesome;
 }
-.sidebar-toggle i {
+.navbar-toggle i {
   color: #fff;
 }
-
-.nav {
-  padding-left: 0;
-  list-style: none;
+/*右侧内容--右侧用户面板*/
+.navbar-usermenu {
+  float: right;
 }
-.nav > li {
+.navbar-usermenu > div {
   position: relative;
-  display: block;
 }
-.nav > li > a {
+.navbar-usermenu > div > a {
   position: relative;
   display: block;
   padding: 10px 15px;
-}
-.main-header .navbar .nav>li>a {
+  text-align: center;
+  font-size: 0;
   color: #fff;
 }
-.navbar-custom-menu {
-  float: right;
+.navbar-usermenu .user-image {
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  margin-top: -2px;
 }
+.navbar-usermenu > div > a > span {
+  font-size: 13px;
+}
+
 @media (min-width: 768px) {
   .navbar-nav {
     float: left;
@@ -142,23 +150,9 @@ export default {
     padding-bottom: 15px;
   }
 }
-.navbar-custom-menu > .navbar-nav > li {
-  position: relative;
-}
-.open > a {
-  background: rgba(0,0,0,0.1);
-  color: #f6f6f6;
-}
-.navbar-nav > .user-menu .user-image {
-  float: left;
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  margin-right: 10px;
-  margin-top: -2px;
-}
+
 @media (max-width: 767px) {
-  .navbar-nav > .user-menu .user-image {
+  .navbar-usermenu .user-image {
     float: none;
     margin-right: 0;
     margin-top: -8px;
