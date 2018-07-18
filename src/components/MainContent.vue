@@ -1,5 +1,5 @@
 <template>
-  <div class="main-content">
+  <div class="content-wrapper">
     <router-view/>
   </div>
 </template>
@@ -11,6 +11,10 @@ export default {
 </script>
 
 <style>
+.content-wrapper {
+  background-color: #ecf0f5;
+  min-height: 837px;
+}
 .main-content {
   min-height: 837px;
   background-color: #ecf0f5;

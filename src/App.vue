@@ -1,33 +1,23 @@
 <template>
-  <div id="app">
+  <div id="app" class="wrapper skin-blue">
     <router-view/>
   </div>
 </template>
 
 <script>
+import req from '@/utils/http/request';
+import api from '@/utils/http/api';
+
 export default {
-  name: 'App'
+  name: 'App',
+  mounted() {
+  }
 }
 </script>
 
 <style>
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-}
-a {
+a:hover {
   text-decoration: none;
-}
-.clearfix:before, .clearfix:after {
-  content: " ";
-  display: table;
-}
-.clearfix:after {
-  clear: both;
-}
-p {
-  margin: 0 0 10px;
 }
 body {
   font-size: 13px;

@@ -13,17 +13,19 @@ import api from '@/utils/http/api';
 export default {
   name: 'Dashboard',
   mounted() {
-    this.getBoardData();
+    this.$store.dispatch('dashboard/getBoardData', this.$route.params.id);
   },
   watch: {
     '$route' (to, from) {
-      const id = to.params.id;
-      this.getBoardData(id);
+      /*const id = to.params.id;
+      this.getBoardData(id);*/
+      this.$store.dispatch('dashboard/getBoardData', this.$route.params.id);
     }
   },
   computed: {
   	currentComponent: function() {
-      if(this.type === 'timeline') {
+      const type = this.$store.state.dashboard.type;
+      if(type === 'timeline') {
         return Timeline;
       }
   		return Grid;
@@ -31,21 +33,11 @@ export default {
   },
   data () {
     return {
-   		type: ''
+
     }
   },
   methods: {
-    getBoardData(id) {
-      id = id ? id : this.$route.params.id;
-      console.log('id', id)
-      req.get(api.getBoardData + '?id=' + id)
-        .then((response) => {
-          console.log("getBoardData",response);
-          if(response.statusText === 'OK') {
-            this.type = response.data.layout.type || '';
-          }
-        });
-    }
+    
   }
 }
 </script>

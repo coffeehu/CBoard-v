@@ -14,7 +14,6 @@
       <el-menu
         router
         default-active="2"
-        class="el-menu-vertical-demo"
         background-color="#222d32"
         text-color="#b8c7ce"
         active-text-color="#fff">
@@ -78,9 +77,9 @@ export default {
 			req.get(api.getMenuList)
 			.then((response) => {
 				if(response.statusText === 'OK') {
-					console.log('menuList', response.data);
+					//console.log('menuList', response.data);
 					this.menuList = this.formatMenuList(response.data);
-					console.log(1111111, this.menuList);
+					//console.log(1111111, this.menuList);
 				}
 			})
 			.catch((error) => {
@@ -91,7 +90,7 @@ export default {
 			req.get(api.getCategoryList)
 			.then((response) => {
 				if(response.statusText === 'OK') {
-					console.log('catgoryList',response.data);
+					//console.log('catgoryList',response.data);
 					this.categoryList = response.data;
 				}
 			})
@@ -103,7 +102,7 @@ export default {
 			req.get(api.getBoardList)
 			.then((response) => {
 				if(response.statusText === 'OK') {
-					console.log('boardList',response.data);
+					//console.log('boardList',response.data);
 					this.boardList = response.data;
 				}
 			})
@@ -189,18 +188,5 @@ export default {
 .el-menu {
   border-right: none;
 }
-.main-sidebar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding-top: 50px;
-  min-height: 100%;
-  width: 230px;
-  z-index: 810;
-  background-color: #222d32;
-  -webkit-transition: -webkit-transform 0.3s ease-in-out, width 0.3s ease-in-out;
-  -moz-transition: -moz-transform 0.3s ease-in-out, width 0.3s ease-in-out;
-  -o-transition: -o-transform 0.3s ease-in-out, width 0.3s ease-in-out;
-  transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
-}
+
 </style>
