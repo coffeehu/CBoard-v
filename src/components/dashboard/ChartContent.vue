@@ -1,28 +1,8 @@
 <template>
 
-    <div class="box box-solid" style="z-index: 99;">
-        <div class="box-header">
-            <h3 class="box-title">{{ widget.name }}</h3>
-            <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool">
-                	<i class="fa fa-refresh"></i>
-                </button>
-                <button type="button" class="btn btn-box-tool">
-                	<i class="fa fa-wrench"></i>
-                </button>
-                <button type="button" class="btn btn-box-tool">
-                	<i class="fa fa-minus"></i>
-                </button>
-                <button type="button" class="btn btn-box-tool">
-                	<i class="fa fa-square-o"></i>
-                </button>
-            </div>
-        </div>
-
-        <div class="box-body" ref="chart-body" style="padding: 3px 0px 3px 13px;height: 500px">
-        </div>
-
-    </div>
+	<base-box :name="chartName">
+		<div class="box-body" ref="chart-body" :style="boxHeight" style="padding: 3px 0px 3px 13px;"></div>
+	</base-box>
 
 </template>
 
@@ -30,6 +10,7 @@
 import req from '@/utils/http/request';
 import api from '@/utils/http/api';
 import { injectFilter, formatConfig } from '@/utils/dashboardConfig.js';
+import BaseBox from '@/components/BaseBox';
 
 export default {
   name: 'ChartContent',
@@ -37,12 +18,35 @@ export default {
   	widget: {
   		type: Object,
   		required: true
-  	}
+  	},
+  	height: {
+      type: String
+    }
+  },
+  components: {
+  	BaseBox
   },
   mounted() {
-  	//console.log('-------ChartContent, this.data-----------', this.widget);
+
   	const widgetData = this.widget.widget.data;
-  	const format = widgetData.config.values[0].format;
+
+  	this.chartName = this.widget.name;
+  	this.chartType = widgetData.config.chart_type;  // 图表类型，如：line
+  	this.valueAxis = widgetData.config.valueAxis;  // 显示方式，如 vertical--垂直，horizontal --水平
+  	/*
+  		this.valuesConfig 为数组，如 
+  		[{
+  			series_type: 'bar',
+  			type: 'value',
+  			cols: [
+  				{aggregate_type: 'sum', col: 'store_cost', ...}, 
+  				...
+  			],
+  			...
+  		}]
+  	*/
+  	this.valuesConfig = widgetData.config.values;
+
   	const style = this.style = widgetData.config.values[0].style;
 
   	injectFilter(widgetData);
@@ -57,102 +61,225 @@ export default {
 
   	req.post(api.getAggregateData, params)
   		.then(response => {
-  			//console.log('ChartContent response-------------', response);
   			if(response.statusText === 'OK') {
-  				//this.value = this.$numbro(response.data.data[0][0]).format(format);
-  				
   				this.$emit('load-complete');
   				this.$nextTick(()=>{
   					this.renderChart(response.data);	
   				}) 
-  				
   			}
   		})
   		.catch(error => {
 
   		})
   },
+  data() {
+  	return {
+  		chartName: '',
+  		chartType: '',
+  		valueAxis: '',
+  		valuesConfig: ''
+  	}
+  },
+  computed: {
+  	boxHeight() {
+  		if(this.height) {
+  			let height = parseFloat(this.height)+'px';
+  			return {height: height}
+  		}else {
+  			return {'min-height': '250px'}
+  		}  		
+  	}
+  },
   methods: {
+  	addHandler(element, type, handler) {
+		if (element.addEventListener) {
+			element.addEventListener(type, handler, false);
+		}else if (element.attachEvent) {
+			element.attachEvent("on" + type, handler);
+		}else {
+			element["on" + type] = handler;
+		}
+	},
   	renderChart(data) {
-  		//console.log('ChartContent data-------------', data);
   		const chartBody = this.$refs['chart-body'];
   		const chart = this.$echarts.init(chartBody, 'theme-fin1');
-  		//const chart = this.$echarts.init(chartBody);
 
-  		const echartsBasicOption = {
-		    title: {},
-		    grid: {
-		        left: '50',
-		        right: '20',
-		        bottom: '15%',
-		        top: '15%',
-		        containLabel: false
-		    },
-		    tooltip: {
-		        trigger: 'axis'
-		    },
-		    legend: {
-		        x: 'left',
-		        itemWidth: 15,
-		        itemHeight: 10,
-		        data: ['test']
-		    },
-		    xAxis: {
+  		const option = this.createOption(data);
 
-		    },
-		    yAxis: {
-
-		    },
-		    series: [{
-		    	name: 'test',
-				type: 'bar'
-		    }]
-		};
-
-		const dataArr = data.data;
-		let xAxisData = [];
-		let seriesData = [];
-		for(let i=0,l=dataArr.length; i<l; i++) {
-			xAxisData.push(dataArr[i][0]);
-			seriesData.push(dataArr[i][1]);
+		chart.setOption(option);
+		chartBody.name = this.widget.name;
+		chartBody.onresize = function(){
+			alert(chartBody.name)
 		}
-		echartsBasicOption.xAxis.data = xAxisData;
-		echartsBasicOption.series[0].data = seriesData;
-		//console.log('-----------echartsBasicOption-----------', echartsBasicOption)
+		/*chartBody.onresize = function() {
+			chart.resize();
+		}*/
+		this.addHandler(window, 'resize', function() {
+			chart.resize();
+		})
+  	},
+  	createOption(data) {
+  		switch(this.chartType) {
+  			case 'line':
+  				return this.createLineOption(data);
+  			case 'pie':
+  				return this.createPieOption(data);
+  			default:
+  				return {};
+  		}
+  	},
+  	createLineOption(data) {
+  		const aggType = this.valuesConfig[0].cols[0].aggregate_type;
+  		const dataArr = data.data;
+  		const columnList = data.columnList;
+		let nameData = [];
+		let seriesData = [];
+		let seriesDataIndex = -1;
+		let nameDataIndex = [];
+		for(let i=0,l=columnList.length; i<l; i++) {
+			if(columnList[i].aggType === aggType) {
+				seriesDataIndex = columnList[i].index;
+			}else if(columnList[i].aggType === null) {
+				nameDataIndex.push(columnList[i].index);
+			}
+		}
 
-		 var option = {
+		for(let i=0,l=dataArr.length; i<l; i++) {
+			let nameDataItem = [];
+			for(let j=0,l=nameDataIndex.length; j<l; j++) {
+				let nameDataItemIndex = nameDataIndex[j];
+				nameDataItem.push( dataArr[i][nameDataItemIndex] );
+			}
+			nameData.push( nameDataItem.join('-') );
+
+			seriesData.push(dataArr[i][seriesDataIndex]);
+		}
+
+  		const xAxis = {};
+  		const yAxis = {};
+  		if(this.valueAxis === 'vertical') {
+  			yAxis.type = 'value';
+  			xAxis.type = 'category';
+  			xAxis.data = nameData;
+  		} else if(this.valueAxis === 'horizontal') {
+  			xAxis.type = 'value';
+  			yAxis.type = 'category';
+  			yAxis.data = nameData;
+  		}
+
+		const legend = [];
+		const series = [];
+		for(let i=0,l=this.valuesConfig.length; i<l; i++) {
+			let type = this.valuesConfig[i].series_type;
+			type = type || this.chartType;
+			if(type === 'percentbar') {
+				type = 'bar';
+			}
+			const seriesItem = {
+				name: this.valuesConfig[i].cols[0].col,
+                type: type,
+				barMaxWidth: 40,
+                valueAxisIndex: 0,
+                yAxisIndex: 0,
+                data: []
+			}
+			series.push(seriesItem);
+			legend.push(this.valuesConfig[i].cols[0].col);
+		}
+
+		for(let i=0,l=series.length; i<l; i++) {
+			series[i].data = seriesData;
+		}
+
+		const option = {
             title: {
             },
             tooltip: {
             	trigger: 'axis'
             },
             grid: {
-		        left: '50',
+		        left: '0',
 		        right: '20',
 		        bottom: '15%',
 		        top: '15%',
-		        containLabel: false
+		        containLabel: true
 		    },
             legend: {
-                data:['test']
+                data: legend
             },
-            xAxis: {
+            /*xAxis: {
                 data: xAxisData,
                 boundaryGap: true,
                 type: 'category'
-            },
-            yAxis: {},
-            series: [{
-                name: 'test',
-                type: 'bar',
-				barMaxWidth: 40,
-                valueAxisIndex: 0,
-                yAxisIndex: 0,
-                data: seriesData
-            }]
+            },*/
+            xAxis: xAxis,
+            yAxis: yAxis,
+            series: series
         };
 
-		chart.setOption(option);
+        return option;
+  	},
+  	createPieOption(data) {
+  		const aggType = this.valuesConfig[0].cols[0].aggregate_type;
+  		const dataArr = data.data;
+  		const columnList = data.columnList;
+		let nameData = [];
+		let seriesData = [];
+		let seriesDataIndex = -1;
+		let nameDataIndex = [];
+		for(let i=0,l=columnList.length; i<l; i++) {
+			if(columnList[i].aggType === aggType) {
+				seriesDataIndex = columnList[i].index;
+			}else if(columnList[i].aggType === null) {
+				nameDataIndex.push(columnList[i].index);
+			}
+		}
+
+		for(let i=0,l=dataArr.length; i<l; i++) {
+			let nameDataItem = [];
+			for(let j=0,l=nameDataIndex.length; j<l; j++) {
+				let nameDataItemIndex = nameDataIndex[j];
+				nameDataItem.push( dataArr[i][nameDataItemIndex] );
+			}
+			nameData.push( nameDataItem.join('-') );
+
+			seriesData.push({
+				name: nameDataItem.join('-'),
+				value: dataArr[i][seriesDataIndex]
+			});
+		}
+
+		const series = [];
+		for(let i=0,l=this.valuesConfig.length; i<l; i++) {
+			let type = this.valuesConfig[i].series_type;
+			type = type || this.chartType;
+
+			const seriesItem = {
+				name: nameData[i],
+                type: type,
+				center: ['50%', '50%'],
+  				itemStyle: {},
+                data: []
+			}
+			series.push(seriesItem);
+		}
+
+		for(let i=0,l=series.length; i<l; i++) {
+			series[i].data = seriesData;
+		}
+
+  		const option = {
+  			toolbox: false,
+  			tooltip: {
+  				trigger: 'item',
+  				format: '{a} <br/>{b} : {c} ({d}%)'
+  			},
+  			legend: {
+  				data: nameData
+  			},
+  			series: series
+  		};
+  		return option;
   	}
   }
 }

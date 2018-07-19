@@ -13,7 +13,7 @@
 
       <el-menu
         router
-        default-active="2"
+        :default-active="$route.path"
         background-color="#222d32"
         text-color="#b8c7ce"
         active-text-color="#fff">

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-for="widget in widgetData" :class="'col-md-'+widget.width">
-      <component v-show="loadComplete" @load-complete="test" :is="currentComponent(widget)" :widget="widget"></component>
+      <component v-show="loadComplete" @load-complete="handlerComplete" :is="currentComponent(widget)" :widget="widget" :height="height"></component>
 
       <!-- loading 动画框 -->
       <div v-if="!loadComplete" class="box box-solid">
@@ -22,10 +22,20 @@
 <script>
 import KpiContent from '@/components/dashboard/KpiContent';
 import ChartContent from '@/components/dashboard/ChartContent';
+import TableContent from '@/components/dashboard/TableContent';
+import MapContent from '@/components/dashboard/MapContent';
 
 export default {
   name: 'DashboardWidget',
-  props: ['widgetData'],
+  props: {
+    widgetData: {
+      type: Array,
+      required: true
+    },
+    height: {
+      type: String
+    }
+  },
   mounted() {
     //console.log('==============================DashboardWidget data', this.widgetData);
   },
@@ -39,11 +49,15 @@ export default {
       switch(widget.widget.data.config.chart_type) {
         case 'kpi':
           return KpiContent;
+        case 'table':
+          return TableContent;
+        case 'map':
+          return MapContent;
         default: 
           return ChartContent;
       }
     },
-    test() {
+    handlerComplete() {
       this.loadComplete = true;
     }
   },

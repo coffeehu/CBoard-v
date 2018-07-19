@@ -27,7 +27,7 @@ export default new Router({
       path: '/config',
       component: Layout,
       children: [{
-        path: ':id',
+        path: 'board/:id',
         component: Test
       }]
     }

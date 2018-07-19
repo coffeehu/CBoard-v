@@ -22,14 +22,9 @@ a:hover {
 body {
   font-size: 13px;
 }
-.pull-left {
-  float: left !important;
-}
-
-.main-footer {
-  background: #fff;
-  padding: 15px;
-  color: #444;
-  border-top: 1px solid #d2d6de;
+#app {
+  /*position: relative;
+  height: 100%;*/
+  min-height: 100%;
 }
 </style>

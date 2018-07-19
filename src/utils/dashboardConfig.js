@@ -1,3 +1,7 @@
+/*
+    格式化 cfg 字段
+*/
+
 export function injectFilter(widget) {
     const boardFilters = [];
     /*if($scope.widgetFilters[widget.id] !== undefined){
@@ -73,7 +77,7 @@ function getDataSeries(config) {
             series.forEach(function (s) {
                 let isRepeat = false;
                 for(let i=0,l=result.length; i<l; i++) {
-                	if(JSON.stringify(r) === JSON.stringify(s)) {
+                	if(JSON.stringify(result[i]) === JSON.stringify(s)) {
                 		isRepeat = true;
                 		break;
                 	}
