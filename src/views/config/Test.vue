@@ -1,15 +1,15 @@
 <template>
-  <div>
-    testsettset
-  </div>
+    <div>
+       Test
+    </div>
 </template>
 
 <script>
 export default {
-  name: 'Test'
+  name: 'Test',
 }
 </script>
 
-<style>
+<style scoped>
 
 </style>

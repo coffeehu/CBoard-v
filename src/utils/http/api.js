@@ -7,12 +7,17 @@ const api = {
 	getMenuList: baseurl + 'commons/getMenuList.do',
 	getCategoryList: baseurl + 'dashboard/getCategoryList.do',
 
+	/*############### dashboard ##################*/
 	//dashboard 页面数据
 	getBoardList: baseurl + 'dashboard/getBoardList.do',
 	getBoardData: baseurl + 'dashboard/getBoardData.do',
 
-	//widget 的数据
+	//widget 的具体数据
 	getAggregateData: baseurl + 'dashboard/getAggregateData.do',
+
+	/*############### config ##################*/
+	getDatasetList: baseurl + 'dashboard/getDatasetList.do',
+	getWidgetList: baseurl + 'dashboard/getWidgetList.do',
 
 
 }

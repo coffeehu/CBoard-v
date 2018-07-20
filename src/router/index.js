@@ -2,7 +2,8 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Layout from '@/views/layout/Layout';
 import Dashboard from '@/views/dashboard/Dashboard';
-import Test from '@/views/Test';
+import BoardConfig from '@/views/config/BoardConfig';
+import Test from '@/views/config/Test';
 
 Vue.use(Router)
 
@@ -18,7 +19,7 @@ export default new Router({
       path: '/dashboard',
       component: Layout,
       children: [{
-        path: ':id/:id',
+        path: ':name/:id',
         component: Dashboard
       }]
     },
@@ -26,10 +27,20 @@ export default new Router({
     {
       path: '/config',
       component: Layout,
-      children: [{
-        path: 'board/:id',
-        component: Test
-      }]
+
+      children: [
+        {
+          path: 'board',
+          component: BoardConfig,
+          children: [
+            {
+              path: ':id',
+              component: Test
+            }
+          ]
+        }
+      ]
+      
     }
 
 

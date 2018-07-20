@@ -45,9 +45,10 @@ export default {
     }
   },
   methods: {
+    //跳转到配置页面
     editDashBorad() {
-        //let id = this.$route.parmas.id;
-        this.$router.push({ path: `/config/board/1` }) // -> /user/123
+        let id = this.$route.params.id;
+        this.$router.push({ path: `/config/board/${id}` }) 
     }
   }
 }
@@ -61,7 +62,7 @@ export default {
     display: inline-block;
 }
 .content-header > .breadcrumb {
-    position: relative!important;
+    position: static!important;
     padding-right: 0px!important;
 }
 .m-breadcrumb-item {

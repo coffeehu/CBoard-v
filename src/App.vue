@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="wrapper skin-blue">
-    <router-view/>
+    <router-view />
   </div>
 </template>
 

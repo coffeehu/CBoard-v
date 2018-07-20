@@ -55,61 +55,30 @@
 </template>
 
 <script>
-import req from '@/utils/http/request';
-import api from '@/utils/http/api';
-
 export default {
 	name: 'MainSider',
-	mounted() {
-		this.getMenuList();
-		this.getCategoryList();
-		this.getBoardList();
-	},
+  created() {
+    this.$store.dispatch('menu/getCategoryList');
+    this.$store.dispatch('menu/getBoardList');
+    this.$store.dispatch('menu/getMenuList');
+  },
+  computed: {
+    menuList() {
+      return this.$store.state.menu.menuList;
+    },
+    categoryList() {
+      return this.$store.state.menu.categoryList;
+    },
+    boardList() {
+      return this.$store.state.menu.boardList;
+    },
+  },
 	data() {
 		return {
-			menuList: [],
-			categoryList: [],
-			boardList: []
+			
 		};
 	},
 	methods: {
-		getMenuList() {
-			req.get(api.getMenuList)
-			.then((response) => {
-				if(response.statusText === 'OK') {
-					//console.log('menuList', response.data);
-					this.menuList = this.formatMenuList(response.data);
-					//console.log(1111111, this.menuList);
-				}
-			})
-			.catch((error) => {
-				console.log(error)
-			});
-		},
-		getCategoryList() {
-			req.get(api.getCategoryList)
-			.then((response) => {
-				if(response.statusText === 'OK') {
-					//console.log('catgoryList',response.data);
-					this.categoryList = response.data;
-				}
-			})
-			.catch((error) => {
-				console.log(error)
-			});
-		},
-		getBoardList() {
-			req.get(api.getBoardList)
-			.then((response) => {
-				if(response.statusText === 'OK') {
-					//console.log('boardList',response.data);
-					this.boardList = response.data;
-				}
-			})
-			.catch((error) => {
-				console.log(error)
-			});
-		},
 		hasChildren(category) {
 			for(let i=0,l=this.boardList.length; i<l; i++){
 				if(category.id === this.boardList[i].categoryId) return true;
@@ -118,24 +87,6 @@ export default {
 		},
 		inTheCategory(categoryId, board) {
 			return categoryId === board.categoryId;
-		},
-		formatMenuList(data) {
-			let menuData = [];
-			for(let i=0,l=data.length; i<l; i++) {
-				let itemData = data[i];
-				if(itemData.parentId === -1) {
-					itemData.children = [];
-					menuData.push(itemData);
-				}else {
-					for(let j=0,len=data.length; j<len; j++) {
-						if(itemData.parentId === data[j].menuId) {
-							data[j].children.push(itemData);
-							break;
-						}
-					}
-				}
-			}
-			return menuData;
 		},
     formatRouteByMenuCode(menuCode) {
       const menuCodeArr = menuCode.split('.');
