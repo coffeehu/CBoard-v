@@ -23,7 +23,13 @@ export default {
     DashboardWidget,
     DashboardHeader
   },
+  beforeRouteUpdate(to, from, next) {
+    this.$emit('test');
+    next();
+  },
   mounted() {
+    this.$emit('test');
+    //alert('emit it')
   	console.log('==========grid============', this.$store.state.dashboard)
     this.dashboardTitle = this.$store.state.dashboard.boardData.name;
   },
@@ -37,6 +43,9 @@ export default {
     return {
       dashboardTitle: ''
     }
+  },
+  destroyed() {
+
   }
 }
 </script>

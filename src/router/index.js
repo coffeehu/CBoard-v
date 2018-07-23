@@ -23,11 +23,24 @@ export default new Router({
         component: Dashboard
       }]
     },
+    
+    /*{
+      path: '/dashboard',
+      component: Layout,
+      children: [{
+        path: ':name',
+        component: Dashboard,
+        children: [
+          {
+            path: ':id'
+          }
+        ]
+      }]
+    },*/
 
     {
       path: '/config',
       component: Layout,
-
       children: [
         {
           path: 'board',

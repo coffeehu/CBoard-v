@@ -28,10 +28,7 @@
             <div class="col-md-9">
                 <div class="box">
                     <div class="box-header with-border">
-                        <h3 class="box-title">test</h3>
-                        <!-- <div class="box-tools pull-right">
-                            <span class="label label-info" style="cursor:pointer">Edit</span>
-                        </div> -->
+                        <h3 class="box-title">{{ name }}</h3>
                     </div>
                     <div class="box-body">
                         <!-- 按钮栏 -->
@@ -54,14 +51,13 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Category</label>
-                                    <!-- <select class="form-control" ng-model="curBoard.categoryId"
-                                            ng-options="w.id as w.name for w in categoryList"></select> -->
-                                    <el-select v-model="value" placeholder="请选择" class="board-config--select">
+                                    <el-select v-model="category" placeholder="请选择" class="board-config--select">
                                         <el-option
-                                          v-for="item in options"
-                                          :key="item.value"
-                                          :label="item.label"
-                                          :value="item.value">
+                                          v-for="item in categoryList"
+                                          :key="item.id"
+                                          :label="item.name"
+                                          :value="item.id"
+                                          :value-key="item.id">
                                         </el-option>
                                     </el-select>
                                 </div>
@@ -74,7 +70,7 @@
                                 <div class="form-group" ng-class="{'has-error': !(verify.boardName || curBoard.name.length)}">
                                     <label>Name</label>
                                     <!-- <input id="BoardName" ng-model="curBoard.name" class="form-control"/> -->
-                                    <el-input v-model="input" placeholder="请输入内容" class="board-config--input"></el-input>
+                                    <el-input v-model="name" placeholder="请输入内容" class="board-config--input"></el-input>
                                 </div>
                             </div>
                         </div>
@@ -112,73 +108,91 @@ export default {
         WidgetConfigRow
     },
     created() {
-        this.$store.dispatch('menu/getCategoryList');
-        this.$store.dispatch('menu/getBoardList');
-        this.$store.dispatch('config/getWidgetList');
-        this.$store.dispatch('config/getDatasetList');
+      this.$store.dispatch('menu/getCategoryList');
+      this.$store.dispatch('menu/getBoardList');
+      this.$store.dispatch('config/getWidgetList');
+      this.$store.dispatch('config/getDatasetList');
+    },
+    mounted() {
     },
     computed: {
-        categoryList() {
-          return this.$store.state.menu.categoryList;
-        },
-        boardList() {
-          return this.$store.state.menu.boardList;
-        },
-        treeData() {
-            let treeData = [];
-            for(let i=0,l=this.categoryList.length; i<l; i++) {
-                let category = this.categoryList[i];
-                let item = {
-                    label: category.name,
-                    id: category.id,
-                    children: []
-                };
-                treeData.push(item);
-                for(let j=0,len=this.boardList.length; j<len; j++) {
-                    let board = this.boardList[j];
-                    if(item.id === board.categoryId) {
-                        let childItem = {
-                            label: board.name,
-                            id: board.id
-                        }
-                        item.children.push(childItem);
-                    }
-                }
-            }
-            return treeData;
-        },
-        rows() {
-            const id = parseInt(this.$route.params.id);
-            for(let i=0,l=this.boardList.length; i<l; i++) {
-                if(this.boardList[i].id === id) {
-                    return this.boardList[i].layout.rows;
-                }
-            }
-            return [];
+      categoryList() {
+        return this.$store.state.menu.categoryList;
+      },
+      boardList() {
+        return this.$store.state.menu.boardList;
+      },
+      treeData() {
+          let treeData = [];
+          for(let i=0,l=this.categoryList.length; i<l; i++) {
+              let category = this.categoryList[i];
+              let item = {
+                  label: category.name,
+                  id: category.id,
+                  children: []
+              };
+              treeData.push(item);
+              for(let j=0,len=this.boardList.length; j<len; j++) {
+                  let board = this.boardList[j];
+                  if(item.id === board.categoryId) {
+                      let childItem = {
+                          label: board.name,
+                          id: board.id
+                      }
+                      item.children.push(childItem);
+                  }
+              }
+          }
+          return treeData;
+      },
+      board() {
+          const id = parseInt(this.$route.params.id);
+          for(let i=0,l=this.boardList.length; i<l; i++) {
+              if(this.boardList[i].id === id) {
+                  return this.boardList[i];
+              }
+          }
+          return null;
+      },
+      rows() {
+        if(this.board) {
+          return this.board.layout.rows;
         }
+        return [];
+      },
+      category: {
+        get() {
+          if(this.categoryId) {
+            return this.categoryId;
+          }
+          if(this.board) {
+            return this.board.categoryId;
+          }
+          return '';
+        },
+        set(value) {
+          this.categoryId = value;
+        }
+      },
+      name: {
+        get() {
+          if(this.mName) {
+            return this.mName;
+          } else if(this.board) {
+            return this.board.name;
+          } else {
+            return '';
+          }
+        },
+        set(value) {
+          this.mName = value;
+        }
+      }
     },
     data() {
         return {
-            options: [
-                {
-                  value: '选项1',
-                  label: '黄金糕'
-                }, {
-                  value: '选项2',
-                  label: '双皮奶'
-                }, {
-                  value: '选项3',
-                  label: '蚵仔煎'
-                }, {
-                  value: '选项4',
-                  label: '龙须面'
-                }, {
-                  value: '选项5',
-                  label: '北京烤鸭'
-                }
-            ],
-            value: '',
-            input: ''
+            categoryId: '',
+            mName: '',
         }
     },
     methods: {

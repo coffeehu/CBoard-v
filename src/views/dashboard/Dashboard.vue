@@ -1,6 +1,7 @@
 <template>
   <div>
-    <component :is="currentComponent" ></component>
+    <component :is="currentComponent" @test="handlerTest" v-show="!loading" ></component>
+    <div v-if="loading">Loading...{{loading}}</div>
   </div>
 </template>
 
@@ -13,6 +14,8 @@ import api from '@/utils/http/api';
 export default {
   name: 'Dashboard',
   mounted() {
+    this.loading = true;
+    //alert('mounted set loading')
     this.$store.dispatch('dashboard/getBoardData', this.$route.params.id);
   },
   watch: {
@@ -24,6 +27,8 @@ export default {
   },
   computed: {
   	currentComponent: function() {
+      this.loading = true;
+      //alert('is component set loading')
       const type = this.$store.state.dashboard.type;
       if(type === 'timeline') {
         return Timeline;
@@ -33,11 +38,14 @@ export default {
   },
   data () {
     return {
-
+      loading: true
     }
   },
   methods: {
-    
+    handlerTest() {
+      this.loading = false;
+      //alert('complete loading')
+    }
   }
 }
 </script>

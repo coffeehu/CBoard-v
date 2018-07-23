@@ -22,16 +22,7 @@
             </div>
             <div class="form-group">
                 <label>Widget</label>
-                <!-- <ui-select ng-model="widget.widgetId" ng-init="changeSourceCol(widget, widget.widgetId)" ng-change="changeSourceCol(widget, $select.selected.id)" on-select="widget.name = $item.name">
-                    <ui-select-match>
-                        {{$select.selected.name}} ({{$select.selected.dataset}})
-                    </ui-select-match>
-                    <ui-select-choices group-by="widgetGroup"
-                                       repeat="w.id as w in widgetList | filter:{name : $select.search}">
-                        {{w.name + "(" + w.dataset + ")"}}
-                    </ui-select-choices>
-                </ui-select> -->
-                <el-select v-model="value7" placeholder="请选择" class="board-config--select">
+                <el-select v-model="widgetId" placeholder="请选择" class="board-config--select">
                   <el-option-group
                     v-for="group in selectData"
                     :key="group.label"
@@ -64,9 +55,9 @@ export default {
   },
   created() {
     //console.log('-----widgetData----', this.widgetData);
-    console.log('--------col------------', this.$store.state.config);
     this.colWidth = this.widgetData.width;
     this.colName = this.widgetData.name;
+    this.widgetId = this.widgetData.widgetId;
   },
   computed: {
     widgetList() {
@@ -75,51 +66,14 @@ export default {
     datasetList() {
       return this.$store.state.config.datasetList;
     },
-    selectData() {
+   /*
+      注意1、下拉框显示的值如： KPI1(foodmart_sample)，需要手动拼接；
+      KPI1 为 widget.name,
+      括号里的值为 widget 对应的 dataset.name，
+      getWidgetList.do 中得到 widget.data.datasetId，
+      getDatasetList.do 获得所有的 dataset 类型
 
-      let selectData = [];
-      for(let i=0,l=this.widgetList.length; i<l; i++) {
-        let widget = this.widgetList[i];
-
-        for(let k=0,leng=this.datasetList.length; k<leng; k++) {
-          let dataset = this.datasetList[k];
-          if(dataset.id === widget.data.datasetId) {
-            widget.name = widget.name + '('+ dataset.name +')';
-          }
-        }
-
-        let isExist = false;
-        for(let j=0,len=selectData.length; j<len; j++) {
-          if(selectData[j].label === widget.categoryName) {
-            isExist = true;
-            selectData[j].options.push({
-              label: widget.name,
-              value: widget.id
-            });
-          }
-        }
-
-        if(!isExist) {
-          let item = {
-            label: widget.categoryName,
-            options: []
-          };
-          item.options.push({
-            label: widget.name,
-            value: widget.id
-          });
-          selectData.push(item);
-        }
-
-      }
-      console.log('selectData', selectData);
-      return selectData;
-    }
-  },
-  data() {
-    return {
-      colName: '',
-      colWidth: 0,
+      注意2、selectData 的格式如下：
       options3: [
         {
           label: '热门城市',
@@ -135,7 +89,7 @@ export default {
           ]
         }, 
         {
-          label: '城市名',
+          label: '冷门城市',
           options: [
             {
               value: 'Chengdu',
@@ -144,20 +98,61 @@ export default {
             {
               value: 'Shenzhen',
               label: '深圳'
-            }, 
-            {
-              value: 'Guangzhou',
-              label: '广州'
-            }, 
-            {
-              value: 'Dalian',
-              label: '大连'
             }
           ]
         }
-      ],
-      value7: '',
-      input: ''
+      ]
+    */
+    selectData() {
+      let selectData = [];
+      for(let i=0,l=this.widgetList.length; i<l; i++) {
+        let widget = this.widgetList[i];
+
+        for(let k=0,leng=this.datasetList.length; k<leng; k++) {
+          let dataset = this.datasetList[k];
+          if(dataset.id === widget.data.datasetId) {
+            widget.showName = widget.name + '('+ dataset.name +')';
+          }
+        }
+
+        // 没有 datasetId 的时候
+        if(!widget.data.datasetId) {
+          widget.showName = widget.name + '(Query)';          
+        }
+
+        let isExist = false;
+        for(let j=0,len=selectData.length; j<len; j++) {
+          if(selectData[j].label === widget.categoryName) {
+            isExist = true;
+            selectData[j].options.push({
+              label: widget.showName,
+              value: widget.id
+            });
+          }
+        }
+
+        if(!isExist) {
+          let item = {
+            label: widget.categoryName,
+            options: []
+          };
+          item.options.push({
+            label: widget.showName,
+            value: widget.id
+          });
+          selectData.push(item);
+        }
+
+      }
+      return selectData;
+    }
+  },
+  data() {
+    return {
+      colName: '',
+      colWidth: 0,
+      input: '',
+      widgetId: ''
     }
   }
 }

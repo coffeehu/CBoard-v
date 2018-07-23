@@ -12,8 +12,9 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
         '/api':{
-            //target:'http://localhost:9090/cboard',
-            target: 'http://172.17.6.6:10086',
+            //target:'http://localhost:9090/cboard/',
+            //target: 'http://172.17.6.6:10086',
+            target: 'http://www.hcbook.cc/cboard',
             changeOrigin:true,
             pathRewrite:{
                 '^/api':'/'

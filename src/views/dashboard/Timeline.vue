@@ -7,6 +7,9 @@
 <script>
 export default {
   name: 'TimeLine',
+  mounted() {
+  	this.$emit('test');
+  },
   data () {
     return {
 
