@@ -24,19 +24,6 @@ export default new Router({
       }]
     },
     
-    /*{
-      path: '/dashboard',
-      component: Layout,
-      children: [{
-        path: ':name',
-        component: Dashboard,
-        children: [
-          {
-            path: ':id'
-          }
-        ]
-      }]
-    },*/
 
     {
       path: '/config',

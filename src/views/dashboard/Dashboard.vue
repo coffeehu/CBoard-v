@@ -1,7 +1,6 @@
 <template>
   <div>
-    <component :is="currentComponent" @test="handlerTest" v-show="!loading" ></component>
-    <div v-if="loading">Loading...{{loading}}</div>
+    <component :is="currentComponent"></component>
   </div>
 </template>
 
@@ -13,39 +12,39 @@ import api from '@/utils/http/api';
 
 export default {
   name: 'Dashboard',
-  mounted() {
-    this.loading = true;
-    //alert('mounted set loading')
-    this.$store.dispatch('dashboard/getBoardData', this.$route.params.id);
+  created() {
+      this.$store.dispatch('dashboard/getBoardData', this.$route.params.id);
   },
   watch: {
     '$route' (to, from) {
-      /*const id = to.params.id;
-      this.getBoardData(id);*/
       this.$store.dispatch('dashboard/getBoardData', this.$route.params.id);
     }
   },
   computed: {
   	currentComponent: function() {
-      this.loading = true;
-      //alert('is component set loading')
+      if(!this.$store.state.dashboard.complete) return null;
       const type = this.$store.state.dashboard.type;
       if(type === 'timeline') {
         return Timeline;
       }
   		return Grid;
-  	}
+  	},
+    type() {
+      return this.$store.state.dashboard.type;
+    }
+  },
+  methods: {
+    test() {
+      return Timeline;
+    },
   },
   data () {
     return {
       loading: true
     }
   },
-  methods: {
-    handlerTest() {
-      this.loading = false;
-      //alert('complete loading')
-    }
+  destroyed() {
+    this.$store.commit('dashboard/reset');  // 将 complete 置为 false，不这样做的话 vuex 会缓存数据，也就是说会一直保持 true
   }
 }
 </script>

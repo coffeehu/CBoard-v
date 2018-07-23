@@ -3,7 +3,8 @@ import api from '@/utils/http/api';
 
 const state = {
   type: '',
-  boardData: []
+  boardData: [],
+  complete: false //请求状态，true 表示请求完成
 }
 
 
@@ -34,7 +35,11 @@ const mutations = {
   setBoardData(state, payload) {
     state.type = payload.type;
     state.boardData = payload.boardData;
+    state.complete = true;
   },
+  reset(state) {
+    state.complete = false;
+  }
 }
 
 
