@@ -1,12 +1,12 @@
 <template>
     <div>
-       Test
+       Datasource config
     </div>
 </template>
 
 <script>
 export default {
-  name: 'Test',
+  name: 'DatasourceConfig',
 }
 </script>
 

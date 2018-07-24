@@ -18,6 +18,8 @@ const api = {
 	/*############### config ##################*/
 	getDatasetList: baseurl + 'dashboard/getDatasetList.do',
 	getWidgetList: baseurl + 'dashboard/getWidgetList.do',
+	//保存
+	updateBoard: baseurl + 'dashboard/updateBoard.do',
 
 
 }

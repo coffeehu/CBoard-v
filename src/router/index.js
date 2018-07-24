@@ -3,7 +3,7 @@ import Router from 'vue-router';
 import Layout from '@/views/layout/Layout';
 import Dashboard from '@/views/dashboard/Dashboard';
 import BoardConfig from '@/views/config/BoardConfig';
-import Test from '@/views/config/Test';
+import BoardConfigContent from '@/views/config/BoardConfigContent';
 
 Vue.use(Router)
 
@@ -30,18 +30,17 @@ export default new Router({
       component: Layout,
       children: [
         {
-          path: 'board',
+          path: 'board/:id',
           component: BoardConfig,
-          children: [
+          /*children: [
             {
               path: ':id',
-              component: Test
+              component: BoardConfigContent
             }
-          ]
+          ]*/
         }
       ]
-      
-    }
+    },
 
 
   ]

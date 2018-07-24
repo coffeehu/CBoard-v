@@ -1,28 +1,36 @@
 <template>
 
-  <div :class="'col-md-' + colWidth">
+  <div :class="'col-md-' + mWidth" style="min-width:150px">
     <div class="box box-primary" style="border-left: 1px solid #d2d6de; border-right: 1px solid #d2d6de">
         <div class="box-header" style="cursor:move">
-            {{ widgetData.name }}
+            {{ widget.name }}
             <div class="box-tools pull-right">
                 <button type="button" class="btn btn-box-tool"><i class="fa fa-link"></i></button>
                 <button type="button" class="btn btn-box-tool"><i class="fa fa-unlink"></i></button>
                 <button type="button" class="btn btn-box-tool"><i class="fa fa-wrench"></i></button>
-                <button type="button" class="btn btn-box-tool"><i class="fa fa-times"></i></button>
+                <button type="button" class="btn btn-box-tool" @click="removeCol"><i class="fa fa-times"></i></button>
             </div>
         </div>
         <div class="box-body">
             <div class="form-group">
                 <label>Name</label>
-                <el-input v-model="colName" placeholder="请输入内容" class="board-config--input"></el-input>
+                <el-input v-model="widget.name" placeholder="请输入内容" class="board-config--input"></el-input>
             </div>
             <div class="form-group">
                 <label>Width(1-12)</label>
-                <el-input v-model="colWidth" placeholder="请输入内容" class="board-config--input"></el-input>
+                <el-input 
+                  v-model="widget.width" 
+                  @blur="widthBlurHandler"
+                  placeholder="请输入内容" 
+                  class="board-config--input"></el-input>
             </div>
             <div class="form-group">
                 <label>Widget</label>
-                <el-select v-model="widgetId" placeholder="请选择" class="board-config--select">
+                <el-select 
+                  v-model="widget.widgetId" 
+                  @change="selectChangeHandler" 
+                  placeholder="请选择" 
+                  class="board-config--select">
                   <el-option-group
                     v-for="group in selectData"
                     :key="group.label"
@@ -51,25 +59,40 @@ export default {
     widgetData: {
       type: Object,
       required: true
+    },
+    index: {
+      type: Number
     }
   },
   created() {
-    //console.log('-----widgetData----', this.widgetData);
-    this.colWidth = this.widgetData.width;
-    this.colName = this.widgetData.name;
-    this.widgetId = this.widgetData.widgetId;
+    this.widget = this.widgetData;
+    // 宽度 this.widget.width
+    // Name: this.widget.name
+    // widgetId: this.widget.widgetId
+    this.mWidth = this.widget.width;
   },
   computed: {
+    // 列宽度样式，如 'col-md-6'
+    colClass() {
+      if(this.widget.width < 0) {
+        this.widget.width = 0;
+      }else if(this.widget.width > 12) {
+        this.widget.width = 12;
+      }
+      return 'col-md-' + this.widget.width;
+    },
+    // 所有的 wdget 类型，用于展示下拉框数据
     widgetList() {
       return this.$store.state.config.widgetList;
     },
+    // 所有的 dataset 类型，用于展示下拉框数据
     datasetList() {
       return this.$store.state.config.datasetList;
     },
    /*
       注意1、下拉框显示的值如： KPI1(foodmart_sample)，需要手动拼接；
       KPI1 为 widget.name,
-      括号里的值为 widget 对应的 dataset.name，
+      括号里的值 (foodmart_sample) 为改 widget 对应的 dataset.name，
       getWidgetList.do 中得到 widget.data.datasetId，
       getDatasetList.do 获得所有的 dataset 类型
 
@@ -149,10 +172,30 @@ export default {
   },
   data() {
     return {
-      colName: '',
-      colWidth: 0,
-      input: '',
-      widgetId: ''
+      widget: {},
+      mWidth: '3' // 行的宽度
+    }
+  },
+  methods: {
+    //删除列
+    removeCol() {
+      this.$emit('remove-col', this.index);
+    },
+    selectChangeHandler(value) {
+      console.log(value)
+      for(let i=0,l=this.widgetList.length; i<l; i++) {
+        let widget = this.widgetList[i];
+        if(widget.id === value) {
+          this.widget.name = widget.name;
+          this.widgetId = this.widget.widgetId = widget.id;
+          break;
+        }
+      }
+    },
+    widthBlurHandler() {
+      if(this.widget.width < 1) this.widget.width = 1;
+      if(this.widget.width > 12) this.widget.width = 12;
+      this.mWidth = this.widget.width;
     }
   }
 }

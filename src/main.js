@@ -13,11 +13,15 @@ import 'font-awesome/css/font-awesome.min.css';
 import store from './store';
 import numbro from 'numbro';
 import './utils/initEcharts.js';
+import req from '@/utils/http/request';
+import api from '@/utils/http/api';
 
 Vue.config.productionTip = false;
 Vue.prototype.$numbro = numbro;
 
 Vue.use(ElementUI);
+Vue.prototype.$req = req;
+Vue.prototype.$api = api;
 
 new Vue({
   el: '#app',

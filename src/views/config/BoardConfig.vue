@@ -25,74 +25,8 @@
             </div>
 
             <!-- 配置面板 -->
-            <div class="col-md-9">
-                <div class="box">
-                    <div class="box-header with-border">
-                        <h3 class="box-title">{{ name }}</h3>
-                    </div>
-                    <div class="box-body">
-                        <!-- 按钮栏 -->
-                        <div class="row">
-                            <div class="col-md-12">
-                                 <div class="form-group">
-                                    <button type="submit" class="btn btn-danger pull-right">Cancel</button>
-                                    <a class="btn btn-success pull-right" target="_blank"
-                                            style="margin-right: 5px; color: #fff">Preview
-                                    </a>
-                                    <button type="submit" class="btn btn-success pull-right"
-                                            style="margin-right: 5px">Save
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Category 下拉框 -->
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label>Category</label>
-                                    <el-select v-model="category" placeholder="请选择" class="board-config--select">
-                                        <el-option
-                                          v-for="item in categoryList"
-                                          :key="item.id"
-                                          :label="item.name"
-                                          :value="item.id"
-                                          :value-key="item.id">
-                                        </el-option>
-                                    </el-select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Name 输入框 -->
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group" ng-class="{'has-error': !(verify.boardName || curBoard.name.length)}">
-                                    <label>Name</label>
-                                    <!-- <input id="BoardName" ng-model="curBoard.name" class="form-control"/> -->
-                                    <el-input v-model="name" placeholder="请输入内容" class="board-config--input"></el-input>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 新增行按钮栏 -->
-                        <div class="row">
-                            <div class="form-group" style="margin: 5px 15px;">
-                                <button type="submit" class="btn btn-success">
-                                    Add Row
-                                </button>
-                                <button type="submit" class="btn btn-danger">
-                                    Add Param Row
-                                </button>
-                            </div>
-                        </div>
-
-
-                        <!-- widget 配置栏 -->
-                        <widget-config-row v-for="(row, index) in rows" :key="index" :rowData="row"></widget-config-row>
-
-                    </div>
-                </div>
+            <div class="col-md-9" v-if="!loading">
+                <board-config-content :boardList="boardList"></board-config-content>
             </div>
 
         </div>
@@ -100,17 +34,32 @@
 </template>
 
 <script>
-import WidgetConfigRow from '@/components/config/WidgetConfigRow';
+import BoardConfigContent from '@/views/config/BoardConfigContent';
 
 export default {
     name: 'BoardConfig',
     components: {
-        WidgetConfigRow
+      BoardConfigContent
     },
     created() {
+      /*
+        获取所有 board 列表数据。
+
+        之后需要根据当前页面的id（url上如：#/dashboard/Demo/3，即 id 为 3）与 board.id 对应，来确定当前页面对应的 board
+      */
+      this.$store.dispatch('menu/getBoardList')
+        .then(() => {
+          this.boardList = this.$store.state.menu.boardList;
+          this.loading = false;
+        })
+        .catch(() => {})
+
+      // category 数据，左侧目录的一级目录也是这个数据得来。
       this.$store.dispatch('menu/getCategoryList');
-      this.$store.dispatch('menu/getBoardList');
+
+      // 获取所有 widget 列表数据
       this.$store.dispatch('config/getWidgetList');
+      // 获取所有 dataset 列表数据
       this.$store.dispatch('config/getDatasetList');
     },
     mounted() {
@@ -119,9 +68,7 @@ export default {
       categoryList() {
         return this.$store.state.menu.categoryList;
       },
-      boardList() {
-        return this.$store.state.menu.boardList;
-      },
+      //构造目录数据
       treeData() {
           let treeData = [];
           for(let i=0,l=this.categoryList.length; i<l; i++) {
@@ -145,54 +92,11 @@ export default {
           }
           return treeData;
       },
-      board() {
-          const id = parseInt(this.$route.params.id);
-          for(let i=0,l=this.boardList.length; i<l; i++) {
-              if(this.boardList[i].id === id) {
-                  return this.boardList[i];
-              }
-          }
-          return null;
-      },
-      rows() {
-        if(this.board) {
-          return this.board.layout.rows;
-        }
-        return [];
-      },
-      category: {
-        get() {
-          if(this.categoryId) {
-            return this.categoryId;
-          }
-          if(this.board) {
-            return this.board.categoryId;
-          }
-          return '';
-        },
-        set(value) {
-          this.categoryId = value;
-        }
-      },
-      name: {
-        get() {
-          if(this.mName) {
-            return this.mName;
-          } else if(this.board) {
-            return this.board.name;
-          } else {
-            return '';
-          }
-        },
-        set(value) {
-          this.mName = value;
-        }
-      }
     },
     data() {
         return {
-            categoryId: '',
-            mName: '',
+            loading: true,
+            boardList: []
         }
     },
     methods: {

@@ -55,12 +55,38 @@
 </template>
 
 <script>
+
 export default {
 	name: 'MainSider',
   created() {
     this.$store.dispatch('menu/getCategoryList');
     this.$store.dispatch('menu/getBoardList');
-    this.$store.dispatch('menu/getMenuList');
+    this.$store.dispatch('menu/getMenuList')
+      .then(() => {
+        console.log('-----routes----', this.$store.state.menu.routes)
+        this.$router.addRoutes(this.routes);
+      })
+  },
+  mounted() {
+    //console.log(111111111111, this.menuList);
+
+    /*
+    let fileName = 'DatasourceConfig.vue';
+    const DatasourceConfig = () => import(fileName);
+    {
+      path: '/config',
+      component: Layout,
+      children: [
+        {
+          path: 'datasource',
+          component: DatasourceConfig
+        },
+        {
+
+        }
+      ]
+    }
+    */
   },
   computed: {
     menuList() {
@@ -72,6 +98,9 @@ export default {
     boardList() {
       return this.$store.state.menu.boardList;
     },
+    routes() {
+      return this.$store.state.menu.routes;
+    }
   },
 	data() {
 		return {

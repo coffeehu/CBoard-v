@@ -4,12 +4,12 @@
     <div class="box-header">Row
         <div class="box-tools pull-right">
             <div class="input-group input-group-sm" style="width: 300px;">
-                <input type="text" name="table_search" class="form-control pull-right" :value="rowHeight">
+                <input type="text" name="table_search" class="form-control pull-right" v-model="row.height">
                 <div class="input-group-btn">
-                    <button type="button" class="btn btn-xs btn-primary">Add Column</button>
+                    <button type="button" class="btn btn-xs btn-primary" @click="addCol">Add Column</button>
                     <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
                     </button>
-                    <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
+                    <button type="button" class="btn btn-box-tool" data-widget="remove" @click="removeRow"><i class="fa fa-times"></i>
                     </button>
                 </div>
             </div>
@@ -17,7 +17,11 @@
     </div>
 
     <div class="box-body row">
-      <widget-config-col v-for="widget in rowData.widgets" :key="widget.widgetId" :widgetData="widget"></widget-config-col>
+      <widget-config-col v-for="(widget, index) in widgets"
+        :key="widget.widgetId"
+        :index="index"
+        :widgetData="widget"
+        @remove-col="removeCol"></widget-config-col>
     </div>
 
   </div>
@@ -32,17 +36,47 @@ export default {
     rowData: {
       type: Object,
       require: true
+    },
+    index: {
+      type: Number
     }
   },
   components: {
     WidgetConfigCol
   },
   created() {
-    this.rowHeight = this.rowData.height;
+    this.row = this.rowData;
+    this.widgets = this.rowData.widgets;
+  },
+  computed: {
+    // 所有的 wdget 类型
+    widgetList() {
+      return this.$store.state.config.widgetList;
+    }
   },
   data() {
     return {
-      rowHeight: ''
+      row: {},
+      widgets: ''
+    }
+  },
+  methods: {
+    //删除行
+    removeRow() {
+      this.$emit('remove-row', this.index);
+    },
+    //添加列
+    addCol() {
+      var widget = {};
+      // 新增的默认显示 widgetList 中第一个
+      widget.name = this.widgetList[0].name;
+      widget.width = 12;
+      widget.widgetId = this.widgetList[0].id;
+      this.widgets.push(widget);
+    },
+    //删除列
+    removeCol(index) {
+      this.widgets.splice(index, 1);
     }
   }
 }
