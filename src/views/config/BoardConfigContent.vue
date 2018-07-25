@@ -63,9 +63,9 @@
 
             <!-- widget 配置栏 -->
             <!-- <draggable v-model="board.layout.rows"  @start="drag=true" @end="drag=true"> -->
-            <draggable  @start="drag=true" @end="drag=true">
+            <draggable  @move="test"  @start="drag=true" @end="end">
                 <widget-config-row v-for="(row, index) in board.layout.rows" 
-                				   :key="index" 
+                				   :key="row.flag" 
                 				   :index="index" 
                 				   :rowData="row" 
                 				   @remove-row="removeRow"></widget-config-row>
@@ -99,8 +99,13 @@ export default {
 		      break;
 		  }
 		}
+        for(var i=0,l=this.board.layout.rows; i<l; i++) {
+            let row = this.board.layout.rows[i];
+            rows.flag = 'hehe'+i;
+        }
 		this.name = this.board.name;
 		this.category = this.board.categoryId;
+        //this.arr = this.board.layout.rows;
     },
 	computed: {
 		categoryList() {
@@ -111,10 +116,15 @@ export default {
         return {
             category: '',
             name: '',
-            board: {}
+            board: {},
+            drag: false,
+            arr: [{name:'aaaaa'}, {name:'hehe'}, {name:'123123123'}]
         }
     },
     methods: {
+        test() {
+            console.log('move test')
+        },
     	//添加行
     	addRow() {
     		const row = {type: 'widget', widgets: []};
@@ -136,7 +146,10 @@ export default {
     					alert('保存成功！');
     				}
     			})
-    	}
+    	},
+        end(a, b) {
+            console.log(a, b)
+        }
     }
 }
 </script>

@@ -16,18 +16,22 @@
         </div>
     </div>
 
-    <div class="box-body row">
-      <widget-config-col v-for="(widget, index) in widgets"
-        :key="widget.widgetId"
-        :index="index"
-        :widgetData="widget"
-        @remove-col="removeCol"></widget-config-col>
+    <div class="box-body">
+      <draggable v-model="widgets"  @start="drag=true" @end="drag=true" class="row">
+        <widget-config-col v-for="(widget, index) in widgets"
+          :class="'col-md-' + widget.width"
+          :key="widget.widgetId"
+          :index="index"
+          :widgetData="widget"
+          @remove-col="removeCol"></widget-config-col>
+      </draggable>
     </div>
 
   </div>
 </template>
 
 <script>
+import draggable from 'vuedraggable';
 import WidgetConfigCol from '@/components/config/WidgetConfigCol';
 
 export default {
@@ -42,7 +46,8 @@ export default {
     }
   },
   components: {
-    WidgetConfigCol
+    WidgetConfigCol,
+    draggable
   },
   created() {
     this.row = this.rowData;
