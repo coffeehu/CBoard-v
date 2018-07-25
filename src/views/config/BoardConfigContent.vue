@@ -62,11 +62,14 @@
 
 
             <!-- widget 配置栏 -->
-            <widget-config-row v-for="(row, index) in board.layout.rows" 
-            				   :key="index" 
-            				   :index="index" 
-            				   :rowData="row" 
-            				   @remove-row="removeRow"></widget-config-row>
+            <!-- <draggable v-model="board.layout.rows"  @start="drag=true" @end="drag=true"> -->
+            <draggable  @start="drag=true" @end="drag=true">
+                <widget-config-row v-for="(row, index) in board.layout.rows" 
+                				   :key="index" 
+                				   :index="index" 
+                				   :rowData="row" 
+                				   @remove-row="removeRow"></widget-config-row>
+            </draggable>
 
         </div>
     </div>
@@ -74,6 +77,7 @@
 
 <script>
 import WidgetConfigRow from '@/components/config/WidgetConfigRow';
+import draggable from 'vuedraggable';
 
 export default {
 	name: 'BoardConfigContent',
@@ -84,7 +88,8 @@ export default {
 		}
 	},
 	components: {
-        WidgetConfigRow
+        WidgetConfigRow,
+        draggable
     },
     created() {
     	const id = parseInt(this.$route.params.id);
