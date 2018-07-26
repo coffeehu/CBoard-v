@@ -62,8 +62,7 @@
 
 
             <!-- widget 配置栏 -->
-            <!-- <draggable v-model="board.layout.rows"  @start="drag=true" @end="drag=true"> -->
-            <draggable  @move="test"  @start="drag=true" @end="end">
+            <draggable @end="rowDragEnd">
                 <widget-config-row v-for="(row, index) in board.layout.rows" 
                 				   :key="row.flag" 
                 				   :index="index" 
@@ -99,13 +98,11 @@ export default {
 		      break;
 		  }
 		}
-        for(var i=0,l=this.board.layout.rows; i<l; i++) {
-            let row = this.board.layout.rows[i];
-            rows.flag = 'hehe'+i;
+        for(let i=0,l=this.board.layout.rows.length; i<l; i++) {
+            this.board.layout.rows[i].flag = 'hehe' + i;
         }
 		this.name = this.board.name;
 		this.category = this.board.categoryId;
-        //this.arr = this.board.layout.rows;
     },
 	computed: {
 		categoryList() {
@@ -116,15 +113,10 @@ export default {
         return {
             category: '',
             name: '',
-            board: {},
-            drag: false,
-            arr: [{name:'aaaaa'}, {name:'hehe'}, {name:'123123123'}]
+            board: {}
         }
     },
     methods: {
-        test() {
-            console.log('move test')
-        },
     	//添加行
     	addRow() {
     		const row = {type: 'widget', widgets: []};
@@ -147,8 +139,17 @@ export default {
     				}
     			})
     	},
-        end(a, b) {
-            console.log(a, b)
+        rowDragEnd(evt) {
+            const oldIndex = evt.oldIndex;
+            const newIndex = evt.newIndex;
+            if(oldIndex === newIndex) return;
+            this.changeRow(oldIndex, newIndex);
+            console.log(this.board.layout.rows);
+        },
+        changeRow(oldIndex, newIndex) {
+            let temp = this.board.layout.rows[oldIndex];
+            this.board.layout.rows[oldIndex] = this.board.layout.rows[newIndex];
+            this.board.layout.rows[newIndex] = temp;
         }
     }
 }
@@ -158,5 +159,8 @@ export default {
 .board-config--input,
 .board-config--select {
     display: block;
+}
+.flip-list-move {
+  transition: transform 0.5s;
 }
 </style>

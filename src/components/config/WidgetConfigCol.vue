@@ -15,14 +15,14 @@
         <div class="box-body">
             <div class="form-group">
                 <label>Name</label>
-                <el-input v-model="widget.name" placeholder="请输入内容" class="board-config--input"></el-input>
+                <el-input v-model="widget.name" placeholder="请输入名称" class="board-config--input"></el-input>
             </div>
             <div class="form-group">
                 <label>Width(1-12)</label>
                 <el-input 
-                  v-model="widget.width" 
+                  v-model="mWidth" 
                   @blur="widthBlurHandler"
-                  placeholder="请输入内容" 
+                  placeholder="请输入宽度" 
                   class="board-config--input"></el-input>
             </div>
             <div class="form-group">
@@ -183,7 +183,6 @@ export default {
       this.$emit('remove-col', this.index);
     },
     selectChangeHandler(value) {
-      console.log(value)
       for(let i=0,l=this.widgetList.length; i<l; i++) {
         let widget = this.widgetList[i];
         if(widget.id === value) {
@@ -194,9 +193,9 @@ export default {
       }
     },
     widthBlurHandler() {
-      if(this.widget.width < 1) this.widget.width = 1;
-      if(this.widget.width > 12) this.widget.width = 12;
-      this.mWidth = this.widget.width;
+      if(this.mWidth < 1) this.mWidth = 1;
+      if(this.mWidth > 12) this.mWidth = 12;
+      this.widget.width = this.mWidth;
     }
   }
 }

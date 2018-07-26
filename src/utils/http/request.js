@@ -2,7 +2,6 @@ import axios from 'axios';
 import qs from 'qs';
 
 
-
 const axiosPost = axios.create({
     transformRequest: [function (data, headers) {
 	    data = qs.stringify(data);
@@ -44,15 +43,29 @@ axiosPost.interceptors.response.use(function (response) {
     return Promise.reject(err);
 });*/
 
+let sourceCollection = [];
 
 const req = {
 	get(url) {
-		return axios.get(url);
+        const CancelToken = axios.CancelToken;
+        const source = CancelToken.source();
+        sourceCollection.push(source);
+		return axios.get(url, { cancelToken: source.token });
 	},
 
 	post(url, params) {
-		return axiosPost.post(url, params);
-	}
+        const CancelToken = axios.CancelToken;
+        const source = CancelToken.source();
+        sourceCollection.push(source);
+		return axiosPost.post(url, params, { cancelToken: source.token });
+	},
+    
+    abort() {
+        for(let i=0,l=sourceCollection.length; i<l; i++) {
+            sourceCollection[i].cancel('shit');
+        }
+        sourceCollection = [];
+    }
 
 }
 

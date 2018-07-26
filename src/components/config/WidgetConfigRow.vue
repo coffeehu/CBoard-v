@@ -1,7 +1,7 @@
 <template>
-  <div class="box box-success" style="border-left: 1px solid #d2d6de; border-right: 1px solid #d2d6de; margin-top:20px">
+  <div class="box box-success" style="border-left: 1px solid #d2d6de; border-right: 1px solid #d2d6de; margin-top:20px" v-if="rowData.type === 'widget'">
 
-    <div class="box-header">Row
+    <div class="box-header" style="cursor: move">Row
         <div class="box-tools pull-right">
             <div class="input-group input-group-sm" style="width: 300px;">
                 <input type="text" name="table_search" class="form-control pull-right" v-model="row.height">
@@ -17,13 +17,15 @@
     </div>
 
     <div class="box-body">
-      <draggable v-model="widgets"  @start="drag=true" @end="drag=true" class="row">
-        <widget-config-col v-for="(widget, index) in widgets"
-          :class="'col-md-' + widget.width"
-          :key="widget.widgetId"
-          :index="index"
-          :widgetData="widget"
-          @remove-col="removeCol"></widget-config-col>
+      <draggable v-model="widgets"  @start="drag=true" @end="colDragEnd" >
+        <transition-group type="transition" name="flip-list" tag="div" class="row" >
+          <widget-config-col v-for="(widget, index) in widgets"
+            :class="'col-md-' + widget.width"
+            :key="widget.flag"
+            :index="index"
+            :widgetData="widget"
+            @remove-col="removeCol"></widget-config-col>
+        </transition-group>
       </draggable>
     </div>
 
@@ -51,7 +53,14 @@ export default {
   },
   created() {
     this.row = this.rowData;
-    this.widgets = this.rowData.widgets;
+    if(this.rowData.type === 'widget') {
+      this.widgets = this.rowData.widgets;
+      for(let i=0,l=this.widgets.length; i<l; i++) {
+        this.widgets[i].flag = this.widgets[i].name + this.widgets[i].widgetId + i; // 设置一个唯一标识用于 key
+      }
+    }else if(this.rowData.type === 'param') {
+
+    }
   },
   computed: {
     // 所有的 wdget 类型
@@ -82,6 +91,10 @@ export default {
     //删除列
     removeCol(index) {
       this.widgets.splice(index, 1);
+    },
+    // 拖动完成的回调 
+    colDragEnd() {
+      this.rowData.widgets = this.widgets;
     }
   }
 }
@@ -102,4 +115,8 @@ export default {
 .board-config--select {
     display: block;
 }
+.flip-list-move {
+  transition: transform 0.5s;
+}
+
 </style>

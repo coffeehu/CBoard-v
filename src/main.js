@@ -23,6 +23,11 @@ Vue.use(ElementUI);
 Vue.prototype.$req = req;
 Vue.prototype.$api = api;
 
+router.beforeEach((to, from, next) => {
+  req.abort();
+  next();
+})
+
 new Vue({
   el: '#app',
   router,

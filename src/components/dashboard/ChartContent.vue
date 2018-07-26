@@ -92,31 +92,31 @@ export default {
   },
   methods: {
   	addHandler(element, type, handler) {
-		if (element.addEventListener) {
-			element.addEventListener(type, handler, false);
-		}else if (element.attachEvent) {
-			element.attachEvent("on" + type, handler);
-		}else {
-			element["on" + type] = handler;
-		}
-	},
+  		if (element.addEventListener) {
+  			element.addEventListener(type, handler, false);
+  		}else if (element.attachEvent) {
+  			element.attachEvent("on" + type, handler);
+  		}else {
+  			element["on" + type] = handler;
+  		}
+  	},
   	renderChart(data) {
   		const chartBody = this.$refs['chart-body'];
   		const chart = this.$echarts.init(chartBody, 'theme-fin1');
 
   		const option = this.createOption(data);
 
-		chart.setOption(option);
-		chartBody.name = this.widget.name;
-		chartBody.onresize = function(){
-			alert(chartBody.name)
-		}
-		/*chartBody.onresize = function() {
-			chart.resize();
-		}*/
-		this.addHandler(window, 'resize', function() {
-			chart.resize();
-		})
+  		chart.setOption(option);
+  		chartBody.name = this.widget.name;
+  		chartBody.onresize = function(){
+  			alert(chartBody.name)
+  		}
+  		/*chartBody.onresize = function() {
+  			chart.resize();
+  		}*/
+  		this.addHandler(window, 'resize', function() {
+  			chart.resize();
+  		})
   	},
   	createOption(data) {
   		switch(this.chartType) {
