@@ -59,10 +59,12 @@ export default {
   props: {
     widgetData: {
       type: Object,
-      required: true
+      required: true,
+      default: {}
     },
     index: {
-      type: Number
+      type: Number,
+      default: -1
     }
   },
   created() {

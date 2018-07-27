@@ -25,8 +25,8 @@
             </div>
 
             <!-- 配置面板 -->
-            <div class="col-md-9" v-if="!loading">
-                <board-config-content :boardList="boardList"></board-config-content>
+            <div class="col-md-9" v-if="!loading && id">
+                <board-config-content :board="board"></board-config-content>
             </div>
 
         </div>
@@ -42,6 +42,7 @@ export default {
       BoardConfigContent
     },
     created() {
+      this.id = this.$route.params.id;
       /*
         获取所有 board 列表数据。
 
@@ -50,6 +51,7 @@ export default {
       this.$store.dispatch('menu/getBoardList')
         .then(() => {
           this.boardList = this.$store.state.menu.boardList;
+          this.getBoardById();
           this.loading = false;
         })
         .catch(() => {})
@@ -62,7 +64,10 @@ export default {
       // 获取所有 dataset 列表数据
       this.$store.dispatch('config/getDatasetList');
     },
-    mounted() {
+    beforeRouteUpdate(to, from, next) {
+      alert(1)
+      this.getBoardById(to.params.id);
+      next();
     },
     computed: {
       categoryList() {
@@ -95,13 +100,33 @@ export default {
     },
     data() {
         return {
+            id: null,
             loading: true,
-            boardList: []
+            boardList: [],
+            board: {}
         }
     },
     methods: {
+      getBoardById(mId) {
+        let id = mId ? parseInt(mId) : parseInt(this.$route.params.id);
+        for(let i=0,l=this.boardList.length; i<l; i++) {
+          if(this.boardList[i].id === id) {
+              this.board = this.boardList[i];
+              break;
+          }
+        }
+        for(let i=0,l=this.board.layout.rows.length; i<l; i++) {
+            this.board.layout.rows[i].flag = 'hehe' + i;
+        }
+      },
       handleNodeClick(data) {
-        console.log(data);
+        //console.log(data);
+        /*this.id = data.id;
+        this.loading = false;
+        console.log( 'loading && id', this.loading, this.id )*/
+        if(!data.children) {
+          this.$router.push({path: `/config/board/${data.id}`});
+        }
       }
     }
 }

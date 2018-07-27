@@ -32,12 +32,10 @@ export default new Router({
         {
           path: 'board/:id',
           component: BoardConfig,
-          /*children: [
-            {
-              path: ':id',
-              component: BoardConfigContent
-            }
-          ]*/
+        },
+        {
+          path: 'board',
+          component: BoardConfig
         }
       ]
     },

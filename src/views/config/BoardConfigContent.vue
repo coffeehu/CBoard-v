@@ -10,11 +10,12 @@
                      <div class="form-group">
                         <button type="submit" class="btn btn-danger pull-right">Cancel</button>
                         <a class="btn btn-success pull-right" target="_blank"
-                                style="margin-right: 5px; color: #fff">Preview
+                                style="margin-right: 5px; color: #fff"
+                                @click="previewConfig">Preview
                         </a>
                         <button type="submit" class="btn btn-success pull-right"
                                 style="margin-right: 5px"
-                                @click="save">Save
+                                @click="saveConfig">Save
                         </button>
                     </div>
                 </div>
@@ -62,12 +63,14 @@
 
 
             <!-- widget 配置栏 -->
-            <draggable @end="rowDragEnd">
-                <widget-config-row v-for="(row, index) in board.layout.rows" 
-                				   :key="row.flag" 
-                				   :index="index" 
-                				   :rowData="row" 
-                				   @remove-row="removeRow"></widget-config-row>
+            <draggable v-model="rows" @end="rowDragEnd">
+                <transition-group type="transition" name="flip-list" tag="div">
+                    <widget-config-row v-for="(row, index) in rows"
+                    				   :key="row.flag" 
+                    				   :index="index" 
+                    				   :rowData="row" 
+                    				   @remove-row="removeRow"></widget-config-row>
+                </transition-group>
             </draggable>
 
         </div>
@@ -81,28 +84,26 @@ import draggable from 'vuedraggable';
 export default {
 	name: 'BoardConfigContent',
 	props: {
-		boardList: {
-			type: Array,
-			require: true
-		}
+        board: {
+            type: Object,
+            require: true
+        }
 	},
 	components: {
         WidgetConfigRow,
         draggable
     },
     created() {
-    	const id = parseInt(this.$route.params.id);
-		for(let i=0,l=this.boardList.length; i<l; i++) {
-		  if(this.boardList[i].id === id) {
-		      this.board = this.boardList[i];
-		      break;
-		  }
-		}
-        for(let i=0,l=this.board.layout.rows.length; i<l; i++) {
-            this.board.layout.rows[i].flag = 'hehe' + i;
-        }
+        this.rows = this.board.layout.rows;
 		this.name = this.board.name;
 		this.category = this.board.categoryId;
+    },
+    watch: {
+        board() {
+            this.rows = this.board.layout.rows;
+            this.name = this.board.name;
+            this.category = this.board.categoryId;
+        }
     },
 	computed: {
 		categoryList() {
@@ -113,13 +114,14 @@ export default {
         return {
             category: '',
             name: '',
-            board: {}
+            rows: []
         }
     },
     methods: {
     	//添加行
     	addRow() {
     		const row = {type: 'widget', widgets: []};
+            row.flag = 'config-row-' + this.board.layout.rows.length;
         	this.board.layout.rows.push(row);
     	},
     	//删除行
@@ -127,7 +129,7 @@ export default {
     		this.board.layout.rows.splice(index, 1);
     	},
     	//保存
-    	save() {
+    	saveConfig(callback) {
     		const params = {
     			json: JSON.stringify(this.board)
     		};
@@ -135,22 +137,51 @@ export default {
     			.then(response => {
     				console.log('response', response);
     				if(response.data.status === '1') {
-    					alert('保存成功！');
+                        this.$message({
+                            type: 'success',
+                            message: '保存成功!'
+                        });
+                        if(typeof callback === 'function') {
+                            callback();
+                        }
     				}
     			})
     	},
+        // 预览--即跳的对应的 dashboard 页面
+        previewConfig() {
+            this.$confirm('保存后才能预览，是否保存并预览?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              customClass: 'previewConfigModal'
+            }).then(() => {
+                this.saveConfig(() => {
+                    const id = this.$route.params.id;
+                    let name = '';
+                    for(let i=0,l=this.categoryList.length; i<l; i++) {
+                        if(this.categoryList[i].id === this.category) {
+                            name = this.categoryList[i].name;
+                            break;
+                        }
+                    }
+                    this.$router.push({path: `/dashboard/${name}/${id}`});
+                })
+            }).catch(() => {
+                      
+            });
+        },
         rowDragEnd(evt) {
-            const oldIndex = evt.oldIndex;
+            /*const oldIndex = evt.oldIndex;
             const newIndex = evt.newIndex;
             if(oldIndex === newIndex) return;
             this.changeRow(oldIndex, newIndex);
-            console.log(this.board.layout.rows);
+            console.log(this.board.layout.rows);*/
+            this.board.layout.rows = this.rows;
         },
-        changeRow(oldIndex, newIndex) {
+        /*changeRow(oldIndex, newIndex) {
             let temp = this.board.layout.rows[oldIndex];
             this.board.layout.rows[oldIndex] = this.board.layout.rows[newIndex];
             this.board.layout.rows[newIndex] = temp;
-        }
+        }*/
     }
 }
 </script>

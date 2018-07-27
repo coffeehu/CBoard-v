@@ -1,10 +1,11 @@
 <template>
-  <div class="box box-success" style="border-left: 1px solid #d2d6de; border-right: 1px solid #d2d6de; margin-top:20px" v-if="rowData.type === 'widget'">
+  <div class="box box-success" style="border-left: 1px solid #d2d6de; border-right: 1px solid #d2d6de; margin-top:20px">
+    <div v-if="rowData.type === 'widget'">
 
     <div class="box-header" style="cursor: move">Row
         <div class="box-tools pull-right">
             <div class="input-group input-group-sm" style="width: 300px;">
-                <input type="text" name="table_search" class="form-control pull-right" v-model="row.height">
+                <input type="text" name="table_search" class="form-control pull-right" v-model="rowData.height">
                 <div class="input-group-btn">
                     <button type="button" class="btn btn-xs btn-primary" @click="addCol">Add Column</button>
                     <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -17,8 +18,8 @@
     </div>
 
     <div class="box-body">
-      <draggable v-model="widgets"  @start="drag=true" @end="colDragEnd" >
-        <transition-group type="transition" name="flip-list" tag="div" class="row" >
+      <draggable v-model="widgets"  @start="drag=true" :options="dragOptions">
+        <transition-group type="transition" name="flip-list" tag="div" class="row" style="min=height:50px">
           <widget-config-col v-for="(widget, index) in widgets"
             :class="'col-md-' + widget.width"
             :key="widget.flag"
@@ -29,6 +30,7 @@
       </draggable>
     </div>
 
+    </div>
   </div>
 </template>
 
@@ -52,17 +54,23 @@ export default {
     draggable
   },
   created() {
-    this.row = this.rowData;
-    if(this.rowData.type === 'widget') {
-      this.widgets = this.rowData.widgets;
-      for(let i=0,l=this.widgets.length; i<l; i++) {
-        this.widgets[i].flag = this.widgets[i].name + this.widgets[i].widgetId + i; // 设置一个唯一标识用于 key
-      }
-    }else if(this.rowData.type === 'param') {
-
+    this.setWidgets();
+  },
+  watch: {
+    rowData() {
+      this.setWidgets();
+    },
+    widgets() {
+      this.rowData.widgets = this.widgets;
     }
   },
   computed: {
+    dragOptions () {
+      return  {
+        animation: 0,
+        group: 'widgetConfig',
+      };
+    },
     // 所有的 wdget 类型
     widgetList() {
       return this.$store.state.config.widgetList;
@@ -70,11 +78,21 @@ export default {
   },
   data() {
     return {
-      row: {},
-      widgets: ''
+      widgets: '',
+      editable: true
     }
   },
   methods: {
+    setWidgets() {
+      if(this.rowData.type === 'widget') {
+        this.widgets = this.rowData.widgets;
+        for(let i=0,l=this.widgets.length; i<l; i++) {
+          this.widgets[i].flag = this.widgets[i].name + this.widgets[i].widgetId + i; // 设置一个唯一标识用于 key
+        }
+      }else if(this.rowData.type === 'param') {
+
+      }
+    },
     //删除行
     removeRow() {
       this.$emit('remove-row', this.index);
@@ -86,6 +104,7 @@ export default {
       widget.name = this.widgetList[0].name;
       widget.width = 12;
       widget.widgetId = this.widgetList[0].id;
+      widget.flag = 'col-' + this.widgets.length;
       this.widgets.push(widget);
     },
     //删除列
@@ -93,9 +112,9 @@ export default {
       this.widgets.splice(index, 1);
     },
     // 拖动完成的回调 
-    colDragEnd() {
+    /*colDragEnd(evt) {
       this.rowData.widgets = this.widgets;
-    }
+    }*/
   }
 }
 </script>
