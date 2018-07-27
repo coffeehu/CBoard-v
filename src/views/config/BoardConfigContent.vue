@@ -83,27 +83,22 @@ import draggable from 'vuedraggable';
 
 export default {
 	name: 'BoardConfigContent',
-	props: {
-        board: {
-            type: Object,
-            require: true
-        }
-	},
 	components: {
         WidgetConfigRow,
         draggable
     },
     created() {
-        this.rows = this.board.layout.rows;
-		this.name = this.board.name;
-		this.category = this.board.categoryId;
+        this.$store.dispatch('menu/getBoardList')
+            .then(() => {
+                const id = parseInt(this.$route.params.id);
+                this.setBoardById(id);
+            })
+            .catch(() => {})
     },
-    watch: {
-        board() {
-            this.rows = this.board.layout.rows;
-            this.name = this.board.name;
-            this.category = this.board.categoryId;
-        }
+    beforeRouteUpdate (to, from, next) {
+        const id = parseInt(to.params.id);
+        this.setBoardById(id);
+        next();
     },
 	computed: {
 		categoryList() {
@@ -114,10 +109,27 @@ export default {
         return {
             category: '',
             name: '',
-            rows: []
+            rows: [],
+            boardList: [],
+            board: {}
         }
     },
     methods: {
+        setBoardById(id) {
+            this.boardList = this.$store.state.menu.boardList;
+            for(let i=0,l=this.boardList.length; i<l; i++) {
+              if(this.boardList[i].id === id) {
+                  this.board = this.boardList[i];
+                  break;
+              }
+            }
+            for(let i=0,l=this.board.layout.rows.length; i<l; i++) {
+                this.board.layout.rows[i].flag = 'hehe' + i;
+            }
+            this.rows = this.board.layout.rows;
+            this.name = this.board.name;
+            this.category = this.board.categoryId;
+        },
     	//添加行
     	addRow() {
     		const row = {type: 'widget', widgets: []};

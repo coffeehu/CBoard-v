@@ -19,7 +19,7 @@
 
     <div class="box-body">
       <draggable v-model="widgets"  @start="drag=true" :options="dragOptions">
-        <transition-group type="transition" name="flip-list" tag="div" class="row" style="min=height:50px">
+        <transition-group type="transition" name="flip-list" tag="div" class="row" style="min-height:50px">
           <widget-config-col v-for="(widget, index) in widgets"
             :class="'col-md-' + widget.width"
             :key="widget.flag"

@@ -25,7 +25,7 @@ export default new Router({
     },
     
 
-    {
+    /*{
       path: '/config',
       component: Layout,
       children: [
@@ -36,6 +36,22 @@ export default new Router({
         {
           path: 'board',
           component: BoardConfig
+        }
+      ]
+    },*/
+    {
+      path: '/config',
+      component: Layout,
+      children: [
+        {
+          path: 'board',
+          component: BoardConfig,
+          children: [
+            {
+              path: ':id',
+              component: BoardConfigContent
+            }
+          ]
         }
       ]
     },
