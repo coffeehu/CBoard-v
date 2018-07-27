@@ -15,7 +15,6 @@ const actions = {
   getBoardData(context, id) {
     req.get(api.getBoardData + '?id=' + id)
       .then((response) => {
-        console.log("getBoardData",response);
         if(response.statusText === 'OK') {
           const payload = {
             type: response.data.layout.type,

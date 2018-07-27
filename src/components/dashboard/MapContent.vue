@@ -69,7 +69,6 @@ export default {
           zoom: 4
         })
       });
-      console.log('map', map)
     }) 
 
   },

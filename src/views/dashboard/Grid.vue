@@ -4,9 +4,11 @@
     <dashboard-header :dashboardTitle="dashboardTitle"></dashboard-header>
 
     <div v-for="(row,index) in layoutData.rows">
-      <div v-if="row.type === 'param'" class="row">param</div> 
+      <div v-if="row.type === 'param'" class="row">
+        <dashboard-param :params="row.params"></dashboard-param>
+      </div> 
       <div v-else>
-        <dashboard-widget :widgetData="row.widgets" :height="row.height" class="row"></dashboard-widget>
+        <dashboard-widget :widgets="row.widgets" :height="row.height" class="row"></dashboard-widget>
       </div>
     </div>
 
@@ -15,22 +17,18 @@
 
 <script>
 import DashboardHeader from '@/views/dashboard/DashboardHeader';
-import DashboardWidget from '@/components/DashboardWidget';
+import DashboardWidget from '@/components/dashboard/DashboardWidget';
+import DashboardParam from '@/components/dashboard/DashboardParam';
 
 export default {
   name: 'Grid',
   components: {
     DashboardWidget,
-    DashboardHeader
+    DashboardHeader,
+    DashboardParam
   },
-  /*beforeRouteUpdate(to, from, next) {
-    next();
-  },*/
   created() {
       this.dashboardTitle = this.$store.state.dashboard.boardData.name;
-  },
-  mounted() {
-    
   },
   computed: {
     layoutData() {
@@ -42,9 +40,6 @@ export default {
     return {
       dashboardTitle: ''
     }
-  },
-  destroyed() {
-
   }
 }
 </script>

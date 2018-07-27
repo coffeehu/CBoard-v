@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-for="widget in widgetData" :class="'col-md-'+widget.width">
+    <div v-for="widget in widgets" :class="'col-md-'+widget.width">
       <component v-show="loadComplete" @load-complete="handlerComplete" :is="currentComponent(widget)" :widget="widget" :height="height"></component>
 
       <!-- loading 动画框 -->
@@ -28,16 +28,13 @@ import MapContent from '@/components/dashboard/MapContent';
 export default {
   name: 'DashboardWidget',
   props: {
-    widgetData: {
+    widgets: {
       type: Array,
       required: true
     },
     height: {
       type: String
     }
-  },
-  mounted() {
-    //console.log('==============================DashboardWidget data', this.widgetData);
   },
   data() {
     return {
