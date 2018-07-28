@@ -1,9 +1,12 @@
 import req from '@/utils/http/request';
 import api from '@/utils/http/api';
+import { injectFilter, formatConfig } from '@/utils/dashboardConfig.js';
+
 
 const state = {
   type: '',
   boardData: [],
+  widgetInfoData: {},
   complete: false //请求状态，true 表示请求完成
 }
 
@@ -26,6 +29,35 @@ const actions = {
           //this.$store.dispatch('dashboard/test', 123)
         }
       });
+  },
+  // data = { widgetData:Objec, filters: Object }
+  getWidgetData(context, data) {
+    return new Promise((resolve, reject) => {
+      let widgetData = data.widgetData;
+      let filters = data.filters;
+
+      injectFilter(widgetData, filters);
+
+      const config = formatConfig(widgetData.config);
+
+      const params = {
+        datasourceId: widgetData.datasource,
+        query: JSON.stringify(widgetData.query),
+        datasetId: widgetData.datasetId,
+        cfg: JSON.stringify(config),
+        reload: false
+      };
+      req.post(api.getAggregateData, params)
+        .then(response => {
+          if(response.statusText === 'OK') {
+            context.commit('setWidgetInfoData', response.data);
+            resolve();
+          }
+        })
+        .catch(error => {
+          reject();
+        })
+    });
   }
 }
 
@@ -36,8 +68,12 @@ const mutations = {
     state.boardData = payload.boardData;
     state.complete = true;
   },
+  setWidgetInfoData(state, payload) {
+    state.widgetInfoData = payload;
+  },
   reset(state) {
     state.complete = false;
+    state.widgetInfoData = {};
   }
 }
 

@@ -25,6 +25,10 @@ export default {
   	},
     height: {
       type: String
+    },
+    filters: {
+      type: Array,
+      default: []
     }
   },
   components: {
@@ -71,6 +75,11 @@ export default {
       });
     }) 
 
+  },
+  watch: {
+    filters() {
+      this.$emit('load-complete');
+    },
   },
   data() {
   	return {

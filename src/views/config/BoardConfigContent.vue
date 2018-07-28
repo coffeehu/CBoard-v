@@ -65,11 +65,14 @@
             <!-- widget 配置栏 -->
             <draggable v-model="rows" @end="rowDragEnd">
                 <transition-group type="transition" name="flip-list" tag="div">
-                    <widget-config-row v-for="(row, index) in rows"
-                    				   :key="row.flag" 
-                    				   :index="index" 
-                    				   :rowData="row" 
-                    				   @remove-row="removeRow"></widget-config-row>
+                    <div v-for="(row, index) in rows" :key="row.flag">
+                        <widget-config-row v-if="row.type === 'widget'" :index="index" 
+                        				   :rowData="row" 
+                        				   @remove-row="removeRow"></widget-config-row>
+                        <widget-config-param v-if="row.type === 'param'" :index="index" 
+                                           :rowData="row"
+                                           @remove-row="removeRow"></widget-config-param>
+                    </div>
                 </transition-group>
             </draggable>
 
@@ -78,12 +81,14 @@
 </template>
 
 <script>
+import WidgetConfigParam from '@/components/config/WidgetConfigParam';
 import WidgetConfigRow from '@/components/config/WidgetConfigRow';
 import draggable from 'vuedraggable';
 
 export default {
 	name: 'BoardConfigContent',
 	components: {
+        WidgetConfigParam,
         WidgetConfigRow,
         draggable
     },
@@ -129,6 +134,7 @@ export default {
             this.rows = this.board.layout.rows;
             this.name = this.board.name;
             this.category = this.board.categoryId;
+            console.log('rows', this.rows)
         },
     	//添加行
     	addRow() {

@@ -1,6 +1,5 @@
 <template>
 
-  <!-- <div :class="'col-md-' + mWidth" style="min-width:150px"> -->
   <div style="min-width:150px">
     <div class="box box-primary" style="border-left: 1px solid #d2d6de; border-right: 1px solid #d2d6de">
         <div class="box-header" style="cursor:move">

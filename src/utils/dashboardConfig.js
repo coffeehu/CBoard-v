@@ -2,7 +2,7 @@
     格式化 cfg 字段
 */
 
-export function injectFilter(widget) {
+export function injectFilter(widget, filters) {
     const boardFilters = [];
     /*if($scope.widgetFilters[widget.id] !== undefined){
         _.each($scope.widgetFilters[widget.id], function(e){
@@ -22,18 +22,24 @@ export function injectFilter(widget) {
     widget.config.boardFilters = boardFilters;
 
     if(widget.config.chart_type !== 'sankey' && widget.config.chart_type !== 'map') {
-        var countryFilter = {
+        /*var countryFilter = {
             col: 'SALES_COUNTRY',
             type: '=',
-            values: ['Canada']
-        };
-        var otherFilter = {
+            //values: ['Canada']
+            values: []
+        };*/
+       /* var otherFilter = {
             col: 'gender',
             type: '=',
-            values: ['F']
-        };
-        widget.config.boardFilters.push(countryFilter);
-        widget.config.boardFilters.push(otherFilter);
+            //values: ['F']
+            values: []
+        };*/
+        //widget.config.boardFilters.push(countryFilter);
+        //widget.config.boardFilters.push(otherFilter);
+        if(filters) {
+            widget.config.boardFilters = widget.config.boardFilters.concat(filters);
+            //console.log(1111111111, widget.config.boardFilters)
+        }
     }
 
     return widget;

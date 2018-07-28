@@ -2,14 +2,12 @@
 
 	<base-box :name="chartName">
 		<div class="box-body" ref="chart-body" :style="boxHeight" style="padding: 3px 0px 3px 13px;"></div>
+    
 	</base-box>
 
 </template>
 
 <script>
-import req from '@/utils/http/request';
-import api from '@/utils/http/api';
-import { injectFilter, formatConfig } from '@/utils/dashboardConfig.js';
 import BaseBox from '@/components/BaseBox';
 
 export default {
@@ -21,18 +19,29 @@ export default {
   	},
   	height: {
       type: String
+    },
+    filters: {
+      type: Array,
+      default: []
     }
   },
   components: {
   	BaseBox
   },
   mounted() {
-
-  	const widgetData = this.widget.widget.data;
+    this.widgetData = this.widget.widget.data;
+    this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters})
+      .then(() => {
+        let data = this.$store.state.dashboard.widgetInfoData;
+        this.$emit('load-complete');
+        this.$nextTick(()=>{
+          this.renderChart(data);  
+        }) 
+      })
 
   	this.chartName = this.widget.name;
-  	this.chartType = widgetData.config.chart_type;  // 图表类型，如：line
-  	this.valueAxis = widgetData.config.valueAxis;  // 显示方式，如 vertical--垂直，horizontal --水平
+  	this.chartType = this.widgetData.config.chart_type;  // 图表类型，如：line
+  	this.valueAxis = this.widgetData.config.valueAxis;  // 显示方式，如 vertical--垂直，horizontal --水平
   	/*
   		this.valuesConfig 为数组，如 
   		[{
@@ -45,35 +54,26 @@ export default {
   			...
   		}]
   	*/
-  	this.valuesConfig = widgetData.config.values;
+  	this.valuesConfig = this.widgetData.config.values;
 
-  	const style = this.style = widgetData.config.values[0].style;
+  	const style = this.style = this.widgetData.config.values[0].style;
 
-  	injectFilter(widgetData);
-  	const config = formatConfig(widgetData.config);
-  	const params = {
-  		datasourceId: widgetData.datasource,
-        query: JSON.stringify(widgetData.query),
-        datasetId: widgetData.datasetId,
-        cfg: JSON.stringify(config),
-        reload: false
-  	};
-
-  	req.post(api.getAggregateData, params)
-  		.then(response => {
-  			if(response.statusText === 'OK') {
-  				this.$emit('load-complete');
-  				this.$nextTick(()=>{
-  					this.renderChart(response.data);	
-  				}) 
-  			}
-  		})
-  		.catch(error => {
-
-  		})
+  },
+  watch: {
+    filters() {
+      this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters})
+      .then(() => {
+        let data = this.$store.state.dashboard.widgetInfoData;
+        this.$emit('load-complete');
+        this.$nextTick(()=>{
+          this.renderChart(data);  
+        }) 
+      })
+    },
   },
   data() {
   	return {
+      widgetData: {},
   		chartName: '',
   		chartType: '',
   		valueAxis: '',
@@ -88,7 +88,10 @@ export default {
   		}else {
   			return {'min-height': '250px'}
   		}  		
-  	}
+  	},
+    test() {
+      return this.filters;
+    }
   },
   methods: {
   	addHandler(element, type, handler) {
@@ -108,9 +111,6 @@ export default {
 
   		chart.setOption(option);
   		chartBody.name = this.widget.name;
-  		chartBody.onresize = function(){
-  			alert(chartBody.name)
-  		}
   		/*chartBody.onresize = function() {
   			chart.resize();
   		}*/
@@ -132,28 +132,28 @@ export default {
   		const aggType = this.valuesConfig[0].cols[0].aggregate_type;
   		const dataArr = data.data;
   		const columnList = data.columnList;
-		let nameData = [];
-		let seriesData = [];
-		let seriesDataIndex = -1;
-		let nameDataIndex = [];
-		for(let i=0,l=columnList.length; i<l; i++) {
-			if(columnList[i].aggType === aggType) {
-				seriesDataIndex = columnList[i].index;
-			}else if(columnList[i].aggType === null) {
-				nameDataIndex.push(columnList[i].index);
-			}
-		}
+  		let nameData = [];
+  		let seriesData = [];
+  		let seriesDataIndex = -1;
+  		let nameDataIndex = [];
+  		for(let i=0,l=columnList.length; i<l; i++) {
+  			if(columnList[i].aggType === aggType) {
+  				seriesDataIndex = columnList[i].index;
+  			}else if(columnList[i].aggType === null) {
+  				nameDataIndex.push(columnList[i].index);
+  			}
+  		}
 
-		for(let i=0,l=dataArr.length; i<l; i++) {
-			let nameDataItem = [];
-			for(let j=0,l=nameDataIndex.length; j<l; j++) {
-				let nameDataItemIndex = nameDataIndex[j];
-				nameDataItem.push( dataArr[i][nameDataItemIndex] );
-			}
-			nameData.push( nameDataItem.join('-') );
+  		for(let i=0,l=dataArr.length; i<l; i++) {
+  			let nameDataItem = [];
+  			for(let j=0,l=nameDataIndex.length; j<l; j++) {
+  				let nameDataItemIndex = nameDataIndex[j];
+  				nameDataItem.push( dataArr[i][nameDataItemIndex] );
+  			}
+  			nameData.push( nameDataItem.join('-') );
 
-			seriesData.push(dataArr[i][seriesDataIndex]);
-		}
+  			seriesData.push(dataArr[i][seriesDataIndex]);
+  		}
 
   		const xAxis = {};
   		const yAxis = {};
@@ -167,31 +167,31 @@ export default {
   			yAxis.data = nameData;
   		}
 
-		const legend = [];
-		const series = [];
-		for(let i=0,l=this.valuesConfig.length; i<l; i++) {
-			let type = this.valuesConfig[i].series_type;
-			type = type || this.chartType;
-			if(type === 'percentbar') {
-				type = 'bar';
-			}
-			const seriesItem = {
-				name: this.valuesConfig[i].cols[0].col,
-                type: type,
-				barMaxWidth: 40,
-                valueAxisIndex: 0,
-                yAxisIndex: 0,
-                data: []
-			}
-			series.push(seriesItem);
-			legend.push(this.valuesConfig[i].cols[0].col);
-		}
+  		const legend = [];
+  		const series = [];
+  		for(let i=0,l=this.valuesConfig.length; i<l; i++) {
+  			let type = this.valuesConfig[i].series_type;
+  			type = type || this.chartType;
+  			if(type === 'percentbar') {
+  				type = 'bar';
+  			}
+  			const seriesItem = {
+  				name: this.valuesConfig[i].cols[0].col,
+                  type: type,
+  				barMaxWidth: 40,
+                  valueAxisIndex: 0,
+                  yAxisIndex: 0,
+                  data: []
+  			}
+  			series.push(seriesItem);
+  			legend.push(this.valuesConfig[i].cols[0].col);
+  		}
 
-		for(let i=0,l=series.length; i<l; i++) {
-			series[i].data = seriesData;
-		}
+  		for(let i=0,l=series.length; i<l; i++) {
+  			series[i].data = seriesData;
+  		}
 
-		const option = {
+		  const option = {
             title: {
             },
             tooltip: {
@@ -223,50 +223,50 @@ export default {
   		const aggType = this.valuesConfig[0].cols[0].aggregate_type;
   		const dataArr = data.data;
   		const columnList = data.columnList;
-		let nameData = [];
-		let seriesData = [];
-		let seriesDataIndex = -1;
-		let nameDataIndex = [];
-		for(let i=0,l=columnList.length; i<l; i++) {
-			if(columnList[i].aggType === aggType) {
-				seriesDataIndex = columnList[i].index;
-			}else if(columnList[i].aggType === null) {
-				nameDataIndex.push(columnList[i].index);
-			}
-		}
+  		let nameData = [];
+  		let seriesData = [];
+  		let seriesDataIndex = -1;
+  		let nameDataIndex = [];
+  		for(let i=0,l=columnList.length; i<l; i++) {
+  			if(columnList[i].aggType === aggType) {
+  				seriesDataIndex = columnList[i].index;
+  			}else if(columnList[i].aggType === null) {
+  				nameDataIndex.push(columnList[i].index);
+  			}
+  		}
 
-		for(let i=0,l=dataArr.length; i<l; i++) {
-			let nameDataItem = [];
-			for(let j=0,l=nameDataIndex.length; j<l; j++) {
-				let nameDataItemIndex = nameDataIndex[j];
-				nameDataItem.push( dataArr[i][nameDataItemIndex] );
-			}
-			nameData.push( nameDataItem.join('-') );
+  		for(let i=0,l=dataArr.length; i<l; i++) {
+  			let nameDataItem = [];
+  			for(let j=0,l=nameDataIndex.length; j<l; j++) {
+  				let nameDataItemIndex = nameDataIndex[j];
+  				nameDataItem.push( dataArr[i][nameDataItemIndex] );
+  			}
+  			nameData.push( nameDataItem.join('-') );
 
-			seriesData.push({
-				name: nameDataItem.join('-'),
-				value: dataArr[i][seriesDataIndex]
-			});
-		}
+  			seriesData.push({
+  				name: nameDataItem.join('-'),
+  				value: dataArr[i][seriesDataIndex]
+  			});
+  		}
 
-		const series = [];
-		for(let i=0,l=this.valuesConfig.length; i<l; i++) {
-			let type = this.valuesConfig[i].series_type;
-			type = type || this.chartType;
+  		const series = [];
+  		for(let i=0,l=this.valuesConfig.length; i<l; i++) {
+  			let type = this.valuesConfig[i].series_type;
+  			type = type || this.chartType;
 
-			const seriesItem = {
-				name: nameData[i],
-                type: type,
-				center: ['50%', '50%'],
-  				itemStyle: {},
-                data: []
-			}
-			series.push(seriesItem);
-		}
+  			const seriesItem = {
+  				name: nameData[i],
+                  type: type,
+  				center: ['50%', '50%'],
+    				itemStyle: {},
+                  data: []
+  			}
+  			series.push(seriesItem);
+  		}
 
-		for(let i=0,l=series.length; i<l; i++) {
-			series[i].data = seriesData;
-		}
+  		for(let i=0,l=series.length; i<l; i++) {
+  			series[i].data = seriesData;
+  		}
 
   		const option = {
   			toolbox: false,

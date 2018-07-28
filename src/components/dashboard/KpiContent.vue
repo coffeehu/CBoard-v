@@ -17,48 +17,45 @@
 </template>
 
 <script>
-import req from '@/utils/http/request';
-import api from '@/utils/http/api';
-import { injectFilter, formatConfig } from '@/utils/dashboardConfig.js';
-
 export default {
   name: 'KpiContent',
   props: {
   	widget: {
   		type: Object,
   		required: true
-  	}
+  	},
+    filters: {
+      type: Array,
+      default: []
+    }
   },
   mounted() {
   	//console.log('-------KpiContent, this.data-----------', this.widget);
-  	const widgetData = this.widget.widget.data;
-  	const format = widgetData.config.values[0].format;
-  	const style = this.style = widgetData.config.values[0].style;
+  	this.widgetData = this.widget.widget.data;
+  	const format = this.widgetData.config.values[0].format;
+  	const style = this.style = this.widgetData.config.values[0].style;
 
-  	injectFilter(widgetData);
-  	const config = formatConfig(widgetData.config);
-  	const params = {
-  		datasourceId: widgetData.datasource,
-        query: JSON.stringify(widgetData.query),
-        datasetId: widgetData.datasetId,
-        cfg: JSON.stringify(config),
-        reload: false
-  	};
-
-  	req.post(api.getAggregateData, params)
-  		.then(response => {
-  			//console.log('response-------------', response);
-  			if(response.statusText === 'OK') {
-  				this.value = this.$numbro(response.data.data[0][0]).format(format);
-  				this.$emit('load-complete');
-  			}
-  		})
-  		.catch(error => {
-
-  		})
+    this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters})
+      .then(() => {
+        let data = this.$store.state.dashboard.widgetInfoData;
+        this.value = this.$numbro(data.data[0][0]).format(format);
+        this.$emit('load-complete');
+      })
+  },
+  watch: {
+    filters() {
+      const format = this.widgetData.config.values[0].format;
+      this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters})
+      .then(() => {
+        let data = this.$store.state.dashboard.widgetInfoData;
+        this.value = this.$numbro(data.data[0][0]).format(format);
+        this.$emit('load-complete');
+      })
+    }
   },
   data() {
   	return {
+      widgetData: {},
   		value: '',
   		style: ''
   	}

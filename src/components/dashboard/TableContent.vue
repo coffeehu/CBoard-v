@@ -48,6 +48,10 @@ export default {
     },
     height: {
       type: String
+    },
+    filters: {
+      type: Array,
+      default: []
     }
   },
   components: {
@@ -56,35 +60,37 @@ export default {
   },
   mounted() {
   	//console.log('-------KpiContent, this.data-----------', this.widget);
-  	const widgetData = this.widget.widget.data;
-  	const format = widgetData.config.values[0].format;
-  	const style = this.style = widgetData.config.values[0].style;
+  	this.widgetData = this.widget.widget.data;
+  	const format = this.widgetData.config.values[0].format;
+  	const style = this.style = this.widgetData.config.values[0].style;
 
-  	injectFilter(widgetData);
-  	const config = formatConfig(widgetData.config);
-  	const params = {
-  		datasourceId: widgetData.datasource,
-        query: JSON.stringify(widgetData.query),
-        datasetId: widgetData.datasetId,
-        cfg: JSON.stringify(config),
-        reload: false
-  	};
-
-  	req.post(api.getAggregateData, params)
-  		.then(response => {
-  			if(response.statusText === 'OK') {
-          const columnList = this.columnList = response.data.columnList;
-          const mTableData = this.mTableData = response.data.data;
+    this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters})
+      .then(() => {
+        let data = this.$store.state.dashboard.widgetInfoData;
+        const columnList = this.columnList = data.columnList;
+        const mTableData = this.mTableData = data.data;
+        this.tableData = this.formatTableData(columnList, mTableData);
+        this.$emit('load-complete');
+      })
+      .catch(() => {});
+  },
+  watch: {
+    filters() {
+      const format = this.widgetData.config.values[0].format;
+      this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters})
+        .then(() => {
+          let data = this.$store.state.dashboard.widgetInfoData;
+          const columnList = this.columnList = data.columnList;
+          const mTableData = this.mTableData = data.data;
           this.tableData = this.formatTableData(columnList, mTableData);
-  				this.$emit('load-complete');
-  			}
-  		})
-  		.catch(error => {
-
-  		})
+          this.$emit('load-complete');
+        })
+        .catch(() => {});
+    }
   },
   data() {
   	return {
+      widgetData: {},
       tableData: [],
       columnList: [],
       mTableData: []

@@ -3,6 +3,7 @@
 
     <div class="col-sm-12">
         <div class="box box-solid" style="border-left: 1px solid #d2d6de; border-right: 1px solid #d2d6de">
+
             <div class="box-header">
                 <!-- TODO:信息栏，暂时没发现有什么功能 -->
                 <div class="box-tools pull-right">
@@ -12,18 +13,19 @@
                     </button>
                 </div>
             </div>
+
             <div class="box-body">
                 <div class="col-sm-12">
                     <div style="min-height: 35px;height: auto;padding: 0px">
                           <div v-for="(param, index) in params" :key="index" class="dashboard-param">
-                              <component :is="currentParam(param.paramType)"></component>
+                              <component :is="currentParam(param.paramType)" :param="param"></component>
                           </div>
-                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+          </div>
     </div>
+
 </template>
 
 <script>
@@ -72,5 +74,6 @@ export default {
 .dashboard-param {
   float: left;
   box-sizing: border-box;
+  margin-right: 5px;
 }
 </style>

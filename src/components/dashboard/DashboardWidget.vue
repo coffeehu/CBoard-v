@@ -1,7 +1,8 @@
 <template>
   <div>
     <div v-for="widget in widgets" :class="'col-md-'+widget.width">
-      <component v-show="loadComplete" @load-complete="handlerComplete" :is="currentComponent(widget)" :widget="widget" :height="height"></component>
+      <component v-show="loadComplete" @load-complete="handlerComplete" :is="currentComponent(widget)" 
+      :widget="widget" :filters="filters" :height="height"></component>
 
       <!-- loading 动画框 -->
       <div v-if="!loadComplete" class="box box-solid">
@@ -56,6 +57,12 @@ export default {
     },
     handlerComplete() {
       this.loadComplete = true;
+    }
+  },
+  computed: {
+    filters() {
+      this.loadComplete = false;
+      return this.$store.state.params.filters;
     }
   },
   components: {

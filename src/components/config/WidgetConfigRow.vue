@@ -1,6 +1,5 @@
 <template>
   <div class="box box-success" style="border-left: 1px solid #d2d6de; border-right: 1px solid #d2d6de; margin-top:20px">
-    <div v-if="rowData.type === 'widget'">
 
     <div class="box-header" style="cursor: move">Row
         <div class="box-tools pull-right">
@@ -8,9 +7,9 @@
                 <input type="text" name="table_search" class="form-control pull-right" v-model="rowData.height">
                 <div class="input-group-btn">
                     <button type="button" class="btn btn-xs btn-primary" @click="addCol">Add Column</button>
-                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                    <button type="button" class="btn btn-box-tool"><i class="fa fa-minus"></i>
                     </button>
-                    <button type="button" class="btn btn-box-tool" data-widget="remove" @click="removeRow"><i class="fa fa-times"></i>
+                    <button type="button" class="btn btn-box-tool" @click="removeRow"><i class="fa fa-times"></i>
                     </button>
                 </div>
             </div>
@@ -30,7 +29,6 @@
       </draggable>
     </div>
 
-    </div>
   </div>
 </template>
 

@@ -40,6 +40,9 @@ export default {
     return {
       dashboardTitle: ''
     }
+  },
+  methods: {
+
   }
 }
 </script>

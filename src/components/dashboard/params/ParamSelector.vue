@@ -1,11 +1,11 @@
 <template>
-	<div>
-		<el-select v-model="value" placeholder="请选择">
+	<div style="max-width: 120px">
+		<el-select v-model="value" size="mini" :placeholder="param.name" :clearable="true" @change="selectChangeHandler">
 			<el-option
 			  v-for="item in options"
-			  :key="item.value"
-			  :label="item.label"
-			  :value="item.value">
+			  :key="item"
+			  :label="item"
+			  :value="item">
 			</el-option>
 		</el-select>
 	</div>
@@ -16,28 +16,33 @@
 export default {
 	name: 'ParamSelector',
 	props: {
-
+		param: {
+			type: Object,
+			required: true
+		}
+	},
+	created() {
+		
 	},
 	data() {
 	  return {
-	    options: [{
-	      value: '选项1',
-	      label: '黄金糕'
-	    }, {
-	      value: '选项2',
-	      label: '双皮奶'
-	    }, {
-	      value: '选项3',
-	      label: '蚵仔煎'
-	    }, {
-	      value: '选项4',
-	      label: '龙须面'
-	    }, {
-	      value: '选项5',
-	      label: '北京烤鸭'
-	    }],
 	    value: ''
 	  }
+	},
+	computed: {
+		options() {
+			return this.param.selects;
+		}
+	},
+	methods: {
+		selectChangeHandler() {
+			let selectorFilter = {
+	            col: this.param.col[0].column,
+	            type: '=',
+	            values: [this.value]
+	        };
+	        this.$store.commit('params/setFilter', selectorFilter);
+		}
 	}
 }
 </script>

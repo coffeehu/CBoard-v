@@ -43,8 +43,14 @@ export default {
       loading: true
     }
   },
+  beforeRouteUpdate(to, from, next) {
+    this.$store.commit('dashboard/reset');  // 将 complete 置为 false，不这样做的话 vuex 会缓存数据，也就是说会一直保持 true
+    this.$store.commit('params/resetFilters'); // 清除 filters
+    next();
+  },
   destroyed() {
     this.$store.commit('dashboard/reset');  // 将 complete 置为 false，不这样做的话 vuex 会缓存数据，也就是说会一直保持 true
+    this.$store.commit('params/resetFilters'); // 清除 filters
   }
 }
 </script>
