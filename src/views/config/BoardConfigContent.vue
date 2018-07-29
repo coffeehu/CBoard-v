@@ -55,7 +55,7 @@
                     <button type="submit" class="btn btn-success" @click="addRow">
                         Add Row
                     </button>
-                    <button type="submit" class="btn btn-danger">
+                    <button type="submit" class="btn btn-danger" @click="addParamRow">
                         Add Param Row
                     </button>
                 </div>
@@ -71,10 +71,22 @@
                         				   @remove-row="removeRow"></widget-config-row>
                         <widget-config-param v-if="row.type === 'param'" :index="index" 
                                            :rowData="row"
-                                           @remove-row="removeRow"></widget-config-param>
+                                           @remove-row="removeRow"
+                                           @add-param="addParamHandler"></widget-config-param>
                     </div>
                 </transition-group>
             </draggable>
+
+            <el-dialog title="Param" :visible.sync="isParamConfigShow">
+                <el-transfer
+                    filterable
+                    :filter-method="filterMethod"
+                    filter-placeholder="请输入城市拼音"
+                    v-model="value2"
+                    :data="data2">
+                </el-transfer>
+                <p v-for="col in columns">{{ col }}</p>
+            </el-dialog>
 
         </div>
     </div>
@@ -108,15 +120,43 @@ export default {
 	computed: {
 		categoryList() {
 			return this.$store.state.menu.categoryList;
-		}
+		},
+        widgetList() {
+            return this.$store.state.config.widgetList;
+        }
 	},
 	data() {
+        //------------
+        const generateData2 = _ => {
+            const data = [];
+            const cities = ['上海', '北京', '广州', '深圳', '南京', '西安', '成都'];
+            const pinyin = ['shanghai', 'beijing', 'guangzhou', 'shenzhen', 'nanjing', 'xian', 'chengdu'];
+            cities.forEach((city, index) => {
+                data.push({
+                    label: city,
+                    key: index,
+                    pinyin: pinyin[index]
+                });
+            });
+            return data;
+        };
+        //------------
+
         return {
             category: '',
             name: '',
             rows: [],
             boardList: [],
-            board: {}
+            board: {},
+            columns: [],
+            //--------------------
+            isParamConfigShow: false,
+            data2: generateData2(),
+            value2: [],
+            filterMethod(query, item) {
+                return item.pinyin.indexOf(query) > -1;
+            }
+            //----------------------
         }
     },
     methods: {
@@ -142,6 +182,50 @@ export default {
             row.flag = 'config-row-' + this.board.layout.rows.length;
         	this.board.layout.rows.push(row);
     	},
+        //添加 param 行
+        addParamRow() {
+            const paramRow = {type: 'param', params: []};
+            paramRow.flag = 'config-row-' + this.board.layout.rows.length;
+            this.board.layout.rows.unshift(paramRow);
+        },
+        addParamHandler() {
+            this.isParamConfigShow = true;
+
+            // 获得当前页面拥有的 widgetId
+            let widgetIdList = [];
+            let rows = this.board.layout.rows;
+            for(let i=0,l=rows.length; i<l; i++) {
+                let row = rows[i];
+                if(row.type === 'widget') {
+                    for(let j=0,len=row.widgets.length; j<len; j++) {
+                        let widget = row.widgets[j];
+                        if(widgetIdList.indexOf(widget.widgetId) === -1) widgetIdList.push(widget.widgetId);
+                    }
+                }
+            }
+
+            // 根据当前页面的 widgetId 找到对应的 datasetId
+            let datasetIdList = [];
+            let datasetNameList = '';
+            for(let i=0,l=this.widgetList.length; i<l; i++) {
+                for(let j=0,len=widgetIdList.length; j<len; j++) {
+                    let datasetId = this.widgetList[i].data.datasetId;
+                    if(this.widgetList[i].id === widgetIdList[j]) {
+                        if(datasetIdList.indexOf(datasetId) === -1) {
+                            datasetIdList.push(datasetId);
+                        }
+                    }
+                }
+            }
+
+            for(let i=0,l=datasetIdList.length; i<l; i++) {
+                this.$store.dispatch('config/getColumns', {datasetId: datasetIdList[i]})
+                    .then((data) => {
+                        this.columns = this.columns.concat(data); 
+                    })
+                    .catch(() => {});
+            }
+        },
     	//删除行
     	removeRow(index) {
     		this.board.layout.rows.splice(index, 1);

@@ -22,17 +22,24 @@ export default {
 		}
 	},
 	created() {
-		
+		let params = {
+	      datasetId: this.param.col[0].datasetId,
+	      colmunName: this.param.col[0].column
+	    };
+	    this.$store.dispatch('params/getDimensionValues', params)
+	    	.then((data) => {
+	    		this.options = data;
+	    	})
+	    	.catch(() => {});
 	},
 	data() {
 	  return {
-	    value: ''
+	    value: '',
+	    options: []
 	  }
 	},
 	computed: {
-		options() {
-			return this.param.selects;
-		}
+
 	},
 	methods: {
 		selectChangeHandler() {

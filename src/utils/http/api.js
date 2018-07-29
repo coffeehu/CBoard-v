@@ -15,12 +15,16 @@ const api = {
 	//widget 的具体数据
 	getAggregateData: baseurl + 'dashboard/getAggregateData.do',
 
+	//获得 param 的数据
+	getDimensionValues: baseurl + 'dashboard/getDimensionValues.do',
+
 	/*############### config ##################*/
 	getDatasetList: baseurl + 'dashboard/getDatasetList.do',
 	getWidgetList: baseurl + 'dashboard/getWidgetList.do',
 	//保存
 	updateBoard: baseurl + 'dashboard/updateBoard.do',
-
+	// config--add param--弹出框的列表
+	getColumns: baseurl + 'dashboard/getColumns.do',
 
 }
 

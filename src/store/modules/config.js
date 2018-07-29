@@ -38,6 +38,18 @@ const actions = {
     .catch((error) => {
       console.log(error)
     });
+  },
+  getColumns(context, params) {
+    return new Promise((resolve, reject) => {
+      req.post(api.getColumns, params)
+        .then((response) => {
+          resolve(response.data.columns);
+        })
+        .catch((error) => {
+          console.log(error);
+          reject(error);
+        })
+    });
   }
 
 }

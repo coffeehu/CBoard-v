@@ -1,5 +1,5 @@
-/*import req from '@/utils/http/request';
-import api from '@/utils/http/api';*/
+import req from '@/utils/http/request';
+import api from '@/utils/http/api';
 
 const state = {
   filters: []
@@ -9,7 +9,21 @@ const state = {
 const getters = {}
 
 
-const actions = {}
+const actions = {
+  getDimensionValues(context, params) {
+    return new Promise((resolve, reject) => {
+      req.post(api.getDimensionValues, params)
+        .then((response) => {
+          if(response.statusText === 'OK') {
+            resolve(response.data);
+          }
+        })
+        .catch((error) => {
+          console.log(error)
+        });
+    });
+  }
+}
 
 
 const mutations = {
