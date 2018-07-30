@@ -27,23 +27,73 @@ body {
   height: 100%;*/
   min-height: 100%;
 }
-
+.el-select .el-input.is-focus .el-input__inner,
+.el-input.is-active .el-input__inner, .el-input__inner:focus {
+  border-color: #3c8dbc;
+}
 /*配置界面--preview 弹框*/
-.previewConfigModal {
+.preview-config-modal {
     position: absolute;
     top: 10%;
     left: 50%;
     transform: translateX(-50%);
     border-radius: 2px;
 }
-.previewConfigModal .el-button--primary{
+.preview-config-modal .el-button--primary{
     background-color: #3c8dbc;
     border-color: #367fa9;
 }
-.previewConfigModal .el-button--primary:active,
-.previewConfigModal .el-button--primary:hover,
-.previewConfigModal .el-button--primary:focus {
+.preview-config-modal .el-button--primary:active,
+.preview-config-modal .el-button--primary:hover,
+.preview-config-modal .el-button--primary:focus {
     background-color: #3c8dbc;
     border-color: ##367fa9; 
+}
+/*配置界面--Add Param 弹框*/
+.param-config-dialog .el-transfer-panel {
+  width: 40%;
+}
+.param-config-dialog .el-transfer__buttons {
+  width: 20%;
+}
+@media (max-width: 767px) {
+  .param-config-dialog .el-transfer-panel,
+  .param-config-dialog .el-transfer__buttons {
+    width: 100%;
+  }
+  .param-config-dialog .el-transfer__buttons {
+    margin-top: 10px;
+  }
+}
+.param-config-dialog .el-transfer__buttons .el-transfer__button {
+  margin: 0 auto!important;
+  margin-bottom: 10px!important;
+}
+.param-config-dialog .el-transfer-panel__header {
+  background: #3c8dbc;
+}
+.param-config-dialog .el-transfer-panel__header .el-checkbox__label,
+.param-config-dialog .el-transfer-panel__header .el-checkbox__label > span {
+  color: #fff!important;
+}
+.param-config-dialog .el-transfer-panel__body {
+  height: 300px;
+}
+.param-config-dialog .el-transfer-panel__list {
+  height: 248px;
+}
+.param-config-dialog .el-transfer__button,
+.param-config-dialog .el-checkbox__input.is-indeterminate .el-checkbox__inner,
+.param-config-dialog .el-checkbox__input.is-checked .el-checkbox__inner {
+  background-color: #3c8dbc;
+  border-color: #367fa9;
+}
+.param-config-dialog .el-transfer__button.is-disabled {
+  background-color: #f5f7fa;
+  border-color: #dcdfe6;
+}
+.param-config-dialog .el-checkbox__input.is-checked+.el-checkbox__label,
+.param-config-dialog .el-transfer-panel__item:hover {
+  color: #3c8dbc;
 }
 </style>

@@ -21,17 +21,16 @@
       <div class="col-sm-12">
         <div class="form-control" style="min-height: 35px;height: auto;padding: 0px">
 
-          <draggable v-model="params"  @start="drag=true">
+          <draggable v-model="params"  @start="drag=true" @end="dragEndHandler">
               <div v-for="(param, index) in params" :key="param.paramType + param.name + index" class="btn-group" style="cursor: move;margin: 3px 3px;">
                 <button type="button" class="btn btn-default btn-sm" style="cursor: move;">{{ param.name}}</button>
-                <button type="button" class="btn btn-default btn-sm">
+                <button type="button" class="btn btn-default btn-sm" @click="editParam(param)">
                     <span class="fa fa-edit"></span>
                 </button>
-                <button type="button" class="btn btn-default btn-sm">
+                <!-- <button type="button" class="btn btn-default btn-sm">
                     <span class="fa fa-pencil-square"></span>
-                </button>
-                <button type="button"
-                        class="btn btn-default btn-sm">
+                </button> -->
+                <button type="button" class="btn btn-default btn-sm" @click="removeParam(index)">
                     <span class="fa fa-trash-o"></span>
                 </button>
               </div>
@@ -75,11 +74,23 @@ export default {
   methods: {
     // 添加 param
     addParam() {
-      this.$emit('add-param', this.index);
+      this.$emit('add-param', this.params);
+    },
+    // 修改 param
+    editParam(param) {
+      this.$emit('edit-param', param);
     },
     // 移除 param
+    removeParam(index) {
+      this.params.splice(index, 1);
+    },
+    // 移除 Param Row
     removeParamRow() {
       this.$emit('remove-row', this.index);
+    },
+    // 拖动完成的回调
+    dragEndHandler() {
+      this.rowData.params = this.params;
     }
   }
 }

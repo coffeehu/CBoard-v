@@ -72,20 +72,49 @@
                         <widget-config-param v-if="row.type === 'param'" :index="index" 
                                            :rowData="row"
                                            @remove-row="removeRow"
-                                           @add-param="addParamHandler"></widget-config-param>
+                                           @add-param="addParamHandler"
+                                           @edit-param="editParamHandler"></widget-config-param>
                     </div>
                 </transition-group>
             </draggable>
 
-            <el-dialog title="Param" :visible.sync="isParamConfigShow">
-                <el-transfer
-                    filterable
-                    :filter-method="filterMethod"
-                    filter-placeholder="请输入城市拼音"
-                    v-model="value2"
-                    :data="data2">
-                </el-transfer>
-                <p v-for="col in columns">{{ col }}</p>
+            <!-- Add Param 配置面板 -->
+            <el-dialog title="Param" :visible.sync="isParamConfigShow" custom-class="param-config-dialog">
+                <div class="row">
+                    <div class="col-md-12">
+                        <el-input v-model="paramName" placeholder="请输入名称"></el-input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <el-transfer
+                            :titles="['数据源', '参数数据']"
+                            filterable
+                            filter-placeholder="请输入关键字"
+                            v-model="paramCol"
+                            :data="paramColumns">
+                        </el-transfer>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label class="param-type-label">Param Type :</label>
+                        <el-select v-model="paramTypeValue" placeholder="请选择">
+                            <el-option
+                            v-for="item in paramTypes"
+                            :key="item"
+                            :label="item"
+                            :value="item">
+                            </el-option>
+                        </el-select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-default pull-left" @click="cancelParamConfig">取消</button>
+                        <button type="button" class="btn btn-primary pull-right" @click="submitParamConfig">确定</button>
+                    </div>
+                </div>
             </el-dialog>
 
         </div>
@@ -115,6 +144,7 @@ export default {
     beforeRouteUpdate (to, from, next) {
         const id = parseInt(to.params.id);
         this.setBoardById(id);
+        this.paramColumns = [];
         next();
     },
 	computed: {
@@ -123,40 +153,28 @@ export default {
 		},
         widgetList() {
             return this.$store.state.config.widgetList;
+        },
+        datasetList() {
+            return this.$store.state.config.datasetList;
         }
 	},
 	data() {
-        //------------
-        const generateData2 = _ => {
-            const data = [];
-            const cities = ['上海', '北京', '广州', '深圳', '南京', '西安', '成都'];
-            const pinyin = ['shanghai', 'beijing', 'guangzhou', 'shenzhen', 'nanjing', 'xian', 'chengdu'];
-            cities.forEach((city, index) => {
-                data.push({
-                    label: city,
-                    key: index,
-                    pinyin: pinyin[index]
-                });
-            });
-            return data;
-        };
-        //------------
-
         return {
             category: '',
             name: '',
             rows: [],
             boardList: [],
             board: {},
-            columns: [],
-            //--------------------
+            //--------- Add Param 配置数据 -----------
             isParamConfigShow: false,
-            data2: generateData2(),
-            value2: [],
-            filterMethod(query, item) {
-                return item.pinyin.indexOf(query) > -1;
-            }
-            //----------------------
+            paramConfigFlag: 'add', // "add"、"edit"(新增和编辑两种)
+            paramName: '', //param 名称
+            paramCol: [], //穿梭框的选中值
+            paramColumns: [], //穿梭框列表数据
+            paramTypeValue: 'selector', //param type 值
+            paramTypes: ['selector', 'slider'], //param type 列表
+            currentParamRowData: [], // 当前操作的 param row 的数据
+            currentParamData: [], // 当前操作的 param 的数据
         }
     },
     methods: {
@@ -188,44 +206,6 @@ export default {
             paramRow.flag = 'config-row-' + this.board.layout.rows.length;
             this.board.layout.rows.unshift(paramRow);
         },
-        addParamHandler() {
-            this.isParamConfigShow = true;
-
-            // 获得当前页面拥有的 widgetId
-            let widgetIdList = [];
-            let rows = this.board.layout.rows;
-            for(let i=0,l=rows.length; i<l; i++) {
-                let row = rows[i];
-                if(row.type === 'widget') {
-                    for(let j=0,len=row.widgets.length; j<len; j++) {
-                        let widget = row.widgets[j];
-                        if(widgetIdList.indexOf(widget.widgetId) === -1) widgetIdList.push(widget.widgetId);
-                    }
-                }
-            }
-
-            // 根据当前页面的 widgetId 找到对应的 datasetId
-            let datasetIdList = [];
-            let datasetNameList = '';
-            for(let i=0,l=this.widgetList.length; i<l; i++) {
-                for(let j=0,len=widgetIdList.length; j<len; j++) {
-                    let datasetId = this.widgetList[i].data.datasetId;
-                    if(this.widgetList[i].id === widgetIdList[j]) {
-                        if(datasetIdList.indexOf(datasetId) === -1) {
-                            datasetIdList.push(datasetId);
-                        }
-                    }
-                }
-            }
-
-            for(let i=0,l=datasetIdList.length; i<l; i++) {
-                this.$store.dispatch('config/getColumns', {datasetId: datasetIdList[i]})
-                    .then((data) => {
-                        this.columns = this.columns.concat(data); 
-                    })
-                    .catch(() => {});
-            }
-        },
     	//删除行
     	removeRow(index) {
     		this.board.layout.rows.splice(index, 1);
@@ -254,7 +234,7 @@ export default {
             this.$confirm('保存后才能预览，是否保存并预览?', '提示', {
               confirmButtonText: '确定',
               cancelButtonText: '取消',
-              customClass: 'previewConfigModal'
+              customClass: 'preview-config-modal'
             }).then(() => {
                 this.saveConfig(() => {
                     const id = this.$route.params.id;
@@ -272,18 +252,168 @@ export default {
             });
         },
         rowDragEnd(evt) {
-            /*const oldIndex = evt.oldIndex;
-            const newIndex = evt.newIndex;
-            if(oldIndex === newIndex) return;
-            this.changeRow(oldIndex, newIndex);
-            console.log(this.board.layout.rows);*/
             this.board.layout.rows = this.rows;
         },
-        /*changeRow(oldIndex, newIndex) {
-            let temp = this.board.layout.rows[oldIndex];
-            this.board.layout.rows[oldIndex] = this.board.layout.rows[newIndex];
-            this.board.layout.rows[newIndex] = temp;
-        }*/
+        // 获得 params 数据源列表，储存到 this.paramColumns
+        getParamColumns(callback) {
+            // 获得当前页面拥有的 widgetId
+            let widgetIdList = [];
+            let rows = this.board.layout.rows;
+            for(let i=0,l=rows.length; i<l; i++) {
+                let row = rows[i];
+                if(row.type === 'widget') {
+                    for(let j=0,len=row.widgets.length; j<len; j++) {
+                        let widget = row.widgets[j];
+                        if(widgetIdList.indexOf(widget.widgetId) === -1) widgetIdList.push(widget.widgetId);
+                    }
+                }
+            }
+
+            // 根据当前页面的 widgetId 找到对应的 datasetId
+            let datasetIdList = [];
+            let datasetNameList = '';
+            for(let i=0,l=this.widgetList.length; i<l; i++) {
+                for(let j=0,len=widgetIdList.length; j<len; j++) {
+                    let datasetId = this.widgetList[i].data.datasetId;
+                    if(this.widgetList[i].id === widgetIdList[j]) {
+                        if(datasetIdList.indexOf(datasetId) === -1) {
+                            datasetIdList.push(datasetId);
+                        }
+                    }
+                }
+            }
+
+            // 请求接口，获得对应的数据库字段列表
+            this.paramColumns = [];
+            for(let i=0,l=datasetIdList.length; i<l; i++) {
+                this.$store.dispatch('config/getColumns', {datasetId: datasetIdList[i]})
+                    .then((data) => {
+                        let len = this.paramColumns.length;
+                        data.forEach((value, index) => {
+                            this.paramColumns.push({
+                                label: value,
+                                key: len + index,
+                                datasetId: datasetIdList[i]
+                            });
+                        });
+                        if(typeof callback === 'function') {
+                            callback();
+                        }
+                    })
+                    .catch(() => {});
+            }
+        },
+        // Param Row 中点击 Add Param 的回调
+        // 参数 params 为对应 Param Row 的值
+        addParamHandler(params) {
+            this.paramConfigFlag = 'add';
+            this.currentParamRowData = params;
+            if( this.paramColumns.length === 0 ) {
+                this.getParamColumns();   
+            }
+            this.isParamConfigShow = true;
+            this.paramCol = [];
+        },
+        // 编辑 param 的回调
+        editParamHandler(param) {
+            console.log('eidt this param', param)
+            this.paramConfigFlag = 'edit';
+            this.currentParamData = param;
+            if( this.paramColumns.length === 0 ) { // 若无 columns 数据，则请求
+                this.getParamColumns(() => {
+                    this.setDefaultColumns(param);
+                });
+            }else {
+                this.setDefaultColumns(param);
+            }
+            this.isParamConfigShow = true;
+            this.paramName = param.name;
+            this.paramTypeValue = param.paramType;
+        },
+        // edit param 时，穿梭框中展示该 param 之前已选中的数据
+        setDefaultColumns(param) {
+            let indexArr = [];
+            param.col.forEach(col => {
+                this.paramColumns.forEach((paramColumn, index) => {
+                    if(paramColumn.label === col.column) {
+                        indexArr.push(index);
+                    }
+                })
+            })
+            this.paramCol = indexArr;
+        },
+        cancelParamConfig() {
+            this.isParamConfigShow = false;
+        },
+        submitParamConfig() {
+            if(this.paramConfigFlag === 'add') {
+                this.submitParamConfigAdd();
+            }else if(this.paramConfigFlag === 'edit') {
+                this.submitParamConfigEdit();
+            }
+            this.isParamConfigShow = false;
+        },
+        submitParamConfigAdd() {
+            /*
+                构建请求 param 对象，结构如：
+                {
+                    col: [{
+                        column: 'SALES_COUNTRY',
+                        datasetId: 2,
+                        name: 'FoodMart_Sample'
+                    }],
+                    name: 'test',
+                    paramType: "selector",
+                    selects: [],
+                    type: '=',
+                    values: []
+                }
+            */
+            if(this.paramName === '') {
+                this.$message({
+                  message: '请输入名称',
+                  type: 'warning'
+                });
+                return;
+            }
+            let param = {
+                name: this.paramName,
+                type: '=',
+                values: [],
+                paramType: this.paramTypeValue
+            }
+            let col = [];
+            this.paramCol.forEach(value => {
+                let datasetId = this.paramColumns[value].datasetId;
+                let column = this.paramColumns[value].label;
+                let colItem = { datasetId: datasetId, column: column };
+                this.datasetList.forEach(value => {
+                    if(value.id === datasetId) {
+                        colItem.name = value.name;
+                    }
+                })
+                col.push(colItem);
+            })
+            param.col = col;
+            this.currentParamRowData.push(param);
+        },
+        submitParamConfigEdit() {
+            let col = [];
+            this.paramCol.forEach(value => {
+                let datasetId = this.paramColumns[value].datasetId;
+                let column = this.paramColumns[value].label;
+                let colItem = { datasetId: datasetId, column: column };
+                this.datasetList.forEach(value => {
+                    if(value.id === datasetId) {
+                        colItem.name = value.name;
+                    }
+                })
+                col.push(colItem);
+            })
+            this.currentParamData.name = this.paramName;
+            this.currentParamData.paramType = this.paramTypeValue;
+            this.currentParamData.col = col;
+        }
     }
 }
 </script>
@@ -295,5 +425,12 @@ export default {
 }
 .flip-list-move {
   transition: transform 0.5s;
+}
+.param-config-dialog .row {
+    margin-bottom: 10px;
+}
+.param-type-label {
+    margin-right: 10px;
+    font-weight: bold;
 }
 </style>

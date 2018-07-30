@@ -22,15 +22,20 @@ export default {
 		}
 	},
 	created() {
-		let params = {
-	      datasetId: this.param.col[0].datasetId,
-	      colmunName: this.param.col[0].column
-	    };
-	    this.$store.dispatch('params/getDimensionValues', params)
-	    	.then((data) => {
-	    		this.options = data;
-	    	})
-	    	.catch(() => {});
+		console.log('ParamSelector--param', this.param)
+		this.options = [];
+		this.param.col.forEach(col => {
+			let params = {
+		      datasetId: col.datasetId,
+		      colmunName: col.column
+		    };
+		    this.$store.dispatch('params/getDimensionValues', params)
+		    	.then((data) => {
+		    		this.options = this.options.concat(data);
+		    	})
+		    	.catch(() => {});
+		});
+	    /*this.options = this.param.selects;*/
 	},
 	data() {
 	  return {
