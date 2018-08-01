@@ -21,13 +21,13 @@
 </template>
 
 <script>
-import KpiContent from '@/components/dashboard/KpiContent';
-import ChartContent from '@/components/dashboard/ChartContent';
-import TableContent from '@/components/dashboard/TableContent';
-import MapContent from '@/components/dashboard/MapContent';
+import KpiContent from '@/components/dashboard/widgets/KpiContent';
+import ChartContent from '@/components/dashboard/widgets/ChartContent';
+import TableContent from '@/components/dashboard/widgets/TableContent';
+import MapContent from '@/components/dashboard/widgets/MapContent';
 
 export default {
-  name: 'DashboardWidget',
+  name: 'DashboardWidgets',
   props: {
     widgets: {
       type: Array,

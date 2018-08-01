@@ -8,7 +8,7 @@
         <dashboard-param :params="row.params"></dashboard-param>
       </div> 
       <div v-else>
-        <dashboard-widget :widgets="row.widgets" :height="row.height" class="row"></dashboard-widget>
+        <dashboard-widgets :widgets="row.widgets" :height="row.height" class="row"></dashboard-widgets>
       </div>
     </div>
 
@@ -16,14 +16,14 @@
 </template>
 
 <script>
-import DashboardHeader from '@/views/dashboard/DashboardHeader';
-import DashboardWidget from '@/components/dashboard/DashboardWidget';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import DashboardWidgets from '@/components/dashboard/DashboardWidgets';
 import DashboardParam from '@/components/dashboard/DashboardParam';
 
 export default {
   name: 'Grid',
   components: {
-    DashboardWidget,
+    DashboardWidgets,
     DashboardHeader,
     DashboardParam
   },

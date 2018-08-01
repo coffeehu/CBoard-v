@@ -57,11 +57,16 @@ export default {
       type: Number
     }
   },
+  components: {
+    draggable
+  },
   created() {
     this.params = this.rowData.params;
   },
-  components: {
-    draggable
+  watch: {
+    rowData() {
+      this.params = this.rowData.params;
+    }
   },
   computed: {
 
