@@ -58,6 +58,9 @@
                     <button type="submit" class="btn btn-success" @click="addNode('leaf')">
                         Add Sub Node
                     </button>
+                    <button type="submit" class="btn btn-danger" @click="addParamRow">
+                        Add Param Row
+                    </button>
                 </div>
                 <div v-else class="form-group" style="margin: 5px 15px;">
                     <button type="submit" class="btn btn-success" @click="addRow">

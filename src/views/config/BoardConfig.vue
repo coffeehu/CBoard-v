@@ -157,7 +157,28 @@ export default {
         this.$router.push({path: `/config/board/${type}`, query: { categoryId: this.currentTreeItem.id }});
       },
       delLayout() {
-        console.log('delLayout')
+        this.$confirm('是否确认删除？', '警告', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          customClass: 'preview-config-modal'
+        }).then(() => {
+          let id = this.currentTreeItem.id;
+          let params = { id: id };
+          this.$req.post(this.$api.deleteBoard, params)
+          .then(response => {
+              if(response.data.status === '1') {
+                this.$message({
+                    type: 'success',
+                    message: '删除成功!'
+                });
+                this.$store.dispatch('menu/getBoardList')
+                .then(() => {
+                  this.$router.push({path: '/config/board'});
+                })
+                .catch(() => {})
+              }
+          })
+        }).catch(() => {});
       }
     }
 }
