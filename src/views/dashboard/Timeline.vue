@@ -9,14 +9,14 @@
     </div> 
 
     <div class="timeline-wrapper">
-      <div v-for="row in layoutData.rows" v-if="row.type==='widget'" class="timeline-item-wrapper">
+      <div v-for="(row, index) in layoutData.rows" v-if="row.type==='widget'" class="timeline-item-wrapper">
         <div class="timeline-item">
-          <span class="timeline-info">hehe</span>
-          <i class="timeline-tag"></i>
+          <span class="timeline-info">{{ row.nodeName }}</span>
+          <i :class="row.node === 'parent' ? 'timeline-tag' : 'timeline-tag-sm'" @click="toggleNode(index, row)"></i>
           <i class="arrow-left"></i>
           <div class="timeline-content">
-            <h3 class="timeline-content--header">title</h3>
-            <div class="timeline-content--body">
+            <h3 class="timeline-content--header">{{ row.title }}</h3>
+            <div class="timeline-content--body" :ref="'timeline-body-'+index">
               <dashboard-widgets :widgets="row.widgets" :height="row.height" class="row"></dashboard-widgets>
             </div>
           </div>
@@ -28,6 +28,7 @@
 </template>
 
 <script>
+import domUtils from '@/utils/dom.js';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardWidgets from '@/components/dashboard/DashboardWidgets';
 import DashboardParam from '@/components/dashboard/DashboardParam';
@@ -41,8 +42,6 @@ export default {
   },
   created() {
       this.dashboardTitle = this.$store.state.dashboard.boardData.name;
-      console.log(this.layoutData.rows)
-      console.log(this.paramRow)
   },
   computed: {
     layoutData() {
@@ -63,6 +62,31 @@ export default {
   data () {
     return {
       dashboardTitle: ''
+    }
+  },
+  methods: {
+    //时间轴折叠/展开过渡效果
+    toggleNode(index, row) {
+      let body = this.$refs['timeline-body-'+index][0];
+      if(row.collapse === undefined) {
+        row.bodyHeight = domUtils.outHeight(body, true);
+        domUtils.css(body, 'maxHeight', row.bodyHeight);
+        setTimeout(function() {
+          if(row.collapse) {
+            domUtils.css(body, 'maxHeight', row.bodyHeight);
+          }else {
+            domUtils.css(body, 'maxHeight', 0);
+          }
+          row.collapse = !row.collapse;  
+        })
+      }else {
+        if(row.collapse) {
+          domUtils.css(body, 'maxHeight', row.bodyHeight);
+        }else {
+          domUtils.css(body, 'maxHeight', 0);
+        }
+        row.collapse = !row.collapse; 
+      } 
     }
   }
 }
@@ -92,6 +116,10 @@ export default {
   line-height: 30px;
   text-align: center;
   overflow: hidden;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: "Microsoft YaHei";
+  color: #555;
 }
 .timeline-tag {
   float: left;
@@ -99,12 +127,30 @@ export default {
   height: 30px;
   margin-right: 20px;
   font-size: 15px;
+  text-overflow: ellipsis;
   border-radius: 50%;
   background-color: #dd4b39;
+  cursor: pointer;
+}
+.timeline-tag-sm {
+  float: left;
+  width: 30px;
+  height: 30px;
+  margin-right: 20px;
+  font-size: 15px;
+  text-align: center;
+}
+.timeline-tag-sm:before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #00c0ef;
+  cursor: pointer;
 }
 .timeline-content {
   position: relative;
-  min-height: 60px;
   border-radius: 0 3px 3px 3px;
   box-shadow: 0 1px 1px rgba(0,0,0,0.1);
   background-color: #fff;
@@ -133,5 +179,26 @@ i.arrow-left{
 }
 .timeline-content--body {
   padding: 10px 10px 0 10px;
+  overflow: hidden;
+  -webkit-transition: max-height .3s;
+     -moz-transition: max-height .3s;
+       -o-transition: max-height .3s;
+          transition: max-height .3s;
+/*  -webkit-animation-duration: .3s;
+          animation-duration: .3s;
+  -webkit-animation-fill-mode: both;
+          animation-fill-mode: both;*/
+}
+.collapse-panel {
+  -webkit-animation-name: anime-collapse;
+          animation-name: anime-collapse;
+}
+@keyframes anime-collapse {
+  0% {
+    max-height: 1500px;
+  }
+  100% {
+    max-height: 0px;
+  }
 }
 </style>

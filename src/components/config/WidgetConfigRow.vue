@@ -1,19 +1,24 @@
 <template>
   <div class="box box-success" style="border-left: 1px solid #d2d6de; border-right: 1px solid #d2d6de; margin-top:20px">
 
-    <div class="box-header" style="cursor: move">Row
-        <div class="box-tools pull-right">
-            <div class="input-group input-group-sm" style="width: 300px;">
-                <input type="text" name="table_search" class="form-control pull-right" v-model="rowData.height">
-                <div class="input-group-btn">
-                    <button type="button" class="btn btn-xs btn-primary" @click="addCol">Add Column</button>
-                    <button type="button" class="btn btn-box-tool"><i class="fa fa-minus"></i>
-                    </button>
-                    <button type="button" class="btn btn-box-tool" @click="removeRow"><i class="fa fa-times"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
+    <div class="box-header" style="cursor: move">
+      <div class="box-header-name">{{ rowName }}</div>
+      <div v-if="rowData.node" class="node-info">
+        <div v-if="rowData.node === 'parent'"><label>Node Name:</label><el-input v-model="rowData.nodeName" size="mini" class="node-title"></el-input></div>
+        <div><label>Title:</label><el-input v-model="rowData.title" size="mini" class="node-title"></el-input></div>
+      </div>
+      <div class="box-tools pull-right">
+          <div class="input-group input-group-sm" style="width: 300px;">
+              <input type="text" name="table_search" class="form-control pull-right" v-model="rowData.height">
+              <div class="input-group-btn">
+                  <button type="button" class="btn btn-xs btn-primary" @click="addCol">Add Column</button>
+                  <button type="button" class="btn btn-box-tool"><i class="fa fa-minus"></i>
+                  </button>
+                  <button type="button" class="btn btn-box-tool" @click="removeRow"><i class="fa fa-times"></i>
+                  </button>
+              </div>
+          </div>
+      </div>
     </div>
 
     <div class="box-body">
@@ -63,6 +68,16 @@ export default {
     }
   },
   computed: {
+    rowName() {
+      if(this.rowData.node) {
+        if(this.rowData.node === 'parent') {
+          return 'Main Node';
+        }
+        return 'Sub Node';
+      }else {
+        return 'Row';
+      }
+    },
     dragOptions () {
       return  {
         animation: 0,
@@ -76,6 +91,8 @@ export default {
   },
   data() {
     return {
+      nodeName: '',
+      nodeTitle: '',
       widgets: '',
       editable: true
     }
@@ -87,8 +104,6 @@ export default {
         for(let i=0,l=this.widgets.length; i<l; i++) {
           this.widgets[i].flag = this.widgets[i].name + this.widgets[i].widgetId + i; // 设置一个唯一标识用于 key
         }
-      }else if(this.rowData.type === 'param') {
-
       }
     },
     //删除行
@@ -118,6 +133,19 @@ export default {
 </script>
 
 <style scoped>
+.box-header-name {
+  font-size: 18px;
+}
+.node-info {
+  margin-top: 10px;
+}
+.node-info > div {
+  display: inline-block;
+  margin-right: 15px;
+}
+.node-info > div >label {
+  margin-right: 4px;
+}
 .input-group-sm > .input-group-btn > .btn {
   height: 30px;
   padding: 5px 10px;

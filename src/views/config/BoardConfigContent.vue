@@ -51,7 +51,15 @@
 
             <!-- 新增行按钮栏 -->
             <div class="row">
-                <div class="form-group" style="margin: 5px 15px;">
+                <div v-if="boardType === 'timeline'" class="form-group" style="margin: 5px 15px;">
+                    <button type="submit" class="btn btn-success" @click="addNode('parent')">
+                        Add Main Node
+                    </button>
+                    <button type="submit" class="btn btn-danger" @click="addNode('leaf')">
+                        Add Sub Node
+                    </button>
+                </div>
+                <div v-else class="form-group" style="margin: 5px 15px;">
                     <button type="submit" class="btn btn-success" @click="addRow">
                         Add Row
                     </button>
@@ -138,6 +146,7 @@ export default {
             .then(() => {
                 const id = parseInt(this.$route.params.id);
                 this.setBoardById(id);
+                console.log('this.board--------', this.board)
             })
             .catch(() => {})
     },
@@ -156,6 +165,10 @@ export default {
         },
         datasetList() {
             return this.$store.state.config.datasetList;
+        },
+        boardType() {
+            if(!this.board.layout) return '';
+            return this.board.layout.type;
         }
 	},
 	data() {
@@ -192,7 +205,6 @@ export default {
             this.rows = this.board.layout.rows;
             this.name = this.board.name;
             this.category = this.board.categoryId;
-            console.log('rows', this.rows)
         },
     	//添加行
     	addRow() {
@@ -205,6 +217,12 @@ export default {
             const paramRow = {type: 'param', params: []};
             paramRow.flag = 'config-row-' + this.board.layout.rows.length;
             this.board.layout.rows.unshift(paramRow);
+        },
+        //添加node（用于 timeline 类型的布局）
+        addNode(nodeType) {
+            const row = {type: 'widget', widgets: [], node: nodeType};
+            row.flag = 'config-row-' + this.board.layout.rows.length;
+            this.board.layout.rows.push(row);
         },
     	//删除行
     	removeRow(index) {
