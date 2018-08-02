@@ -7,21 +7,41 @@
                     <div class="box-header with-border">
                         <i class="fa fa-dashboard"></i><h3 class="box-title">test</h3>
                         <div class="box-tools pull-right operateBox">
-                            <i class="fa fa-info toolbar-icon"></i>&nbsp;&nbsp;
-                            <i class="fa fa-copy toolbar-icon"></i>&nbsp;&nbsp;
-                            <i class="fa fa-edit toolbar-icon"></i>&nbsp;&nbsp;
-                            <i class="fa fa-trash-o toolbar-icon"></i>&nbsp;&nbsp;
-                            <i class="fa fa-plus toolbar-icon"></i>
-                            <!-- <div class="newBoard hideOperate">
-                                <span class="newGridLayout">{{'CONFIG.DASHBOARD.NEW_GRID_LAYOUT'|translate}}</span>
-                                <span class="newGridLayout">{{'CONFIG.DASHBOARD.NEW_TIMELINE_LAYOUT'|translate}}</span>
-                            </div> -->
+                            <i class="fa fa-info toolbar-icon"></i>
+                            <i class="fa fa-copy toolbar-icon"></i>
+                            <i class="fa fa-edit toolbar-icon"></i>
                         </div>
                     </div>
                     <div class="panel-body">
-                        <el-tree :data="treeData" @node-click="handleNodeClick"></el-tree>
+                        <el-tree :data="treeData" @node-click="handleNodeClick" @node-contextmenu="handleContextmenu"></el-tree>
                     </div>
                 </div>
+            </div>
+
+            <!-- 目录的添加操作（只有一级目录弹出） -->
+            <div class="config-tree-operation" 
+                 :style="{top: treeOperationTop, left: treeOperationLeft}" 
+                 v-show="showTreeAdd">
+              <div class="config-tree-operation-item"
+                   @click="addLayout('grid')">
+                <i class="fa fa-plus toolbar-icon"></i>
+                <span>New Grid Layout</span>
+              </div>
+              <div class="config-tree-operation-item"
+                   @click="addLayout('timeline')">
+                <i class="fa fa-plus toolbar-icon"></i>
+                <span>New Timeline Layout</span>
+              </div>
+            </div>
+
+            <!-- 目录的删除操作（只有二级目录弹出） -->
+            <div class="config-tree-operation" 
+                 :style="{top: treeOperationTop, left: treeOperationLeft}"
+                 v-show="showTreeDel">
+              <div class="config-tree-operation-item"
+                   @click="delLayout('grid')">
+                <i class="fa fa-trash-o toolbar-icon"></i><span>Delete this Layout</span>
+              </div>
             </div>
 
             <!-- 配置面板 -->
@@ -34,6 +54,7 @@
 </template>
 
 <script>
+import domUtils from '@/utils/dom.js';
 import BoardConfigContent from '@/views/config/BoardConfigContent';
 
 export default {
@@ -49,7 +70,7 @@ export default {
       */
       this.$store.dispatch('menu/getBoardList')
         .then(() => {
-          this.boardList = this.$store.state.menu.boardList;
+          //this.boardList = this.$store.state.menu.boardList;
         })
         .catch(() => {})
 
@@ -62,6 +83,9 @@ export default {
       this.$store.dispatch('config/getDatasetList');
     },
     computed: {
+      boardList() {
+        return this.$store.state.menu.boardList;
+      },
       categoryList() {
         return this.$store.state.menu.categoryList;
       },
@@ -92,14 +116,48 @@ export default {
     },
     data() {
         return {
-            boardList: [],
+            //boardList: [],
+            showTreeAdd: false,
+            showTreeDel: false,
+            treeOperationTop: '',
+            treeOperationLeft: '',
+            currentTreeItem: null
         }
     },
     methods: {
+      // 点击目录节点
       handleNodeClick(data) {
+        this.showTreeAdd = false;
+        this.showTreeDel = false;
         if(!data.children) {
           this.$router.push({path: `/config/board/${data.id}`});
         }
+      },
+      // 鼠标右键点击目录节点
+      handleContextmenu(evt, data, node, instance) {
+        //console.log(evt, data, node)
+        console.log(data)
+        this.currentTreeItem = data; // 当前 tree 选中的 item 数据
+        this.treeOperationTop = (evt.clientY + 12) + 'px';
+        this.treeOperationLeft = (evt.clientX + 18) + 'px';
+        if(data.children) { // 弹出添加操作
+          this.showTreeAdd = true;
+          this.showTreeDel = false;
+        }else { //弹出删除操作
+          this.showTreeDel = true;
+          this.showTreeAdd = false;
+        }
+
+        domUtils.one(document, 'click', () => {
+          this.showTreeAdd = false;
+          this.showTreeDel = false;
+        })
+      },
+      addLayout(type) {
+        this.$router.push({path: `/config/board/${type}`, query: { categoryId: this.currentTreeItem.id }});
+      },
+      delLayout() {
+        console.log('delLayout')
       }
     }
 }
@@ -147,8 +205,34 @@ export default {
   -o-user-select: none;
   user-select: none;
 }
+.toolbar-icon {
+  margin-right: 8px;
+  cursor: pointer;
+}
 .board-config--input,
 .board-config--select {
     display: block;
+}
+.config-tree-operation {
+  position: fixed;
+  box-shadow: 1px 1px 5px #ccc;
+  background-color: #fff;
+  z-index: 9;
+}
+.config-tree-operation-item {
+  padding: 10px 15px;
+}
+.config-tree-operation-item:hover {
+  background-color: #f5f7fa;
+}
+.config-tree-operation-item span {
+  display: inline-block;
+  margin-left: 3px;
+  vertical-align: middle;
+  text-align: center;
+  font-size: 14px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

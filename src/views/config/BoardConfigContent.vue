@@ -44,7 +44,7 @@
                 <div class="col-md-12">
                     <div class="form-group" ng-class="{'has-error': !(verify.boardName || curBoard.name.length)}">
                         <label>Name</label>
-                        <el-input v-model="name" placeholder="请输入名称" class="board-config--input"></el-input>
+                        <el-input v-model="board.name" placeholder="请输入名称" class="board-config--input"></el-input>
                     </div>
                 </div>
             </div>
@@ -55,7 +55,7 @@
                     <button type="submit" class="btn btn-success" @click="addNode('parent')">
                         Add Main Node
                     </button>
-                    <button type="submit" class="btn btn-danger" @click="addNode('leaf')">
+                    <button type="submit" class="btn btn-success" @click="addNode('leaf')">
                         Add Sub Node
                     </button>
                 </div>
@@ -146,13 +146,39 @@ export default {
             .then(() => {
                 const id = parseInt(this.$route.params.id);
                 this.setBoardById(id);
-                console.log('this.board--------', this.board)
             })
             .catch(() => {})
     },
     beforeRouteUpdate (to, from, next) {
-        const id = parseInt(to.params.id);
-        this.setBoardById(id);
+        let id = to.params.id;
+        if(id === 'grid') {
+            let categoryId = to.query.categoryId;
+            this.board = {
+                categoryId: categoryId,
+                name: '',
+                layout: {
+                    rows: []
+                }
+            }
+            this.rows = this.board.layout.rows;
+            this.category = this.board.categoryId;
+            this.boardType = '';
+        }else if(id === 'timeline') {
+            let categoryId = to.query.categoryId;
+            this.board = {
+                categoryId: categoryId,
+                name: '',
+                layout: {
+                    rows: [],
+                    type: 'timeline'
+                }
+            }
+            this.rows = this.board.layout.rows;
+            this.category = this.board.categoryId;
+            this.boardType = 'timeline';
+        }else {
+            this.setBoardById(parseInt(to.params.id));
+        }
         this.paramColumns = [];
         next();
     },
@@ -165,10 +191,6 @@ export default {
         },
         datasetList() {
             return this.$store.state.config.datasetList;
-        },
-        boardType() {
-            if(!this.board.layout) return '';
-            return this.board.layout.type;
         }
 	},
 	data() {
@@ -178,6 +200,7 @@ export default {
             rows: [],
             boardList: [],
             board: {},
+            boardType: '',
             //--------- Add Param 配置数据 -----------
             isParamConfigShow: false,
             paramConfigFlag: 'add', // "add"、"edit"(新增和编辑两种)
@@ -203,8 +226,8 @@ export default {
                 this.board.layout.rows[i].flag = 'hehe' + i;
             }
             this.rows = this.board.layout.rows;
-            this.name = this.board.name;
             this.category = this.board.categoryId;
+            this.boardType = this.board.layout.type;
         },
     	//添加行
     	addRow() {
@@ -230,13 +253,32 @@ export default {
     	},
     	//保存
     	saveConfig(callback) {
-    		const params = {
-    			json: JSON.stringify(this.board)
-    		};
-    		this.$req.post(this.$api.updateBoard, params)
-    			.then(response => {
-    				console.log('response', response);
-    				if(response.data.status === '1') {
+            let id = this.$route.params.id;
+            const params = {
+                json: JSON.stringify(this.board)
+            };
+            if(id === 'grid' || id === 'timeline') {  // 新增布局的时候，使用不同的接口
+                this.$req.post(this.$api.saveNewBoard, params)
+                .then(response => {
+                    console.log('response', response);
+                    if(response.data.status === '1') {
+                        this.$message({
+                            type: 'success',
+                            message: '保存成功!'
+                        });
+                        let id = response.data.id;
+                        this.$store.dispatch('menu/getBoardList')
+                        .then(() => {
+                          this.$router.push({path: `/config/board/${id}`});
+                        })
+                        .catch(() => {})
+                    }
+                })
+            }else {
+                this.$req.post(this.$api.updateBoard, params)
+                .then(response => {
+                    console.log('response', response);
+                    if(response.data.status === '1') {
                         this.$message({
                             type: 'success',
                             message: '保存成功!'
@@ -244,11 +286,22 @@ export default {
                         if(typeof callback === 'function') {
                             callback();
                         }
-    				}
-    			})
+                    }
+                })
+            }
+    		
+    		
     	},
         // 预览--即跳的对应的 dashboard 页面
         previewConfig() {
+            let id = this.$route.params.id;
+            if(id === 'grid' || id === 'timeline') {
+                this.$message({
+                    type: 'warning',
+                    message: '新增布局状态，请保存后再预览!'
+                });
+                return;
+            }
             this.$confirm('保存后才能预览，是否保存并预览?', '提示', {
               confirmButtonText: '确定',
               cancelButtonText: '取消',

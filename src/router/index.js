@@ -17,6 +17,7 @@ export default new Router({
 
     {
       path: '/dashboard',
+      name: 'dashboard',
       component: Layout,
       children: [{
         path: ':name/:id',
@@ -41,6 +42,7 @@ export default new Router({
     },*/
     {
       path: '/config',
+      name: 'config',
       component: Layout,
       children: [
         {

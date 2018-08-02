@@ -23,6 +23,10 @@ const api = {
 	getWidgetList: baseurl + 'dashboard/getWidgetList.do',
 	//保存
 	updateBoard: baseurl + 'dashboard/updateBoard.do',
+	// 保存新增布局
+	saveNewBoard: baseurl + 'dashboard/saveNewBoard.do',
+	// 删除布局
+	deleteBoard: baseurl + 'dashboard/deleteBoard.do',
 	// config--add param--弹出框的列表
 	getColumns: baseurl + 'dashboard/getColumns.do',
 
