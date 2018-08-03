@@ -1,8 +1,14 @@
 <template>
   <div>
+
     <div v-for="widget in widgets" :class="'col-md-'+widget.width">
-      <component v-show="loadComplete" @load-complete="handlerComplete" :is="currentComponent(widget)" 
-      :widget="widget" :filters="filters" :height="height"></component>
+      <component v-show="loadComplete" 
+                 @load-complete="handleComplete"
+                 @load-begin="handleLoadBegin"
+                 :is="currentComponent(widget)" 
+                 :widget="widget" 
+                 :filters="filters" 
+                 :height="height"></component>
 
       <!-- loading 动画框 -->
       <div v-if="!loadComplete" class="box box-solid">
@@ -15,8 +21,9 @@
             </div>
         </div>
       </div>
-
     </div>
+
+
   </div>
 </template>
 
@@ -51,12 +58,15 @@ export default {
           return TableContent;
         case 'map':
           return MapContent;
-        default: 
+        default:
           return ChartContent;
       }
     },
-    handlerComplete() {
+    handleComplete() {
       this.loadComplete = true;
+    },
+    handleLoadBegin() {
+      this.loadComplete = false;
     }
   },
   computed: {
@@ -66,7 +76,8 @@ export default {
     }
   },
   components: {
-    KpiContent
+    KpiContent,
+    ChartContent
   }
 }
 </script>

@@ -5,11 +5,10 @@
             <div class="col-md-3">
                 <div class="box box-solid">
                     <div class="box-header with-border">
-                        <i class="fa fa-dashboard"></i><h3 class="box-title">test</h3>
+                        <i class="fa fa-dashboard"></i><h3 class="box-title">Dashboard</h3>
                         <div class="box-tools pull-right operateBox">
                             <i class="fa fa-info toolbar-icon"></i>
                             <i class="fa fa-copy toolbar-icon"></i>
-                            <i class="fa fa-edit toolbar-icon"></i>
                         </div>
                     </div>
                     <div class="panel-body">

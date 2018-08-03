@@ -96,4 +96,18 @@ body {
 .param-config-dialog .el-transfer-panel__item:hover {
   color: #3c8dbc;
 }
+.form-group.is-error .board-config--input input {
+    border-color: #f56c6c!important;
+}
+/*config-Add Layout--Name 输入框的提示*/
+.error-tag {
+  padding-top: 4px;
+  line-height: 1;
+  font-size: 12px;
+  color: #f56c6c;
+}
+/*dashboard widget 放大弹出的 Dialog 样式*/
+.el-dialog__body .box-body {
+  min-height: 500px!important;
+}
 </style>

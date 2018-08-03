@@ -1,10 +1,21 @@
 <template>
   <div>
     <component :is="currentComponent"></component>
+
+    <el-dialog
+      :title="dialogName"
+      :visible.sync="visible"
+      @close="handleDialogClose"
+      width="80%"
+      center>
+      <component :is="dialogComponent" :widget="dialogWidget" :filters="dialogFilters" :key="dialogName"></component>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
+import ChartContent from '@/components/dashboard/widgets/ChartContent';
 import Grid from './Grid';
 import Timeline from './Timeline';
 import req from '@/utils/http/request';
@@ -14,10 +25,17 @@ export default {
   name: 'Dashboard',
   created() {
       this.$store.dispatch('dashboard/getBoardData', this.$route.params.id);
+      this.visible = this.$store.state.widget.open;
+  },
+  components: {
+    ChartContent
   },
   watch: {
     '$route' (to, from) {
       this.$store.dispatch('dashboard/getBoardData', this.$route.params.id);
+    },
+    dialogVisible(newValue, b) {
+      this.visible = newValue;
     }
   },
   computed: {
@@ -31,16 +49,32 @@ export default {
   	},
     type() {
       return this.$store.state.dashboard.type;
+    },
+    dialogVisible() {
+      return this.$store.state.widget.open;
+    },
+    dialogWidget() {
+      return this.$store.state.widget.widget;
+    },
+    dialogFilters() {
+      return this.$store.state.widget.filters;
+    },
+    dialogName() {
+      return this.$store.state.widget.name;
+    },
+    dialogComponent() {
+      return this.$store.state.widget.componentOptions;
     }
   },
   methods: {
-    test() {
-      return Timeline;
-    },
+    handleDialogClose() {
+      this.$store.commit('widget/closeWidget');
+    }
   },
   data () {
     return {
-      loading: true
+      loading: true,
+      visible: false
     }
   },
   beforeRouteUpdate(to, from, next) {

@@ -1,7 +1,7 @@
 <template>
-  <base-box :name="widget.name">
+  <base-box :name="widget.name" @open-widget="handeOpen">
     <div class="map-wrapper" :style="boxHeight">
-      <div id="map"></div>      
+      <div ref="map"></div>      
     </div>
   </base-box>
 </template>
@@ -16,13 +16,12 @@ import {Map, View} from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
 
-
-export default {
+let options = {
   name: 'MapContent',
   props: {
-  	widget: {
-  		type: Object
-  	},
+    widget: {
+      type: Object
+    },
     height: {
       type: String
     },
@@ -35,56 +34,20 @@ export default {
     BaseBox
   },
   mounted() {
-  	/*const widgetData = this.widget.widget.data;
-  	const format = widgetData.config.values[0].format;
-  	const style = this.style = widgetData.config.values[0].style;
-
-  	injectFilter(widgetData);
-  	const config = formatConfig(widgetData.config);
-  	const params = {
-  		datasourceId: widgetData.datasource,
-        query: JSON.stringify(widgetData.query),
-        datasetId: widgetData.datasetId,
-        cfg: JSON.stringify(config),
-        reload: false
-  	};
-
-  	req.post(api.getAggregateData, params)
-  		.then(response => {
-  			if(response.statusText === 'OK') {
-  				this.value = this.$numbro(response.data.data[0][0]).format(format);
-  				this.$emit('load-complete');
-  			}
-  		})
-  		.catch(error => {
-
-  		})*/
-    this.$emit('load-complete');
-    this.$nextTick(()=>{
-      const map = new Map({
-        target: 'map',
-        layers: [
-          new TileLayer({
-            source: new OSM()
-          })
-        ],
-        view: new View({
-          center: [0,0],
-          zoom: 4
-        })
-      });
-    }) 
-
+    this.init();
   },
   watch: {
+    widget() {
+      this.init();
+    },
     filters() {
       this.$emit('load-complete');
     },
   },
   data() {
-  	return {
+    return {
 
-  	}
+    }
   },
   computed: {
     boxHeight() {
@@ -97,9 +60,37 @@ export default {
     }
   },
   methods: {
-
+    init() {
+      this.$emit('load-complete');
+      this.$nextTick(()=>{
+        let mapEl = this.$refs['map'];
+        const map = new Map({
+          target: mapEl,
+          layers: [
+            new TileLayer({
+              source: new OSM()
+            })
+          ],
+          view: new View({
+            center: [0,0],
+            zoom: 4
+          })
+        });
+      }) 
+    },
+    handeOpen() {
+      let data = {
+        componentOptions: options,
+        name: this.widget.name,
+        widget: this.widget,
+        filters: this.filters
+      }
+      this.$store.commit('widget/openWidget', data);
+    },
   }
 }
+
+export default options;
 </script>
 
 <style scoped>

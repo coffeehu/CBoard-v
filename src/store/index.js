@@ -4,6 +4,7 @@ import dashboard from './modules/dashboard';
 import menu from './modules/menu';
 import config from './modules/config';
 import params from './modules/params';
+import widget from './modules/widget';
 
 Vue.use(Vuex);
 
@@ -12,6 +13,7 @@ export default new Vuex.Store({
 		dashboard,
 		menu,
 		config,
-		params
+		params,
+		widget
 	}
 });

@@ -42,9 +42,10 @@
             <!-- Name 输入框 -->
             <div class="row">
                 <div class="col-md-12">
-                    <div class="form-group" ng-class="{'has-error': !(verify.boardName || curBoard.name.length)}">
+                    <div class="form-group" :class="isError ? 'is-error' : ''">
                         <label>Name</label>
-                        <el-input v-model="board.name" placeholder="请输入名称" class="board-config--input"></el-input>
+                        <el-input v-model="board.name" placeholder="请输入名称" class="board-config--input" @change="isError = false"></el-input>
+                        <div v-if="isError" class="error-tag">请输入名称</div>
                     </div>
                 </div>
             </div>
@@ -90,7 +91,10 @@
             </draggable>
 
             <!-- Add Param 配置面板 -->
-            <el-dialog title="Param" :visible.sync="isParamConfigShow" custom-class="param-config-dialog">
+            <el-dialog title="Param" 
+                       :visible.sync="isParamConfigShow" 
+                       custom-class="param-config-dialog"
+                       @open="handleParamConfigOpen">
                 <div class="row">
                     <div class="col-md-12">
                         <el-input v-model="paramName" placeholder="请输入名称"></el-input>
@@ -153,6 +157,7 @@ export default {
             .catch(() => {})
     },
     beforeRouteUpdate (to, from, next) {
+        this.isError = false;
         let id = to.params.id;
         if(id === 'grid') {
             let categoryId = to.query.categoryId;
@@ -208,6 +213,7 @@ export default {
             isParamConfigShow: false,
             paramConfigFlag: 'add', // "add"、"edit"(新增和编辑两种)
             paramName: '', //param 名称
+            isError: false, //名称输入框的校验值
             paramCol: [], //穿梭框的选中值
             paramColumns: [], //穿梭框列表数据
             paramTypeValue: 'selector', //param type 值
@@ -235,14 +241,29 @@ export default {
     	//添加行
     	addRow() {
     		const row = {type: 'widget', widgets: []};
-            row.flag = 'config-row-' + this.board.layout.rows.length;
-        	this.board.layout.rows.push(row);
+            if(this.board.layout) {
+                row.flag = 'config-row-' + this.board.layout.rows.length;
+                this.board.layout.rows.push(row);
+            }
     	},
         //添加 param 行
         addParamRow() {
+            if(this.$route.params.id === 'timeline' && this.board.layout) {
+                for(let i=0,l=this.board.layout.rows.length; i<l; i++) {
+                    if(this.board.layout.rows[i].type === 'param') {
+                        this.$message({
+                            type: 'warning',
+                            message: 'timeline 类型的布局，只有能一个 param！'
+                        });
+                        return;
+                    }
+                }
+            }
             const paramRow = {type: 'param', params: []};
-            paramRow.flag = 'config-row-' + this.board.layout.rows.length;
-            this.board.layout.rows.unshift(paramRow);
+            if(this.board.layout) {
+                paramRow.flag = 'config-row-' + this.board.layout.rows.length;
+                this.board.layout.rows.unshift(paramRow);
+            }
         },
         //添加node（用于 timeline 类型的布局）
         addNode(nodeType) {
@@ -256,6 +277,14 @@ export default {
     	},
     	//保存
     	saveConfig(callback) {
+            console.log(this.board)
+            if(this.board.name === '') {
+                this.isError = true;
+                return;
+            }
+            if(!this.board.categoryId) {
+                return;
+            }
             let id = this.$route.params.id;
             const params = {
                 json: JSON.stringify(this.board)
@@ -357,6 +386,14 @@ export default {
                 }
             }
 
+            if(datasetIdList.length === 0) {
+                this.$message({
+                  message: '添加了 Column 面板后，参数数据源才会有数据',
+                  type: 'warning'
+                });
+                return;
+            }
+
             // 请求接口，获得对应的数据库字段列表
             this.paramColumns = [];
             for(let i=0,l=datasetIdList.length; i<l; i++) {
@@ -382,15 +419,16 @@ export default {
         addParamHandler(params) {
             this.paramConfigFlag = 'add';
             this.currentParamRowData = params;
-            if( this.paramColumns.length === 0 ) {
-                this.getParamColumns();   
-            }
             this.isParamConfigShow = true;
             this.paramCol = [];
         },
+        handleParamConfigOpen() {
+            if( this.paramColumns.length === 0 ) {
+                this.getParamColumns();   
+            }
+        },
         // 编辑 param 的回调
         editParamHandler(param) {
-            console.log('eidt this param', param)
             this.paramConfigFlag = 'edit';
             this.currentParamData = param;
             if( this.paramColumns.length === 0 ) { // 若无 columns 数据，则请求
@@ -400,7 +438,6 @@ export default {
             }else {
                 this.setDefaultColumns(param);
             }
-            this.isParamConfigShow = true;
             this.paramName = param.name;
             this.paramTypeValue = param.paramType;
         },

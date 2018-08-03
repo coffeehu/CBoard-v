@@ -22,7 +22,6 @@ export default {
 		}
 	},
 	created() {
-		console.log('ParamSelector--param', this.param)
 		this.options = [];
 		this.param.col.forEach(col => {
 			let params = {

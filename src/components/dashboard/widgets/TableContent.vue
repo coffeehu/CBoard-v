@@ -1,5 +1,5 @@
 <template>
-  <base-box :name="widget.name">
+  <base-box :name="widget.name" @open-widget="handeOpen">
     <div class="box-body" ref="table-body" :style="boxHeight" style="padding: 5px 20px 20px 20px;overflow-y: auto">
 
       <el-table
@@ -39,7 +39,7 @@ const DataTable = {
   }
 }
 
-export default {
+let options = {
   name: 'TableContent',
   props: {
     widget: {
@@ -59,22 +59,13 @@ export default {
     DataTable
   },
   mounted() {
-  	//console.log('-------KpiContent, this.data-----------', this.widget);
-  	this.widgetData = this.widget.widget.data;
-  	const format = this.widgetData.config.values[0].format;
-  	const style = this.style = this.widgetData.config.values[0].style;
-
-    this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters})
-      .then(() => {
-        let data = this.$store.state.dashboard.widgetInfoData;
-        const columnList = this.columnList = data.columnList;
-        const mTableData = this.mTableData = data.data;
-        this.tableData = this.formatTableData(columnList, mTableData);
-        this.$emit('load-complete');
-      })
-      .catch(() => {});
+    //console.log('-------KpiContent, this.data-----------', this.widget);
+    this.initByWidget();
   },
   watch: {
+    widget() {
+      this.initByWidget();
+    },
     filters() {
       const format = this.widgetData.config.values[0].format;
       this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters})
@@ -89,12 +80,12 @@ export default {
     }
   },
   data() {
-  	return {
+    return {
       widgetData: {},
       tableData: [],
       columnList: [],
       mTableData: []
-  	}
+    }
   },
   computed: {
     boxHeight() {
@@ -107,7 +98,21 @@ export default {
     }
   },
   methods: {
+    initByWidget() {
+      this.widgetData = this.widget.widget.data;
+      const format = this.widgetData.config.values[0].format;
+      const style = this.style = this.widgetData.config.values[0].style;
 
+      this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters})
+        .then(() => {
+          let data = this.$store.state.dashboard.widgetInfoData;
+          const columnList = this.columnList = data.columnList;
+          const mTableData = this.mTableData = data.data;
+          this.tableData = this.formatTableData(columnList, mTableData);
+          this.$emit('load-complete');
+        })
+        .catch(() => {});
+    },
     formatTableData(columnList, data) {
       let tableData = [];
       for(let i=0,l=data.length; i<l; i++) {
@@ -118,10 +123,21 @@ export default {
         tableData.push(tableDataItem);
       }
       return tableData;
+    },
+    handeOpen() {
+      let data = {
+        componentOptions: options,
+        name: this.widget.name,
+        widget: this.widget,
+        filters: this.filters
+      }
+      this.$store.commit('widget/openWidget', data);
     }
 
   }
 }
+
+export default options;
 </script>
 
 <style scoped>
