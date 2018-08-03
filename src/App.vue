@@ -110,4 +110,11 @@ body {
 .el-dialog__body .box-body {
   min-height: 500px!important;
 }
+.param-detail-config label {
+  float: left;
+}
+.param-detail-config .el-input {
+  width: auto;
+  overflow: hidden;
+}
 </style>

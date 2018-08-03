@@ -123,6 +123,32 @@
                         </el-select>
                     </div>
                 </div>
+                <!-- param other config -->
+                <div class="row param-detail-config">
+                    <div class="col-md-4">
+                        <label>width:</label>
+                        <el-input placeholder="请输入宽度" size="mini" ></el-input>
+                    </div>
+                    <div class="col-md-4">
+                        <label>max:</label>
+                        <el-input placeholder="请输入最大值" size="mini" ></el-input>
+                    </div>
+                    <div class="col-md-4">
+                        <label>min:</label>
+                        <el-input placeholder="请输入最小值" size="mini" ></el-input>
+                    </div>
+                </div>
+                <div class="row param-detail-config">
+                    <div class="col-md-4">
+                        <label>default:</label>
+                        <el-input placeholder="请输入默认值" size="mini" ></el-input>
+                    </div>
+                    <div class="col-md-4">
+                        <label>format:</label>
+                        <el-input placeholder="请选择格式" size="mini" ></el-input>
+                    </div>
+                </div>
+                <!-- param other config END -->
                 <div class="row">
                     <div class="col-md-12">
                         <button type="button" class="btn btn-default pull-left" @click="cancelParamConfig">取消</button>
