@@ -93,8 +93,7 @@
             <!-- Add Param 配置面板 -->
             <el-dialog title="Param" 
                        :visible.sync="isParamConfigShow" 
-                       custom-class="param-config-dialog"
-                       @open="handleParamConfigOpen">
+                       custom-class="param-config-dialog">
                 <div class="row">
                     <div class="col-md-12">
                         <el-input v-model="paramName" placeholder="请输入名称"></el-input>
@@ -419,13 +418,11 @@ export default {
         addParamHandler(params) {
             this.paramConfigFlag = 'add';
             this.currentParamRowData = params;
-            this.isParamConfigShow = true;
-            this.paramCol = [];
-        },
-        handleParamConfigOpen() {
             if( this.paramColumns.length === 0 ) {
                 this.getParamColumns();   
             }
+            this.isParamConfigShow = true;
+            this.paramCol = [];
         },
         // 编辑 param 的回调
         editParamHandler(param) {
@@ -440,6 +437,7 @@ export default {
             }
             this.paramName = param.name;
             this.paramTypeValue = param.paramType;
+            this.isParamConfigShow = true;
         },
         // edit param 时，穿梭框中展示该 param 之前已选中的数据
         setDefaultColumns(param) {
