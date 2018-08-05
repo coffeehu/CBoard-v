@@ -31,6 +31,7 @@
 <script>
 import ParamSelector from '@/components/dashboard/params/ParamSelector';
 import ParamSlider from '@/components/dashboard/params/ParamSlider';
+import DatePicker from '@/components/dashboard/params/DatePicker';
 
 export default {
   name: 'DashboardParam',
@@ -62,6 +63,8 @@ export default {
           return ParamSlider;
         case 'selector':
           return ParamSelector;
+        case 'datePicker':
+          return DatePicker;
         default:
           return ParamSelector;
       }

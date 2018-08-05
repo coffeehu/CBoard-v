@@ -124,7 +124,8 @@
                     </div>
                 </div>
                 <!-- param other config -->
-                <div class="row param-detail-config">
+                <component :is="currentParamDetail" v-model="configDetail"></component>
+                <!-- <div class="row param-detail-config">
                     <div class="col-md-4">
                         <label>width:</label>
                         <el-input placeholder="请输入宽度" size="mini" ></el-input>
@@ -147,7 +148,7 @@
                         <label>format:</label>
                         <el-input placeholder="请选择格式" size="mini" ></el-input>
                     </div>
-                </div>
+                </div> -->
                 <!-- param other config END -->
                 <div class="row">
                     <div class="col-md-12">
@@ -165,6 +166,9 @@
 import WidgetConfigParam from '@/components/config/WidgetConfigParam';
 import WidgetConfigRow from '@/components/config/WidgetConfigRow';
 import draggable from 'vuedraggable';
+import DatePickerConfigDetail from '@/components/config/params/DatePickerConfigDetail';
+import SliderConfigDetail from '@/components/config/params/SliderConfigDetail';
+import SelectorConfigDetail from '@/components/config/params/SelectorConfigDetail';
 
 export default {
 	name: 'BoardConfigContent',
@@ -224,6 +228,16 @@ export default {
         },
         datasetList() {
             return this.$store.state.config.datasetList;
+        },
+        currentParamDetail() {
+            switch(this.paramTypeValue) {
+                case 'datePicker':
+                    return DatePickerConfigDetail;
+                case 'slider':
+                    return SliderConfigDetail;
+                default:
+                    return null;
+            }
         }
 	},
 	data() {
@@ -242,9 +256,10 @@ export default {
             paramCol: [], //穿梭框的选中值
             paramColumns: [], //穿梭框列表数据
             paramTypeValue: 'selector', //param type 值
-            paramTypes: ['selector', 'slider'], //param type 列表
+            paramTypes: ['selector', 'slider', 'datePicker'], //param type 列表
             currentParamRowData: [], // 当前操作的 param row 的数据
             currentParamData: [], // 当前操作的 param 的数据
+            configDetail: {}
         }
     },
     methods: {
@@ -509,7 +524,7 @@ export default {
                   message: '请输入名称',
                   type: 'warning'
                 });
-                return;
+                return false;
             }
             let param = {
                 name: this.paramName,

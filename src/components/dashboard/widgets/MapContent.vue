@@ -1,16 +1,16 @@
 <template>
-  <base-box :name="widget.name" @open-widget="handeOpen">
+  <dashboard-box :name="widget.name" @open-widget="handeOpen">
     <div class="map-wrapper" :style="boxHeight">
       <div ref="map"></div>      
     </div>
-  </base-box>
+  </dashboard-box>
 </template>
 
 <script>
 /*import req from '@/utils/http/request';
 import api from '@/utils/http/api';
 import { injectFilter, formatConfig } from '@/utils/dashboardConfig.js';*/
-import BaseBox from '@/components/BaseBox';
+import DashboardBox from '@/components/dashboard/DashboardBox';
 import 'ol/ol.css';
 import {Map, View} from 'ol';
 import TileLayer from 'ol/layer/Tile';
@@ -31,7 +31,7 @@ let options = {
     }
   },
   components: {
-    BaseBox
+    DashboardBox
   },
   mounted() {
     this.init();
@@ -41,7 +41,6 @@ let options = {
       this.init();
     },
     filters() {
-      this.$emit('load-complete');
     },
   },
   data() {
@@ -61,7 +60,6 @@ let options = {
   },
   methods: {
     init() {
-      this.$emit('load-complete');
       this.$nextTick(()=>{
         let mapEl = this.$refs['map'];
         const map = new Map({

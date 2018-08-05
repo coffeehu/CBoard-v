@@ -1,14 +1,19 @@
 <template>
 
-	<base-box :name="chartName"
-            @open-widget="handeOpen">
+  <dashboard-loading v-if="loading" :name="widget.name"></dashboard-loading>
+
+	<dashboard-box v-else :name="chartName"
+            @open-widget="handeOpen"
+            @refresh-widget="handeRefresh">
 		<div class="box-body" ref="chart-body" :style="boxHeight" style="padding: 3px 0px 3px 13px;"></div>
-	</base-box>
+	</dashboard-box>
 
 </template>
 
 <script>
-import BaseBox from '@/components/BaseBox';
+import DashboardBox from '@/components/dashboard/DashboardBox';
+import DashboardLoading from '@/components/dashboard/DashboardLoading';
+
 let options = {
   name: 'ChartContent',
   props: {
@@ -27,28 +32,41 @@ let options = {
     }
   },
   components: {
-    BaseBox
+    DashboardBox,
+    DashboardLoading
   },
   mounted() {
     this.initByWidget();
+    this.chartName = this.widget.name;
+    this.chartType = this.widgetData.config.chart_type;  // 图表类型，如：line
+    this.valueAxis = this.widgetData.config.valueAxis;  // 显示方式，如 vertical--垂直，horizontal --水平
+    /*
+      this.valuesConfig 为数组，如 
+      [{
+        series_type: 'bar',
+        type: 'value',
+        cols: [
+          {aggregate_type: 'sum', col: 'store_cost', ...}, 
+          ...
+        ],
+        ...
+      }]
+    */
+    this.valuesConfig = this.widgetData.config.values;
+
+    const style = this.style = this.widgetData.config.values[0].style;
   },
   watch: {
     widget() {
       this.initByWidget();
     },
     filters() {
-      this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters})
-      .then(() => {
-        let data = this.$store.state.dashboard.widgetInfoData;
-        this.$emit('load-complete');
-        this.$nextTick(()=>{
-          this.renderChart(data);  
-        }) 
-      })
+      this.initByWidget();
     },
   },
   data() {
     return {
+      loading: true,
       widgetData: {},
       chartName: '',
       chartType: '',
@@ -67,35 +85,17 @@ let options = {
     }
   },
   methods: {
-    initByWidget() {
+    initByWidget(reload) {
       this.widgetData = this.widget.widget.data;
-      this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters})
+      this.loading = true;
+      this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters, reload: reload})
         .then(() => {
           let data = this.$store.state.dashboard.widgetInfoData;
-          this.$emit('load-complete');
+          this.loading = false;
           this.$nextTick(()=>{
-            this.renderChart(data);  
+            this.renderChart(data);
           }) 
         })
-
-      this.chartName = this.widget.name;
-      this.chartType = this.widgetData.config.chart_type;  // 图表类型，如：line
-      this.valueAxis = this.widgetData.config.valueAxis;  // 显示方式，如 vertical--垂直，horizontal --水平
-      /*
-        this.valuesConfig 为数组，如 
-        [{
-          series_type: 'bar',
-          type: 'value',
-          cols: [
-            {aggregate_type: 'sum', col: 'store_cost', ...}, 
-            ...
-          ],
-          ...
-        }]
-      */
-      this.valuesConfig = this.widgetData.config.values;
-
-      const style = this.style = this.widgetData.config.values[0].style;
     },
     handeOpen() {
       let data = {
@@ -105,6 +105,9 @@ let options = {
         filters: this.filters
       }
       this.$store.commit('widget/openWidget', data);
+    },
+    handeRefresh() {
+      this.initByWidget(true);
     },
     addHandler(element, type, handler) {
       if (element.addEventListener) {

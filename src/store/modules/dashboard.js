@@ -45,7 +45,7 @@ const actions = {
         query: JSON.stringify(widgetData.query),
         datasetId: widgetData.datasetId,
         cfg: JSON.stringify(config),
-        reload: false
+        reload: data.reload
       };
       req.post(api.getAggregateData, params)
         .then(response => {

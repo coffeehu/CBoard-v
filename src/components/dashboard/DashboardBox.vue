@@ -25,7 +25,7 @@
 
 <script>
 export default {
-  name: 'BaseBox',
+  name: 'DashboardBox',
   props: {
     name: {
       type: String,

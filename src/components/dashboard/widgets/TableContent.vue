@@ -1,5 +1,11 @@
 <template>
-  <base-box :name="widget.name" @open-widget="handeOpen">
+
+  <dashboard-loading v-if="loading" :name="widget.name"></dashboard-loading>
+
+  <dashboard-box v-else 
+                 :name="widget.name" 
+                 @open-widget="handeOpen"
+                 @refresh-widget="handeRefresh">
     <div class="box-body" ref="table-body" :style="boxHeight" style="padding: 5px 20px 20px 20px;overflow-y: auto">
 
       <el-table
@@ -10,14 +16,13 @@
       </el-table>   
 
     </div>
-  </base-box>
+  </dashboard-box>
 </template>
 
 <script>
-import req from '@/utils/http/request';
-import api from '@/utils/http/api';
 import { injectFilter, formatConfig } from '@/utils/dashboardConfig.js';
-import BaseBox from '@/components/BaseBox';
+import DashboardBox from '@/components/dashboard/DashboardBox';
+import DashboardLoading from '@/components/dashboard/DashboardLoading';
 
 const DataTable = {
   name: 'DataTable',
@@ -55,7 +60,8 @@ let options = {
     }
   },
   components: {
-    BaseBox,
+    DashboardBox,
+    DashboardLoading,
     DataTable
   },
   mounted() {
@@ -67,20 +73,12 @@ let options = {
       this.initByWidget();
     },
     filters() {
-      const format = this.widgetData.config.values[0].format;
-      this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters})
-        .then(() => {
-          let data = this.$store.state.dashboard.widgetInfoData;
-          const columnList = this.columnList = data.columnList;
-          const mTableData = this.mTableData = data.data;
-          this.tableData = this.formatTableData(columnList, mTableData);
-          this.$emit('load-complete');
-        })
-        .catch(() => {});
+      this.initByWidget(true);
     }
   },
   data() {
     return {
+      loading: true,
       widgetData: {},
       tableData: [],
       columnList: [],
@@ -98,18 +96,19 @@ let options = {
     }
   },
   methods: {
-    initByWidget() {
+    initByWidget(reload) {
       this.widgetData = this.widget.widget.data;
       const format = this.widgetData.config.values[0].format;
       const style = this.style = this.widgetData.config.values[0].style;
 
-      this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters})
+      this.loading = true;
+      this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters, reload: reload})
         .then(() => {
           let data = this.$store.state.dashboard.widgetInfoData;
           const columnList = this.columnList = data.columnList;
           const mTableData = this.mTableData = data.data;
           this.tableData = this.formatTableData(columnList, mTableData);
-          this.$emit('load-complete');
+          this.loading = false;
         })
         .catch(() => {});
     },
@@ -132,6 +131,9 @@ let options = {
         filters: this.filters
       }
       this.$store.commit('widget/openWidget', data);
+    },
+    handeRefresh() {
+      this.initByWidget(true);
     }
 
   }
