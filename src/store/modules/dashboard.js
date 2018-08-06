@@ -28,7 +28,10 @@ const actions = {
           //this.$store.commit('dashboard/getBoardData', { data: response.data });
           //this.$store.dispatch('dashboard/test', 123)
         }
-      });
+      })
+      .catch(error => {
+        console.log(error)
+      })
   },
   // data = { widgetData:Objec, filters: Object }
   getWidgetData(context, data) {

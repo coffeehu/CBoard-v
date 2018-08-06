@@ -1,7 +1,6 @@
 <template>
 
-
-    <div class="col-sm-12">
+    <div class="col-sm-12 dashboard-param">
         <div class="box box-solid" style="border-left: 1px solid #d2d6de; border-right: 1px solid #d2d6de">
 
             <div class="box-header">
@@ -18,9 +17,12 @@
                 <div class="col-sm-12">
                     <div style="min-height: 35px;height: auto;padding: 0px">
                           <div v-for="(param, index) in params" :key="index" class="dashboard-param">
-                              <component :is="currentParam(param.paramType)" :param="param"></component>
+                              <component v-if="!param.cfg || !param.cfg.oneRow" :is="currentParam(param.paramType)" :param="param"></component>
                           </div>
                     </div>
+                </div>
+                <div class="col-sm-12" v-for="p in oneRowParams">
+                  <component :is="currentParam(p.paramType)" :param="p"></component>
                 </div>
             </div>
           </div>
@@ -43,17 +45,18 @@ export default {
     }
   },
   created() {
-    
-  },
-  mounted() {
-    
+    this.params.forEach(p => {
+      if(p.cfg && p.cfg.oneRow) {
+        this.oneRowParams.push(p);
+      }
+    })
   },
   computed: {
     
   },
   data() {
     return {
-      
+      oneRowParams: [], // 占据一行
     }
   },
   methods: {
@@ -78,5 +81,6 @@ export default {
   float: left;
   box-sizing: border-box;
   margin-right: 5px;
+  width: 100%;
 }
 </style>

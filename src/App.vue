@@ -113,8 +113,9 @@ body {
 .param-detail-config label {
   float: left;
 }
-.param-detail-config .el-input {
-  width: auto;
-  overflow: hidden;
+/*dashboard 页面--param--DatePicker的样式*/
+.dashboard-param .el-date-editor {
+  width: 100%;
 }
+
 </style>

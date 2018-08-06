@@ -1,11 +1,11 @@
 <template>
-    <div>
+    <div :class="'col-sm-'+width" style="padding:0">
       <el-date-picker
           v-model="value"
           :default-value="defaultValue"
           @change="handleChange"
           type="daterange"
-          value-format="yyyy-MM-dd"
+          :value-format="valueFormat"
           range-separator="至"
           start-placeholder="开始日期"
           end-placeholder="结束日期">
@@ -27,6 +27,9 @@ export default {
     console.log('datepicker param', this.param)
   },
   created() {
+    this.valueFormat = this.param.cfg.format;
+    this.width = this.param.cfg.width;
+
     this.options = [];
     this.param.col.forEach(col => {
       let params = {
@@ -36,7 +39,9 @@ export default {
         this.$store.dispatch('params/getDimensionValues', params)
           .then((data) => {
             this.options = this.options.concat(data);
-            this.defaultValue = this.options[0];
+            if(this.options[0]) {
+              this.defaultValue = this.options[0];
+            }
           })
           .catch(() => {});
     });
@@ -45,8 +50,10 @@ export default {
   data() {
   	return {
   		value: '',
-      defaultValue: '',
-      options: []
+      defaultValue: '2018-01-01',
+      options: [],
+      valueFormat: 'yyyy-MM-dd',
+      width: '4'
   	}
   },
   methods: {
