@@ -1,4 +1,6 @@
 const baseurl = '/api/';
+//const baseurl = 'http://www.hcbook.cc/cboard/';
+//const baseurl = 'http://localhost/cboard/';
 const api = {
 	//登录
 	//login: baseurl + 'login',
@@ -29,6 +31,14 @@ const api = {
 	deleteBoard: baseurl + 'dashboard/deleteBoard.do',
 	// config--add param--弹出框的列表
 	getColumns: baseurl + 'dashboard/getColumns.do',
+
+	//新增 dashboard category
+	saveNewCategory: baseurl + 'dashboard/saveNewCategory.do',
+	//删除 dashboard category
+	deleteCategory: baseurl + 'dashboard/deleteCategory.do',
+	//修改 dashboard category
+	updateCategory: baseurl + 'dashboard/updateCategory.do',
+	
 
 }
 

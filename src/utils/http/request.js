@@ -53,11 +53,15 @@ const req = {
 		return axios.get(url, { cancelToken: source.token });
 	},
 
-	post(url, params) {
+	post(url, params, isJson) {
         const CancelToken = axios.CancelToken;
         const source = CancelToken.source();
         sourceCollection.push(source);
-		return axiosPost.post(url, params, { cancelToken: source.token });
+        if(isJson) {
+            return axios.post(url, params, { cancelToken: source.token });
+        }else {
+            return axiosPost.post(url, params, { cancelToken: source.token });
+        }
 	},
     
     abort() {

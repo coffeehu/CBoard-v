@@ -5,12 +5,21 @@
 </template>
 
 <script>
-import req from '@/utils/http/request';
-import api from '@/utils/http/api';
-
 export default {
   name: 'App',
-  mounted() {
+  created() {
+    this.$store.dispatch('menu/getCategoryList');
+    this.$store.dispatch('menu/getBoardList');
+    this.$store.dispatch('menu/getMenuList')
+      .then(() => {
+        //console.log('-----routes----', this.$store.state.menu.routes)
+        this.$router.addRoutes(this.routes);
+      })
+  },
+  computed: {
+    routes() {
+      return this.$store.state.menu.routes;
+    }
   }
 }
 </script>
