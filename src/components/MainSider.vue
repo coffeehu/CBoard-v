@@ -25,17 +25,13 @@
           </template>
 
           <template v-for="category in categoryList">
-      			<el-submenu v-if="hasChildren(category)" :index="'/dashboard/'+category.name" :key="category.id">
+      			<el-submenu :index="'/dashboard/'+category.name" :key="category.id">
       				<template slot="title"><i class="el-icon-document"></i>{{ category.name }}</template>
       				<el-menu-item v-for="(board, index) in boardList" v-if="inTheCategory(category.id, board)" :index="'/dashboard/'+category.name+'/'+board.id" :key="board.id">
       					<i class="el-icon-menu"></i>
       					<span slot="title">{{ board.name }}</span>
       				</el-menu-item>
       			</el-submenu>
-            <el-menu-item v-else :index="'1-'+category.id" :key="category.id">
-  	           <i class="el-icon-document"></i>
-  	           <span slot="title">{{ category.name }}</span>
-  	        </el-menu-item>
           </template>
         </el-submenu>
 

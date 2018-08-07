@@ -14,7 +14,15 @@ export default {
       .then(() => {
         //console.log('-----routes----', this.$store.state.menu.routes)
         this.$router.addRoutes(this.routes);
+        this.$router.beforeEach((to, from, next) => {
+          this.$req.abort();
+          next();
+        })
       })
+      .catch(() => {})
+  },
+  mounted() {
+    
   },
   computed: {
     routes() {
