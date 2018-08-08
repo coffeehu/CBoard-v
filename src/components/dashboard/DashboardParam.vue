@@ -31,10 +31,6 @@
 </template>
 
 <script>
-import ParamSelector from '@/components/dashboard/params/ParamSelector';
-import ParamSlider from '@/components/dashboard/params/ParamSlider';
-import DatePicker from '@/components/dashboard/params/DatePicker';
-
 export default {
   name: 'DashboardParam',
   props: {
@@ -44,15 +40,17 @@ export default {
       default: []
     }
   },
+  components: {
+    ParamSelector: () => import('@/components/dashboard/params/ParamSelector'),
+    ParamSlider: () => import('@/components/dashboard/params/ParamSlider'),
+    DatePicker: () => import('@/components/dashboard/params/DatePicker')
+  },
   created() {
     this.params.forEach(p => {
       if(p.cfg && p.cfg.oneRow) {
         this.oneRowParams.push(p);
       }
     })
-  },
-  computed: {
-    
   },
   data() {
     return {
@@ -63,13 +61,13 @@ export default {
     currentParam(type) {
       switch(type) {
         case 'slider':
-          return ParamSlider;
+          return 'ParamSlider';
         case 'selector':
-          return ParamSelector;
+          return 'ParamSelector';
         case 'datePicker':
-          return DatePicker;
+          return 'DatePicker';
         default:
-          return ParamSelector;
+          return 'ParamSelector';
       }
     }
   }

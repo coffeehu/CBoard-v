@@ -139,19 +139,15 @@
 </template>
 
 <script>
-import WidgetConfigParam from '@/components/config/WidgetConfigParam';
-import WidgetConfigRow from '@/components/config/WidgetConfigRow';
-import draggable from 'vuedraggable';
-import DatePickerConfigDetail from '@/components/config/params/DatePickerConfigDetail';
-import SliderConfigDetail from '@/components/config/params/SliderConfigDetail';
-import SelectorConfigDetail from '@/components/config/params/SelectorConfigDetail';
-
 export default {
 	name: 'BoardConfigContent',
 	components: {
-        WidgetConfigParam,
-        WidgetConfigRow,
-        draggable
+        draggable: () => import('vuedraggable'),
+        WidgetConfigParam: () => import('@/components/config/WidgetConfigParam'),
+        WidgetConfigRow: () => import('@/components/config/WidgetConfigRow'),
+        DatePickerConfigDetail: () => import('@/components/config/params/DatePickerConfigDetail'),
+        SliderConfigDetail: () => import('@/components/config/params/SliderConfigDetail'),
+        SelectorConfigDetail: () => import('@/components/config/params/SelectorConfigDetail')
     },
     created() {
         this.$store.dispatch('menu/getBoardList')
@@ -208,11 +204,11 @@ export default {
         currentParamDetail() {
             switch(this.paramTypeValue) {
                 case 'datePicker':
-                    return DatePickerConfigDetail;
+                    return 'DatePickerConfigDetail';
                 case 'slider':
-                    return SliderConfigDetail;
+                    return 'SliderConfigDetail';
                 default:
-                    return SelectorConfigDetail;
+                    return 'SelectorConfigDetail';
             }
         }
 	},

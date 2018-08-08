@@ -38,9 +38,6 @@
 </template>
 
 <script>
-import draggable from 'vuedraggable';
-import WidgetConfigCol from '@/components/config/WidgetConfigCol';
-
 export default {
   name: 'WidgetConfigRow',
   props: {
@@ -53,8 +50,8 @@ export default {
     }
   },
   components: {
-    WidgetConfigCol,
-    draggable
+    WidgetConfigCol: () => import('@/components/config/WidgetConfigCol'),
+    draggable: () => import('vuedraggable')
   },
   created() {
     this.setWidgets();

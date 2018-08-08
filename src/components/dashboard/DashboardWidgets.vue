@@ -13,11 +13,6 @@
 </template>
 
 <script>
-import KpiContent from '@/components/dashboard/widgets/KpiContent';
-import ChartContent from '@/components/dashboard/widgets/ChartContent';
-import TableContent from '@/components/dashboard/widgets/TableContent';
-import MapContent from '@/components/dashboard/widgets/MapContent';
-
 export default {
   name: 'DashboardWidgets',
   props: {
@@ -28,6 +23,12 @@ export default {
     height: {
       type: String
     }
+  },
+  components: {
+    KpiContent: () => import('./widgets/KpiContent'),
+    ChartContent: () => import('./widgets/ChartContent'),
+    TableContent: () => import('./widgets/TableContent'),
+    MapContent: () => import('./widgets/MapContent')
   },
   data() {
     return {
@@ -52,12 +53,6 @@ export default {
       this.loadComplete = false;
       return this.$store.state.params.filters;
     }
-  },
-  components: {
-    KpiContent,
-    ChartContent,
-    TableContent,
-    MapContent
   }
 }
 </script>

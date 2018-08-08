@@ -1,11 +1,12 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Layout from '@/views/layout/Layout';
-import Dashboard from '@/views/dashboard/Dashboard';
-import BoardConfig from '@/views/config/BoardConfig';
-import BoardConfigContent from '@/views/config/BoardConfigContent';
 
 Vue.use(Router)
+
+const Dashboard = () => import('@/views/dashboard/Dashboard');
+const BoardConfig = () => import('@/views/config/BoardConfig');
+const BoardConfigContent = () => import('@/views/config/BoardConfigContent');
 
 export default new Router({
   routes: [

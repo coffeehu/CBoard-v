@@ -54,12 +54,11 @@
 
 <script>
 import domUtils from '@/utils/dom.js';
-import BoardConfigContent from '@/views/config/BoardConfigContent';
 
 export default {
     name: 'BoardConfig',
     components: {
-      BoardConfigContent
+      BoardConfigContent: () => import('@/views/config/BoardConfigContent')
     },
     created() {
       /*

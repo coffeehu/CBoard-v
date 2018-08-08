@@ -11,8 +11,8 @@
 </template>
 
 <script>
-import DashboardBox from '@/components/dashboard/DashboardBox';
 import DashboardLoading from '@/components/dashboard/DashboardLoading';
+import DashboardBox from '@/components/dashboard/DashboardBox';
 
 let options = {
   name: 'ChartContent',

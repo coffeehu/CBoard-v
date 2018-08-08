@@ -26,7 +26,6 @@
 
 <script>
 import DashboardLoading from '@/components/dashboard/DashboardLoading';
-
 export default {
   name: 'KpiContent',
   props: {

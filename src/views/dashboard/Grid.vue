@@ -16,16 +16,12 @@
 </template>
 
 <script>
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import DashboardWidgets from '@/components/dashboard/DashboardWidgets';
-import DashboardParam from '@/components/dashboard/DashboardParam';
-
 export default {
   name: 'Grid',
   components: {
-    DashboardWidgets,
-    DashboardHeader,
-    DashboardParam
+    DashboardWidgets: () => import('@/components/dashboard/DashboardWidgets'),
+    DashboardHeader: () => import('@/components/dashboard/DashboardHeader'),
+    DashboardParam: () => import('@/components/dashboard/DashboardParam')
   },
   created() {
       this.dashboardTitle = this.$store.state.dashboard.boardData.name;

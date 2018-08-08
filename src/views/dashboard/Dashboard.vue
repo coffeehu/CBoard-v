@@ -15,12 +15,6 @@
 </template>
 
 <script>
-import ChartContent from '@/components/dashboard/widgets/ChartContent';
-import Grid from './Grid';
-import Timeline from './Timeline';
-import req from '@/utils/http/request';
-import api from '@/utils/http/api';
-
 export default {
   name: 'Dashboard',
   created() {
@@ -28,7 +22,8 @@ export default {
       this.visible = this.$store.state.widget.open;
   },
   components: {
-    ChartContent
+    Grid: () => import('./Grid'),
+    Timeline: () => import('./Timeline')
   },
   watch: {
     '$route' (to, from) {
@@ -43,9 +38,10 @@ export default {
       if(!this.$store.state.dashboard.complete) return null;
       const type = this.$store.state.dashboard.type;
       if(type === 'timeline') {
-        return Timeline;
+        return 'Timeline';
+      }else {
+        return 'Grid';
       }
-  		return Grid;
   	},
     type() {
       return this.$store.state.dashboard.type;
