@@ -289,7 +289,8 @@ export default {
     	},
     	//保存
     	saveConfig(callback) {
-            //console.log(this.board)
+            /*console.log('-------this.board----------', this.board)
+            return*/
             if(this.board.name === '') {
                 this.isError = true;
                 return;
@@ -298,6 +299,7 @@ export default {
                 return;
             }
             let id = this.$route.params.id;
+
             const params = {
                 json: JSON.stringify(this.board)
             };

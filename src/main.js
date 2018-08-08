@@ -15,11 +15,31 @@ import numbro from 'numbro';
 import './utils/initEcharts.js';
 import req from '@/utils/http/request';
 import api from '@/utils/http/api';
+/*import { Menu, Submenu, MenuItem, Dialog, 
+		 Slider, Select, Option, Table, 
+		 TableColumn, DatePicker, Input, Tree,
+		 OptionGroup, Transfer, Switch } from 'element-ui';*/
 
 Vue.config.productionTip = false;
 Vue.prototype.$numbro = numbro;
 
 Vue.use(ElementUI);
+/*Vue.use(Menu);
+Vue.use(Submenu);
+Vue.use(MenuItem);
+Vue.use(Dialog);
+Vue.use(Slider);
+Vue.use(Select);
+Vue.use(Option);
+Vue.use(Table);
+Vue.use(TableColumn);
+Vue.use(DatePicker);
+Vue.use(Input);
+Vue.use(Tree);
+Vue.use(OptionGroup);
+Vue.use(Transfer);
+Vue.use(Switch)*/
+
 Vue.prototype.$req = req;
 Vue.prototype.$api = api;
 

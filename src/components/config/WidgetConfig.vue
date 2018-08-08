@@ -54,7 +54,7 @@
 
 
 export default {
-  name: 'WidgetConfigCol',
+  name: 'WidgetConfig',
   props: {
     widgetData: {
       type: Object,

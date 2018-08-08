@@ -2,7 +2,15 @@
   <div>
 
     <div v-for="widget in widgets" :class="'col-md-'+widget.width">
-      <component :is="currentComponent(widget)" 
+      <div v-if="widget.type === 'column'">
+        <div v-for="(row,index) in widget.rows">
+          <div v-if="row.type === 'widget'">
+            <dashboard-widgets :widgets="row.widgets" :height="row.height" class="row"></dashboard-widgets>
+          </div>
+        </div>
+      </div>
+      <component v-else
+                 :is="currentComponent(widget)" 
                  :widget="widget" 
                  :filters="filters" 
                  :height="height"></component>
@@ -29,6 +37,9 @@ export default {
     ChartContent: () => import('./widgets/ChartContent'),
     TableContent: () => import('./widgets/TableContent'),
     MapContent: () => import('./widgets/MapContent')
+  },
+  created() {
+    console.log(123123213, this.widgets)
   },
   data() {
     return {

@@ -1,6 +1,5 @@
 const baseurl = '/api/';
 //const baseurl = 'http://www.hcbook.cc/cboard/';
-//const baseurl = 'http://localhost/cboard/';
 const api = {
 	//登录
 	//login: baseurl + 'login',

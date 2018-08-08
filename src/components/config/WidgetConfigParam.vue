@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import draggable from 'vuedraggable';
+//import draggable from 'vuedraggable';
 export default {
   name: 'WidgetConfigParam',
   props: {
@@ -58,7 +58,7 @@ export default {
     }
   },
   components: {
-    draggable
+    draggable: () => import('vuedraggable')
   },
   created() {
     this.params = this.rowData.params;
