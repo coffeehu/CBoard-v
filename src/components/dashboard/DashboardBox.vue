@@ -1,5 +1,5 @@
 <template>
-    <div class="box box-solid" style="z-index: 99;">
+    <div class="box box-solid">
         <div class="box-header">
             <h3 class="box-title">{{ name }}</h3>
             <div class="box-tools pull-right">
@@ -44,6 +44,23 @@ export default {
 </script>
 
 
-<style>
+<style scoped>
+.box {
+    z-index: 99;
+    width:100%;
+}
 
+.widget-item .box {
+    position: relative;
+    min-height:100%;
+}
+.widget-item .box-header {
+    height: 50px;
+    line-height: 50px;
+    padding-top: 0;
+    padding-bottom: 0; 
+}
+.widget-item .box-body {
+    
+}
 </style>

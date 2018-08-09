@@ -63,7 +63,15 @@
                         Add Param Row
                     </button>
                 </div>
-                <div v-else class="form-group" style="margin: 5px 15px;">
+                <div v-if="boardType === 'gridster'" class="form-group" style="margin: 5px 15px;">
+                    <button type="submit" class="btn btn-success" @click="addRow">
+                        Add Row
+                    </button>
+                    <button type="submit" class="btn btn-danger" @click="addParamRow">
+                        Add Param Row
+                    </button>
+                </div>
+                <div v-if="!boardType" class="form-group" style="margin: 5px 15px;">
                     <button type="submit" class="btn btn-success" @click="addRow">
                         Add Row
                     </button>
@@ -75,7 +83,20 @@
 
 
             <!-- widget 配置栏 -->
-            <draggable v-model="rows" @end="rowDragEnd">
+            <div v-if="boardType === 'gridster'">
+                <div v-for="(row, index) in rows" :key="row.flag">
+                        <widget-config-gridster-row v-if="row.type === 'widget'" :index="index" 
+                                           :rowData="row"
+                                           @open-widget-config="widgetConfigHandler"
+                                           @remove-row="removeRow"></widget-config-gridster-row>
+                        <widget-config-param v-if="row.type === 'param'" :index="index" 
+                                           :rowData="row"
+                                           @remove-row="removeRow"
+                                           @add-param="addParamHandler"
+                                           @edit-param="editParamHandler"></widget-config-param>
+                    </div>
+            </div>
+            <draggable v-else v-model="rows" @end="rowDragEnd">
                 <transition-group type="transition" name="flip-list" tag="div">
                     <div v-for="(row, index) in rows" :key="row.flag">
                         <widget-config-row v-if="row.type === 'widget'" :index="index" 
@@ -134,6 +155,16 @@
                 </div>
             </el-dialog>
 
+
+            <!-- Widget 配置面板 -->
+            <el-dialog title="Param" 
+                       :visible.sync="isWidgetConfigShow" 
+                       custom-class="widget-config-dialog">
+                       <widget-config
+                            :widgetData="currentWidgetConfigData" type="gridster" :key="currentWidgetConfigData.i"></widget-config> 
+            </el-dialog>
+
+
         </div>
     </div>
 </template>
@@ -143,8 +174,10 @@ export default {
 	name: 'BoardConfigContent',
 	components: {
         draggable: () => import('vuedraggable'),
+        WidgetConfig: () => import('@/components/config/WidgetConfig'),
         WidgetConfigParam: () => import('@/components/config/WidgetConfigParam'),
         WidgetConfigRow: () => import('@/components/config/WidgetConfigRow'),
+        WidgetConfigGridsterRow: () => import('@/components/config/WidgetConfigGridsterRow'),
         DatePickerConfigDetail: () => import('@/components/config/params/DatePickerConfigDetail'),
         SliderConfigDetail: () => import('@/components/config/params/SliderConfigDetail'),
         SelectorConfigDetail: () => import('@/components/config/params/SelectorConfigDetail')
@@ -160,6 +193,7 @@ export default {
     beforeRouteUpdate (to, from, next) {
         this.isError = false;
         let id = to.params.id;
+        // 新增 Grid Layout
         if(id === 'grid') {
             let categoryId = to.query.categoryId;
             this.board = {
@@ -172,7 +206,9 @@ export default {
             this.rows = this.board.layout.rows;
             this.category = this.board.categoryId;
             this.boardType = '';
-        }else if(id === 'timeline') {
+        }
+        // 新增 Timelline Layout
+        else if(id === 'timeline') {
             let categoryId = to.query.categoryId;
             this.board = {
                 categoryId: categoryId,
@@ -184,8 +220,25 @@ export default {
             }
             this.rows = this.board.layout.rows;
             this.category = this.board.categoryId;
-            this.boardType = 'timeline';
-        }else {
+            this.boardType = 'timeline'; 
+        }
+        // 新增 Timelline Layout
+        else if(id === 'gridster') {
+            let categoryId = to.query.categoryId;
+            this.board = {
+                categoryId: categoryId,
+                name: '',
+                layout: {
+                    rows: [],
+                    type: 'gridster'
+                }
+            }
+            this.rows = this.board.layout.rows;
+            this.category = this.board.categoryId;
+            this.boardType = 'gridster'; 
+        }
+        // 点击 tree item 切换配置页面
+        else {
             this.setBoardById(parseInt(to.params.id));
         }
         this.paramColumns = [];
@@ -222,6 +275,7 @@ export default {
             boardType: '',
             //--------- Add Param 配置数据 -----------
             isParamConfigShow: false,
+            isWidgetConfigShow: false,
             paramConfigFlag: 'add', // "add"、"edit"(新增和编辑两种)
             paramName: '', //param 名称
             isError: false, //名称输入框的校验值
@@ -231,7 +285,8 @@ export default {
             paramTypes: ['selector', 'slider', 'datePicker'], //param type 列表
             currentParamRowData: [], // 当前操作的 param row 的数据
             currentParamData: [], // 当前操作的 param 的数据
-            configDetail: {}
+            configDetail: {},
+            currentWidgetConfigData: {}
         }
     },
     methods: {
@@ -303,7 +358,7 @@ export default {
             const params = {
                 json: JSON.stringify(this.board)
             };
-            if(id === 'grid' || id === 'timeline') {  // 新增布局的时候，使用不同的接口
+            if(id === 'grid' || id === 'timeline' || id === 'gridster') {  // 新增布局的时候，使用不同的接口
                 this.$req.post(this.$api.saveNewBoard, params)
                 .then(response => {
                     console.log('response', response);
@@ -544,6 +599,11 @@ export default {
             this.currentParamData.paramType = this.paramTypeValue;
             this.currentParamData.col = col;
             this.currentParamData.cfg = this.configDetail;
+        },
+        widgetConfigHandler(widget) {
+            this.isWidgetConfigShow = true;
+            console.log(123123, widget)
+            this.currentWidgetConfigData = widget;
         }
     }
 }

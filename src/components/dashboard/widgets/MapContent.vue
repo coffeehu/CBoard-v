@@ -1,15 +1,20 @@
 <template>
-  <dashboard-box :name="widget.name" @open-widget="handeOpen">
-    <div class="map-wrapper" :style="boxHeight">
-      <div ref="map"></div>      
-    </div>
-  </dashboard-box>
+
+  <div style="height:100%">
+    <dashboard-loading v-if="loading" :name="widget.name"></dashboard-loading>
+
+    <dashboard-box v-else :name="widget.name" @open-widget="handeOpen">
+      <div class="map-wrapper" :style="boxHeight">
+        <div ref="map" style="width:100%;height:100%"></div>      
+      </div>
+    </dashboard-box>
+  </div>
+
 </template>
 
 <script>
-/*import req from '@/utils/http/request';
-import api from '@/utils/http/api';
-import { injectFilter, formatConfig } from '@/utils/dashboardConfig.js';*/
+//import { injectFilter, formatConfig } from '@/utils/dashboardConfig.js';
+import DashboardLoading from '@/components/dashboard/DashboardLoading';
 import DashboardBox from '@/components/dashboard/DashboardBox';
 import 'ol/ol.css';
 import {Map, View} from 'ol';
@@ -31,7 +36,8 @@ let options = {
     }
   },
   components: {
-    DashboardBox
+    DashboardBox,
+    DashboardLoading
   },
   mounted() {
     this.init();
@@ -45,7 +51,7 @@ let options = {
   },
   data() {
     return {
-
+      loading: true
     }
   },
   computed: {
@@ -60,21 +66,27 @@ let options = {
   },
   methods: {
     init() {
-      this.$nextTick(()=>{
-        let mapEl = this.$refs['map'];
-        const map = new Map({
-          target: mapEl,
-          layers: [
-            new TileLayer({
-              source: new OSM()
-            })
-          ],
-          view: new View({
-            center: [0,0],
-            zoom: 4
+      setTimeout(() => {
+        this.loading = false;
+        this.$nextTick(()=>{
+          this.renderMap();
+        }) 
+      });
+    },
+    renderMap() {
+      let mapEl = this.$refs['map'];
+      const map = new Map({
+        target: mapEl,
+        layers: [
+          new TileLayer({
+            source: new OSM()
           })
-        });
-      }) 
+        ],
+        view: new View({
+          center: [0,0],
+          zoom: 4
+        })
+      });
     },
     handeOpen() {
       let data = {

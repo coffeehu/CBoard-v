@@ -31,6 +31,11 @@
                 <i class="fa fa-plus toolbar-icon"></i>
                 <span>New Timeline Layout</span>
               </div>
+              <div class="config-tree-operation-item"
+                   @click="addLayout('gridster')">
+                <i class="fa fa-plus toolbar-icon"></i>
+                <span>New Gridster Layout</span>
+              </div>
             </div>
 
             <!-- 目录的删除操作（只有二级目录弹出） -->

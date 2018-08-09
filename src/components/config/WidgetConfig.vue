@@ -16,7 +16,7 @@
                 <label>Name</label>
                 <el-input v-model="widget.name" placeholder="请输入名称" class="board-config--input"></el-input>
             </div>
-            <div class="form-group">
+            <div v-if="!(type==='gridster')" class="form-group">
                 <label>Width(1-12)</label>
                 <el-input 
                   v-model="mWidth" 
@@ -64,6 +64,10 @@ export default {
     index: {
       type: Number,
       default: -1
+    },
+    type: {
+      type: String,
+      default: ''
     }
   },
   created() {

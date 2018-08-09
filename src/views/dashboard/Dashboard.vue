@@ -23,7 +23,8 @@ export default {
   },
   components: {
     Grid: () => import('./Grid'),
-    Timeline: () => import('./Timeline')
+    Timeline: () => import('./Timeline'),
+    Gridster: () => import('./Gridster'),
   },
   watch: {
     '$route' (to, from) {
@@ -39,6 +40,8 @@ export default {
       const type = this.$store.state.dashboard.type;
       if(type === 'timeline') {
         return 'Timeline';
+      }else if(type === 'gridster') {
+        return 'gridster';
       }else {
         return 'Grid';
       }

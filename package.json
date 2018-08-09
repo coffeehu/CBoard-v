@@ -18,6 +18,7 @@
     "numbro": "^2.1.0",
     "ol": "^5.0.3",
     "vue": "^2.5.2",
+    "vue-grid-layout": "^2.1.13",
     "vue-i18n": "^8.0.0",
     "vue-router": "^3.0.1",
     "vuedraggable": "^2.16.0",

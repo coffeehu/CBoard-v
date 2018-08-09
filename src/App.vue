@@ -134,5 +134,11 @@ body {
 .dashboard-param .el-date-editor {
   width: 100%;
 }
-
+/* gridster 布局中的 box 样式*/
+.widget-item .box {
+  margin-bottom: 0!important;
+}
+.content {
+  box-sizing: border-box;
+}
 </style>
