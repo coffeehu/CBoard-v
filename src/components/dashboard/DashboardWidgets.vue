@@ -39,7 +39,7 @@ export default {
     MapContent: () => import('./widgets/MapContent')
   },
   created() {
-    console.log(123123213, this.widgets)
+    
   },
   data() {
     return {

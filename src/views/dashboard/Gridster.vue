@@ -29,7 +29,7 @@
             :use-css-transforms="true">
             <grid-item 
                v-for="(widget, index) in row.widgets"
-               :key="widget.flag"
+               :key="widget.i"
                :x="widget.x"
                :y="widget.y"
                :w="widget.w"

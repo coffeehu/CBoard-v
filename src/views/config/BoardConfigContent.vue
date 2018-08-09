@@ -185,63 +185,16 @@ export default {
     created() {
         this.$store.dispatch('menu/getBoardList')
             .then(() => {
-                const id = parseInt(this.$route.params.id);
-                this.setBoardById(id);
+                const id = this.$route.params.id;
+                const categoryId = this.$route.query.categoryId;
+                this.initData(id, categoryId);
             })
             .catch(() => {})
     },
     beforeRouteUpdate (to, from, next) {
-        this.isError = false;
-        let id = to.params.id;
-        // 新增 Grid Layout
-        if(id === 'grid') {
-            let categoryId = to.query.categoryId;
-            this.board = {
-                categoryId: categoryId,
-                name: '',
-                layout: {
-                    rows: []
-                }
-            }
-            this.rows = this.board.layout.rows;
-            this.category = this.board.categoryId;
-            this.boardType = '';
-        }
-        // 新增 Timelline Layout
-        else if(id === 'timeline') {
-            let categoryId = to.query.categoryId;
-            this.board = {
-                categoryId: categoryId,
-                name: '',
-                layout: {
-                    rows: [],
-                    type: 'timeline'
-                }
-            }
-            this.rows = this.board.layout.rows;
-            this.category = this.board.categoryId;
-            this.boardType = 'timeline'; 
-        }
-        // 新增 Timelline Layout
-        else if(id === 'gridster') {
-            let categoryId = to.query.categoryId;
-            this.board = {
-                categoryId: categoryId,
-                name: '',
-                layout: {
-                    rows: [],
-                    type: 'gridster'
-                }
-            }
-            this.rows = this.board.layout.rows;
-            this.category = this.board.categoryId;
-            this.boardType = 'gridster'; 
-        }
-        // 点击 tree item 切换配置页面
-        else {
-            this.setBoardById(parseInt(to.params.id));
-        }
-        this.paramColumns = [];
+        const id = to.params.id;
+        const categoryId = to.query.categoryId;
+        this.initData(id, categoryId);
         next();
     },
 	computed: {
@@ -290,6 +243,58 @@ export default {
         }
     },
     methods: {
+        initData(id, categoryId) {
+            this.isError = false;
+            // 新增 Grid Layout
+            if(id === 'grid') {
+                this.board = {
+                    categoryId: categoryId,
+                    name: '',
+                    layout: {
+                        rows: []
+                    }
+                }
+                this.rows = this.board.layout.rows;
+                this.category = this.board.categoryId;
+                this.boardType = '';
+            }
+            // 新增 Timelline Layout
+            else if(id === 'timeline') {
+                this.board = {
+                    categoryId: categoryId,
+                    name: '',
+                    layout: {
+                        rows: [],
+                        type: 'timeline'
+                    }
+                }
+                this.rows = this.board.layout.rows;
+                this.category = this.board.categoryId;
+                this.boardType = 'timeline'; 
+            }
+            // 新增 Timelline Layout
+            else if(id === 'gridster') {
+                this.board = {
+                    categoryId: categoryId,
+                    name: '',
+                    layout: {
+                        rows: [],
+                        type: 'gridster'
+                    }
+                }
+                this.rows = this.board.layout.rows;
+                this.category = this.board.categoryId;
+                this.boardType = 'gridster'; 
+            }
+            // 点击 tree item 切换配置页面
+            else {
+                this.setBoardById(parseInt(id));
+                this.rows = this.board.layout.rows;
+                this.category = this.board.categoryId;
+                this.boardType = this.board.layout.type;
+            }
+            this.paramColumns = [];
+        },
         setBoardById(id) {
             this.boardList = this.$store.state.menu.boardList;
             for(let i=0,l=this.boardList.length; i<l; i++) {
@@ -301,9 +306,6 @@ export default {
             for(let i=0,l=this.board.layout.rows.length; i<l; i++) {
                 this.board.layout.rows[i].flag = 'hehe' + i;
             }
-            this.rows = this.board.layout.rows;
-            this.category = this.board.categoryId;
-            this.boardType = this.board.layout.type;
         },
     	//添加行
     	addRow() {
