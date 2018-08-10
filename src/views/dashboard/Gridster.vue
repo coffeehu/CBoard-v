@@ -50,7 +50,6 @@
     </div>
 
 
-
   </div>
 </template>
 
@@ -74,7 +73,6 @@ export default {
   },
   created() {
       this.dashboardTitle = this.$store.state.dashboard.boardData.name;
-      console.log(11111111, this.layoutData)
   },
   computed: {
     layoutData() {

@@ -24,7 +24,6 @@ export default {
     }
   },
   mounted() {
-    console.log('datepicker param', this.param)
   },
   created() {
     this.valueFormat = this.param.cfg.format;

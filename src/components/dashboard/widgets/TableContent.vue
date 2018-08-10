@@ -155,6 +155,9 @@ export default options;
 
 <style scoped>
 .box {
-  background: none;
+  
+}
+.box .box-body {
+  max-height: 700px;
 }
 </style>

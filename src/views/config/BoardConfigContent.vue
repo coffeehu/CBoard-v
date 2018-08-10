@@ -156,12 +156,12 @@
             </el-dialog>
 
 
-            <!-- Widget 配置面板 -->
+            <!-- Widget 配置面板（Gridster Layout 下使用） -->
             <el-dialog title="Param" 
                        :visible.sync="isWidgetConfigShow" 
                        custom-class="widget-config-dialog">
-                       <widget-config
-                            :widgetData="currentWidgetConfigData" type="gridster" :key="currentWidgetConfigData.i"></widget-config> 
+                       <gridster-widget-config
+                            :widgetData="currentWidgetConfigData" type="gridster" :key="currentWidgetConfigData.i"></gridster-widget-config> 
             </el-dialog>
 
 
@@ -175,6 +175,7 @@ export default {
 	components: {
         draggable: () => import('vuedraggable'),
         WidgetConfig: () => import('@/components/config/WidgetConfig'),
+        GridsterWidgetConfig: () => import('@/components/config/GridsterWidgetConfig'),
         WidgetConfigParam: () => import('@/components/config/WidgetConfigParam'),
         WidgetConfigRow: () => import('@/components/config/WidgetConfigRow'),
         WidgetConfigGridsterRow: () => import('@/components/config/WidgetConfigGridsterRow'),

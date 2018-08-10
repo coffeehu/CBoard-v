@@ -54,7 +54,7 @@
            :h="widget.h"
            :i="widget.i">
             <div class="box box-solid widget-item"
-                 :style="{'background-color': columnsPreviewBackground}"
+                 :style="{'background-color': widget.background || columnsPreviewBackground}"
                  @dblclick.prevent = "handleDblclick(widget)">
                 <i @click="removeWidget(index)" class="el-icon-close"></i>
                 <div>{{widget.name}}</div>
@@ -94,6 +94,7 @@ export default {
     this.rowPreviewBackground = this.rowData.background;
     this.columnsPreviewBackground = this.rowData.columnsBackground;
     this.columnsNumber = this.rowData.columnsNumber || 12;
+    console.log(111111111, this.rowData)
   },
   watch: {
     rowData() {

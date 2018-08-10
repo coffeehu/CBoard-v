@@ -139,7 +139,6 @@ export default {
       // 鼠标右键点击目录节点
       handleContextmenu(evt, data, node, instance) {
         //console.log(evt, data, node)
-        console.log(data)
         this.currentTreeItem = data; // 当前 tree 选中的 item 数据
         this.treeOperationTop = (evt.clientY + 12) + 'px';
         this.treeOperationLeft = (evt.clientX + 18) + 'px';
