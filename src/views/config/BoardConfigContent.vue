@@ -346,8 +346,6 @@ export default {
     	},
     	//保存
     	saveConfig(callback) {
-            /*console.log('-------this.board----------', this.board)
-            return*/
             if(this.board.name === '') {
                 this.isError = true;
                 return;

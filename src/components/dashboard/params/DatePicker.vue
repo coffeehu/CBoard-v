@@ -1,5 +1,5 @@
 <template>
-    <div :class="'col-sm-'+width" style="padding:0">
+    <div  style="padding:0">
       <el-date-picker
           v-model="value"
           :default-value="defaultValue"

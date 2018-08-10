@@ -18,8 +18,9 @@
       </div> 
       <div v-if="row.type === 'widget'">
           <grid-layout
+            :style="{'background-color': row.background}"
             :layout="row.widgets"
-            :col-num="12"
+            :col-num="parseInt(row.columnsNumber)"
             :row-height="60"
             :is-draggable="false"
             :is-resizable="false"
@@ -40,7 +41,8 @@
                      :is="currentComponent(widget)" 
                      :widget="widget" 
                      :filters="filters" 
-                     :height="(widget.h*60)+'px'"></component>
+                     :height="(widget.h*60)+'px'"
+                     :mBackground="widget.background || row.columnsBackground"></component>
                 </div>
             </grid-item>
           </grid-layout>
@@ -72,6 +74,7 @@ export default {
   },
   created() {
       this.dashboardTitle = this.$store.state.dashboard.boardData.name;
+      console.log(11111111, this.layoutData)
   },
   computed: {
     layoutData() {

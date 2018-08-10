@@ -3,6 +3,7 @@
   <dashboard-loading v-if="loading" :name="widget.name"></dashboard-loading>
 
 	<dashboard-box v-else :name="chartName"
+            :mBackground="mBackground"
             @open-widget="handeOpen"
             @refresh-widget="handeRefresh">
 		<div class="box-body" ref="chart-body" :style="boxHeight" style="padding: 3px 0px 3px 13px;"></div>
@@ -29,6 +30,9 @@ let options = {
       default() {
         return [];
       }
+    },
+    mBackground: {
+      type: String
     }
   },
   components: {

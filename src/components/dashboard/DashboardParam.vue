@@ -4,7 +4,7 @@
         <div class="box box-solid" style="border-left: 1px solid #d2d6de; border-right: 1px solid #d2d6de">
 
             <div class="box-header">
-                <!-- TODO:信息栏，暂时没发现有什么功能 -->
+                <!-- TODO:信息栏 -->
                 <div class="box-tools pull-right">
                     <div class="paramTemplate btn btn-box-tool">hehe</div>
                     <button type="button" class="btn btn-box-tool">
@@ -16,7 +16,7 @@
             <div class="box-body">
                 <div class="col-sm-12">
                     <div style="min-height: 35px;height: auto;padding: 0px">
-                          <div v-for="(param, index) in params" :key="index" class="dashboard-param">
+                          <div v-for="(param, index) in params" :key="index" :class="'col-md-' + param.cfg.width" style="float:left">
                               <component v-if="!param.cfg || !param.cfg.oneRow" :is="currentParam(param.paramType)" :param="param"></component>
                           </div>
                     </div>
@@ -79,6 +79,5 @@ export default {
   float: left;
   box-sizing: border-box;
   margin-right: 5px;
-  width: 100%;
 }
 </style>

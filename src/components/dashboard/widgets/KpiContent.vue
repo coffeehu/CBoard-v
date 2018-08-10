@@ -3,7 +3,9 @@
     
     <dashboard-loading v-if="loading" :name="widget.name"></dashboard-loading>
 
-    <div v-else :class="['small-box', style]">
+    <div v-else 
+         :style="{'background-color': mBackground}"
+         :class="['small-box', style]">
       <div class="inner">
         <h3>{{ value }}</h3>
         <p>{{ widget.name }}</p>
@@ -36,6 +38,9 @@ export default {
     filters: {
       type: Array,
       default: []
+    },
+    mBackground: {
+      type: String
     }
   },
   components: {

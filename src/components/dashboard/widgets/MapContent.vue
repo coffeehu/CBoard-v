@@ -3,7 +3,10 @@
   <div style="height:100%">
     <dashboard-loading v-if="loading" :name="widget.name"></dashboard-loading>
 
-    <dashboard-box v-else :name="widget.name" @open-widget="handeOpen">
+    <dashboard-box v-else 
+                   :name="widget.name"
+                   :mBackground="mBackground"
+                   @open-widget="handeOpen">
       <div class="map-wrapper" :style="boxHeight">
         <div ref="map" style="width:100%;height:100%"></div>      
       </div>
@@ -33,6 +36,9 @@ let options = {
     filters: {
       type: Array,
       default: []
+    },
+    mBackground: {
+      type: String
     }
   },
   components: {

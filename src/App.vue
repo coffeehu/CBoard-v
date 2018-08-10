@@ -141,4 +141,9 @@ body {
 .content {
   box-sizing: border-box;
 }
+/*Gridster Layout config: Row BackgroundColor Picker*/ 
+.row-color-picker .el-color-picker__trigger {
+  width: 30px!important;
+  height: 30px;
+}
 </style>

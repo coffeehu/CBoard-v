@@ -9,8 +9,19 @@
       </div>
       <div class="box-tools pull-right">
           <div class="input-group input-group-sm">
-              <input v-model="heightUnit" type="text" name="table_search" class="form-control pull-right" placeholder="Widget 高度单位">
-              <input v-model="rowData.height" type="text" name="table_search" class="form-control pull-right" placeholder="Row 的高度">
+              <input v-model="columnsNumber" type="text" class="form-control pull-right" placeholder="列数">
+              <div class="pull-right row-color-picker">
+                <el-color-picker v-model="rowData.background"
+                                 @active-change="handleRowAcitveColorChange"
+                                 @change="handleRowColorChange"></el-color-picker>
+              </div>
+              <div class="pull-right row-color-picker">
+                <el-color-picker v-model="rowData.columnsBackground"
+                                 @active-change="handleColumnsAcitveColorChange"
+                                 @change="handleColumnsColorChange"></el-color-picker>
+              </div>
+              <!-- <input v-model="heightUnit" type="text" name="table_search" class="form-control pull-right" placeholder="Widget 高度单位"> -->
+              <!-- <input v-model="rowData.height" type="text" name="table_search" class="form-control pull-right" placeholder="Row 的高度"> -->
               <div class="input-group-btn">
                   <button type="button" class="btn btn-xs btn-primary" @click="addWidget">Add Widget</button>
                   <button type="button" class="btn btn-box-tool"><i class="fa fa-minus"></i>
@@ -22,11 +33,11 @@
       </div>
     </div>
 
-    <div class="box-body">
+    <div class="box-body" :style="{'background': rowPreviewBackground}">
 
       <grid-layout
         :layout="widgets"
-        :col-num="12"
+        :col-num="parseInt(columnsNumber)"
         :row-height="30"
         :is-draggable="true"
         :is-resizable="true"
@@ -43,6 +54,7 @@
            :h="widget.h"
            :i="widget.i">
             <div class="box box-solid widget-item"
+                 :style="{'background-color': columnsPreviewBackground}"
                  @dblclick.prevent = "handleDblclick(widget)">
                 <i @click="removeWidget(index)" class="el-icon-close"></i>
                 <div>{{widget.name}}</div>
@@ -79,6 +91,9 @@ export default {
   },
   created() {
     this.setWidgets();
+    this.rowPreviewBackground = this.rowData.background;
+    this.columnsPreviewBackground = this.rowData.columnsBackground;
+    this.columnsNumber = this.rowData.columnsNumber || 12;
   },
   watch: {
     rowData() {
@@ -86,6 +101,9 @@ export default {
     },
     widgets() {
       this.rowData.widgets = this.widgets;
+    },
+    columnsNumber() {
+      this.rowData.columnsNumber = this.columnsNumber;
     }
   },
   computed: {
@@ -110,7 +128,10 @@ export default {
       nodeTitle: '',
       widgets: [],
       editable: true,
-      heightUnit: 100
+      heightUnit: 100,
+      rowPreviewBackground: '',
+      columnsPreviewBackground: '',
+      columnsNumber: 12, //定义一行的列数
     }
   },
   methods: {
@@ -138,20 +159,11 @@ export default {
       widget.y = 0;
       widget.w = 2;
       widget.h = 2;
-      console.log(this.widgets, widget)
-      //return
-      widget.i = this.widgets.length + '';
-      this.widgets.push(widget);
-    },
-    addColumn() {
-      var widget = {};
-      // 新增的默认显示 widgetList 中第一个
-      widget.name = this.widgetList[0].name;
-      widget.width = 12;
-      widget.widgetId = this.widgetList[0].id;
-      widget.type = 'column';
-      widget.rows = [];
-      widget.flag = 'col-' + this.widgets.length;
+      if(this.widgets.length > 0) {
+        widget.i = (this.widgets[this.widgets.length-1].i | 0) + 1 + '' ;
+      }else {
+        widget.i = '0';
+      }
       this.widgets.push(widget);
     },
     handleDblclick(widget) {
@@ -159,6 +171,20 @@ export default {
     },
     removeWidget(index) {
       this.widgets.splice(index, 1);
+    },
+    //Row 的颜色
+    handleRowAcitveColorChange(color) {
+      this.rowPreviewBackground = color;
+    },
+    handleRowColorChange(color) {
+      this.rowPreviewBackground = color;
+    },
+    //Row 中所有 Columns 的颜色
+    handleColumnsAcitveColorChange(color) {
+      this.columnsPreviewBackground = color;
+    },
+    handleColumnsColorChange(color) {
+      this.columnsPreviewBackground = color;
     }
   }
 }
@@ -220,5 +246,8 @@ export default {
 }
 .widget-item:hover > i {
   display: block;
+}
+.row-color-picker {
+  margin-right: 20px;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <div class="box box-solid">
+    <div class="box box-solid" :style="{'background-color': mBackground}">
         <div class="box-header">
             <h3 class="box-title">{{ name }}</h3>
             <div class="box-tools pull-right">
@@ -30,6 +30,9 @@ export default {
     name: {
       type: String,
       default: ''
+    },
+    mBackground: {
+        type: String
     }
   },
   methods: {

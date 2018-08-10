@@ -1,22 +1,26 @@
 <template>
 
-  <dashboard-loading v-if="loading" :name="widget.name"></dashboard-loading>
+  <!-- <div :style="{'background-color': mBackground}"> -->
+    <dashboard-loading v-if="loading" :name="widget.name"></dashboard-loading>
 
-  <dashboard-box v-else 
-                 :name="widget.name" 
-                 @open-widget="handeOpen"
-                 @refresh-widget="handeRefresh">
-    <div class="box-body" ref="table-body" :style="boxHeight" style="padding: 5px 20px 20px 20px;overflow-y: auto">
+    <dashboard-box v-else 
+                   :name="widget.name" 
+                   :mBackground="mBackground"
+                   @open-widget="handeOpen"
+                   @refresh-widget="handeRefresh">
+      <div class="box-body" ref="table-body" :style="boxHeight" style="padding: 5px 20px 20px 20px;overflow-y: auto">
 
-      <el-table
-        :data="tableData"
-        border
-        style="width: 100%">
-        <data-table :columnList="columnList"></data-table>
-      </el-table>   
+        <el-table
+          :data="tableData"
+          border
+          style="width: 100%">
+          <data-table :columnList="columnList"></data-table>
+        </el-table>   
 
-    </div>
-  </dashboard-box>
+      </div>
+    </dashboard-box>
+  <!-- </div> -->
+
 </template>
 
 <script>
@@ -26,7 +30,11 @@ import DashboardLoading from '@/components/dashboard/DashboardLoading';
 
 const DataTable = {
   name: 'DataTable',
-  props: ['columnList'],
+  props: {
+    columnList: {
+      type: Array
+    }
+  },
   render(h) {
     let columnListArr = [];
     if(this.columnList.length > 0){
@@ -57,6 +65,9 @@ let options = {
     filters: {
       type: Array,
       default: []
+    },
+    mBackground: {
+      type: String
     }
   },
   components: {
@@ -143,5 +154,7 @@ export default options;
 </script>
 
 <style scoped>
-
+.box {
+  background: none;
+}
 </style>
