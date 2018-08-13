@@ -3,7 +3,7 @@
   <div style="min-width:150px">
     <div class="box box-primary" 
          style="border-left: 1px solid #d2d6de; border-right: 1px solid #d2d6de"
-         :style="{'background-color': widgetBackground}">
+         >
         <div class="box-header">
             {{ widget.name }}
             <div class="box-tools pull-right row-color-picker">
@@ -83,6 +83,7 @@ export default {
     // Name: this.widget.name
     // widgetId: this.widget.widgetId
     this.mWidth = this.widget.width;
+    this.widgetBackground = this.widgetData.background;
   },
   computed: {
     // 列宽度样式，如 'col-md-6'

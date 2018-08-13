@@ -20,6 +20,7 @@ const api = {
 	getDimensionValues: baseurl + 'dashboard/getDimensionValues.do',
 
 	/*############### config ##################*/
+	/*--- dashboard config ---*/
 	getDatasetList: baseurl + 'dashboard/getDatasetList.do',
 	getWidgetList: baseurl + 'dashboard/getWidgetList.do',
 	//保存
@@ -31,12 +32,16 @@ const api = {
 	// config--add param--弹出框的列表
 	getColumns: baseurl + 'dashboard/getColumns.do',
 
+	/*---dashboard category config---*/
 	//新增 dashboard category
 	saveNewCategory: baseurl + 'dashboard/saveNewCategory.do',
 	//删除 dashboard category
 	deleteCategory: baseurl + 'dashboard/deleteCategory.do',
 	//修改 dashboard category
 	updateCategory: baseurl + 'dashboard/updateCategory.do',
+
+	/*----widget config----*/
+	saveNewWidget: baseurl + 'dashboard/saveNewWidget.do',
 	
 
 }

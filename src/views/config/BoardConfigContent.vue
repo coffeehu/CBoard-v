@@ -603,7 +603,6 @@ export default {
         },
         widgetConfigHandler(widget) {
             this.isWidgetConfigShow = true;
-            console.log(123123, widget)
             this.currentWidgetConfigData = widget;
         }
     }

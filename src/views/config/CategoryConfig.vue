@@ -26,22 +26,22 @@
 
             <!-- 配置面板 -->
             <div class="col-md-9" v-show="configVisible">
-                <div class="box">
-			        <div class="box-header with-border">
-			            <h3 class="box-title" style="font-weight: bold">{{ title }}</h3>
-			        </div>
-			        <div class="box-body">
-			        	<div class="form-group" :class="isError ? 'is-error' : ''">
-	                        <label>Category Name：</label>
-	                        <el-input v-model="categoryName" placeholder="请输入分类名称" class="board-config--input" @change="isError = false"></el-input>
-	                        <div v-if="isError" class="error-tag">请输入分类名称</div>
-	                    </div>
-			        </div>
-			        <div class="box-footer">
-                        <button @click="cancel" class="btn btn-default pull-right">取消</button>
-                        <button @click="save" class="btn btn-primary pull-right">保存</button>
-                    </div>
-			    </div>
+              <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title" style="font-weight: bold">{{ title }}</h3>
+                </div>
+                <div class="box-body">
+                	<div class="form-group" :class="isError ? 'is-error' : ''">
+                      <label>Category Name：</label>
+                      <el-input v-model="categoryName" placeholder="请输入分类名称" class="board-config--input" @change="isError = false"></el-input>
+                      <div v-if="isError" class="error-tag">请输入分类名称</div>
+                  </div>
+                </div>
+                <div class="box-footer">
+                    <button @click="cancel" class="btn btn-default pull-right">取消</button>
+                    <button @click="save" class="btn btn-primary pull-right">保存</button>
+                </div>
+              </div>
             </div>
 
         </div>

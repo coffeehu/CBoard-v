@@ -94,7 +94,6 @@ export default {
     this.rowPreviewBackground = this.rowData.background;
     this.columnsPreviewBackground = this.rowData.columnsBackground;
     this.columnsNumber = this.rowData.columnsNumber || 12;
-    console.log(111111111, this.rowData)
   },
   watch: {
     rowData() {
