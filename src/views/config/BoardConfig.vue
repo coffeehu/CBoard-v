@@ -162,6 +162,8 @@ export default {
         this.$confirm('是否确认删除？', '警告', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
+          type: 'warning',
+          closeOnClickModal: false,
           customClass: 'preview-config-modal'
         }).then(() => {
           let id = this.currentTreeItem.id;

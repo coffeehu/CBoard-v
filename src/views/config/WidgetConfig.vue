@@ -9,75 +9,129 @@
                         <i class="fa fa-dashboard"></i><h3 class="box-title">Widget</h3>
                         <div class="box-tools pull-right">
                             <i class="el-icon-circle-plus-outline" @click="addWidget"></i>
-                            <i class="el-icon-delete"></i>
                         </div>
                     </div>
                     <div class="panel-body">
-                        <el-tree :data="treeData" :props="defaultProps" @node-click="handleNodeClick" @node-contextmenu="handleContextmenu"></el-tree>
+                        <el-tree 
+                          :data="treeData" 
+                          :props="defaultProps"
+                          @node-click="handleNodeClick"></el-tree>
+                    </div>
+                </div>
+
+                <div class="box box-solid">
+                    <div class="box-header with-border">
+                        <i class="fa fa-cube"></i><h3 class="box-title">Cube</h3>
+                        <div class="box-tools pull-right">
+                            
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <el-tree 
+                          :data="cubeTreeData" 
+                          draggable
+                          :allow-drag="isAllowDrag"
+                          @node-drag-start="handleTreeDragStart"></el-tree>
                     </div>
                 </div>
             </div>
 
+
+            <!-- 配置面板 -->
             <div class="col-md-9" v-if="widgetConfigVisible">
-            	<div class="box">
-            		<div class="box-header with-border">
-	                    <h3 class="box-title" style="font-weight: bold">{{ name }}</h3>
-	                </div>
-	                <div class="box-body">
-	                	<div class="el-form-item">
-	                		<label class="el-form-item__label">Cube:</label>
-	                		<div class="el-form-item__content">
-								<el-select v-model="currentWidget.datasetId" placeholder="请选择">
-									<el-option
-									  v-for="item in datasetList"
-									  :key="item.id"
-									  :label="item.name"
-									  :value="item.id">
-									</el-option>
-								</el-select>
-	                		</div>
-	                	</div>
+              <div class="box">
+                <div class="box-header with-border">
+                  <h3 class="box-title" style="font-weight: bold">{{ currentWidget.name }}</h3>
+                  <i class="pull-right el-icon-delete" @click="delWidget"></i>
+                </div>
 
-	                	<div class="el-form-item">
-	                		<label class="el-form-item__label">Widget Category:</label>
-	                		<div class="el-form-item__content">
-								<el-input v-model="currentWidget.categoryName" placeholder="Widget Category"></el-input>
-	                		</div>
-	                	</div>
+  	            <div class="box-body">
+                  <!-- Cube 数据源 -->
+                  <div class="el-form-item">
+                  	<label class="el-form-item__label">Cube:</label>
+                  	<div class="el-form-item__content">
+                      <el-select v-model="currentWidget.data.datasetId" placeholder="请选择">
+                        <el-option
+                        v-for="item in datasetList"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.id">
+                        </el-option>
+                      </el-select>
+                  	</div>
+                  </div>
 
-	                	<div class="el-form-item">
-	                		<label class="el-form-item__label">Widget Name:</label>
-	                		<div class="el-form-item__content">
-								<el-input v-model="currentWidget.name" placeholder="Widget Name"></el-input>
-	                		</div>
-	                	</div>
+                  <!-- Category Name -->
+                  <div class="el-form-item">
+                    <label class="el-form-item__label">Widget Category:</label>
+                    <div class="el-form-item__content">
+                      <el-input v-model="currentWidget.categoryName" placeholder="Widget Category"></el-input>
+                    </div>
+                  </div>
 
-	                	<div class="el-form-item">
-	                		<label class="el-form-item__label">Widget Type:</label>
-	                		<div class="el-form-item__content">
-								<ul class="widget-type-list">
-									<li v-for="type in widgetTypes">
-										<el-popover
-										  placement="bottom"
-										  trigger="hover">
-										  	<div>
-										  		<p><b>{{ type.row }} {{ $t('CONFIG.WIDGET.TIPS_ROW_DIM') }}</b></p>
-										  		<p><b>{{ type.column }} {{ $t('CONFIG.WIDGET.TIPS_COLUMN_DIM') }}</b></p>
-										  		<p><b>{{ type.measure }} {{ $t('CONFIG.WIDGET.TIPS_MEASURE') }}</b></p>
-										  	</div>
-											<span slot="reference" :class="[type.class, chartTypesStatus[type.value]?'':'disabled']" class="widget-type-item"></span>
-										</el-popover>
-									</li>
-								</ul>
-	                		</div>
-	                	</div>
+                  <!-- Widget Name -->
+                	<div class="el-form-item">
+                    <label class="el-form-item__label">Widget Name:</label>
+                    <div class="el-form-item__content">
+                      <el-input v-model="currentWidget.name" placeholder="Widget Name"></el-input>
+                    </div>
+                	</div>
 
-	                	<div class="el-form-item">
-	                		<button @click="save">save</button>
-	                	</div>
+                  <!-- Widget Type -->
+                  <div class="el-form-item">
+                    <label class="el-form-item__label">Widget Type:</label>
+                    <div class="el-form-item__content">
+                      <ul class="widget-type-list">
+                        <li v-for="(type, index) in widgetTypes" @click.prevent="handleTypeClick(type, index)">
+                          <el-popover
+                            placement="bottom"
+                            trigger="hover">
+                          	<div>
+                          		<p><b>{{ type.row }} {{ $t('CONFIG.WIDGET.TIPS_ROW_DIM') }}</b></p>
+                          		<p><b>{{ type.column }} {{ $t('CONFIG.WIDGET.TIPS_COLUMN_DIM') }}</b></p>
+                          		<p><b>{{ type.measure }} {{ $t('CONFIG.WIDGET.TIPS_MEASURE') }}</b></p>
+                          	</div>
+                            <i slot="reference" :class="[type.class, chartTypesStatus[type.value]?'':'disabled', index===activeTypeIndex?'active':'']" class="widget-type-item"></i>
+                          </el-popover>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div class="el-form-item">
+                    <label class="el-form-item__label">Column:</label>
+                    <div class="el-form-item__content">
+                      <div class="drop-input" @dragover="allowDrop($event)" @drop="drop($event)"></div>
+                    </div>
+                  </div>
+
+                  <div class="el-form-item">
+                    <label class="el-form-item__label">Row:</label>
+                    <div class="el-form-item__content">
+                      <div class="drop-input"></div>
+                    </div>
+                  </div>
+
+                  <div class="el-form-item">
+                    <label class="el-form-item__label">Filter:</label>
+                    <div class="el-form-item__content">
+                      <div class="drop-input"></div>
+                    </div>
+                  </div>
+
+                  <div class="el-form-item">
+                    <label class="el-form-item__label">Value Axis:</label>
+                    <div class="el-form-item__content">
+                      
+                    </div>
+                  </div>
+
+                  <div class="el-form-item">
+                  	<button @click="save">save</button>
+                  </div>
 
 
-	                </div>
+  	            </div>
             	</div>
             </div>
 
@@ -128,7 +182,6 @@ export default {
   },
   data() {
   	return {
-  		name: 'name',
   		defaultProps: {
   			label: 'name'
   		},
@@ -137,6 +190,7 @@ export default {
   		widgetName: '',
   		currentWidget: {},
   		widgetConfigVisible: false,
+      activeTypeIndex: 0,
   		// widget Type 列表
   		widgetTypes: [
             {
@@ -262,12 +316,12 @@ export default {
         ],
         //用于判断哪些 Widget Type 可选（Base值）
         baseChartTypesStatus: {
-		    "line": true, "pie": true, "kpi": true, "table": true,
-		    "funnel": true, "sankey": true, "radar": true, "map": true,
-		    "scatter": true, "gauge": true, "wordCloud": true, "treeMap": true,
-		    "heatMapCalendar": true, "heatMapTable": true, "liquidFill": true,
-		    "areaMap": true, "contrast": true,"chinaMap":true,"chinaMapBmap":true,"relation":true
-		}
+  		    "line": true, "pie": true, "kpi": true, "table": true,
+  		    "funnel": true, "sankey": true, "radar": true, "map": true,
+  		    "scatter": true, "gauge": true, "wordCloud": true, "treeMap": true,
+  		    "heatMapCalendar": true, "heatMapTable": true, "liquidFill": true,
+  		    "areaMap": true, "contrast": true,"chinaMap":true,"chinaMapBmap":true,"relation":true
+  		  }
   	}
   },
   computed: {
@@ -277,7 +331,9 @@ export default {
     datasetList() {
       return this.$store.state.config.datasetList;
     },
-    /*将 widgetList 转换成 el-tree 需要的数据格式*/
+    /*
+      将 widgetList 转换成 Widget el-tree 需要的数据格式
+    */
     treeData() {
     	let widgetList = this.widgetList;
     	let treeData = [];
@@ -323,6 +379,57 @@ export default {
     	return treeData;
     },
     /*
+      根据当前选中的 widget 的 datasetId，找到对应的 dataset 数据
+    */
+    currentDataset() {
+      if(!this.currentWidget.data) return null;
+      let datasetId = this.currentWidget.data.datasetId;
+      let dataset;
+      for(let i=0,l=this.datasetList.length; i<l; i++) {
+        if(this.datasetList[i].id === datasetId) {
+          dataset = this.datasetList[i];
+          break;
+        }
+      }
+      return dataset;
+    },
+    /*
+      根据当前的 dataset 数据，
+      将其转换成 Cube el-tree 需要的数据格式
+    */
+    cubeTreeData() {
+      if(!this.currentDataset) return [];
+      let schema = this.currentDataset.data.schema;
+      console.log(123123123,schema)
+      let treeData = [];
+      for(let prop in schema) {
+        let treeItem = {
+          label: prop,
+          children: []
+        };
+        treeData.push(treeItem);
+        let childTreeData = schema[prop];
+        for(let i=0,l=childTreeData.length; i<l; i++) {
+          let childTreeItem = childTreeData[i];
+          childTreeItem.label = childTreeData[i].alias ? childTreeData[i].alias : childTreeData[i].column;
+          treeItem.children.push(childTreeItem);
+
+          if(childTreeItem.columns && childTreeItem.columns.length > 0) {
+            childTreeItem.children = [];
+            let childTreeData2 = childTreeItem.columns;
+            for(let j=0,len=childTreeData2.length; j<len; j++) {
+              let childTreeItem2 = childTreeData2[j];
+              childTreeItem2.label = childTreeItem2.alias ? childTreeItem2.alias : childTreeItem2.column;
+              childTreeItem.children.push(childTreeItem2);
+            }
+          }
+
+        }
+      }
+      console.log(treeData)
+      return treeData;
+    },
+    /*
     	根据选中的 widget 数据，
     	判断哪些 Widget Type 可选
     */
@@ -347,20 +454,17 @@ export default {
 	        }
 	        tempConfig.values = flattenValues.length;
 
-	        /*if (tempConfig.keys == 0 && tempConfig.groups == 0 && tempConfig.values == 0) {
-	            result = false;
-	        }else {*/
-	        	for(let p in rule) {
-	        		if(rule[p] === 2) {
-	        			result = (tempConfig[p] >= 1);
-	        		}else if(rule[p] === -1) {
-	        			result = true;
-	        		}else {
-	        			result = (rule[p] === tempConfig[p]);
-	        		}
-	        		if(!result) break;
-	        	}
-	        //}
+        	for(let p in rule) {
+        		if(rule[p] === 2) {
+        			result = (tempConfig[p] >= 1);
+        		}else if(rule[p] === -1) {
+        			result = true;
+        		}else {
+        			result = (rule[p] === tempConfig[p]);
+        		}
+        		if(!result) break;
+        	}
+
 	        this.baseChartTypesStatus[type] = result;
 	  	}
 
@@ -369,46 +473,128 @@ export default {
   },
   methods: {
   	handleNodeClick(node) {
-  		console.log(node)
   		if(node.children && node.children.length > 0) {
   			return;
   		}else {
   			this.widgetConfigVisible = true;
   			this.currentWidget = node;
-  			let id = node.id;
-  			this.$router.push({ path: '/config/widget', query: { id: id }})
+        let index = this.getIndexByType(node.data.config.chart_type);
+        this.activeTypeIndex = index;
+  			this.$router.push({ path: '/config/widget', query: { id: node.id }})
   		}
   	},
+    getIndexByType(type) {
+      for(let i=0,l=this.widgetTypes.length; i<l; i++) {
+        if(this.widgetTypes[i].value === type) {
+          return i;
+        }
+      }
+      return 0;
+    },
   	handleContextmenu() {
 
   	},
   	addWidget() {
+      this.widgetConfigVisible = true;
+      this.activeTypeIndex = 0;
   		this.currentWidget = {
   			name: '',
   			categoryName: '',
-  			data: {},
-  			datasetId: '',
-			expressions: [],
-			filterGroups: []
+  			data: {
+          config: {},
+          datasetId: '',
+          expressions: [],
+          filterGroups: []
+        }
   		};
   		this.currentWidget.data.config = {
-			"option": {},
-			"chart_type": "",
-			"keys": [],
-			"groups": [],
-			"values": [{
-				"name": "",
-				"cols": []
-			}],
-			"filters": []
-		}
-		//console.log(this.currentWidget)
-		/*this.currentWidget.name = this.widgetName;
-  		this.currentWidget.categoryName = this.widgetCategory;
-  		this.currentWidget.datasetId = this.dataSource;*/
+    			"option": {},
+    			"chart_type": "",
+    			"keys": [],
+    			"groups": [],
+    			"values": [{
+    				"name": "",
+    				"cols": []
+    			}],
+    			"filters": []
+  		}
   	},
+    handleTypeClick(type, index) {
+      let value = type.value;
+      if(!this.chartTypesStatus[value]) {
+        console.log('return false')
+        return false;
+      }
+      this.activeTypeIndex = index;
+    },
+    delWidget() {
+      console.log(this.currentWidget)
+      this.$confirm('是否删除该 Widget?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        closeOnClickModal: false,
+        customClass: 'preview-config-modal'
+      }).then(() => {
+        let params = {
+          id: this.currentWidget.id
+        }
+        this.$req.post(this.$api.deleteWidget, params)
+          .then(response => {
+            if(response.statusText === 'OK') {
+              this.$message({
+                  type: 'success',
+                  message: '删除成功!'
+              });
+              this.widgetConfigVisible = false;
+              this.$store.dispatch('config/getWidgetList');
+            }
+          })
+          .catch(error => {})
+      }).catch(() => {
+                
+      });
+    },
+    handleTreeDragStart(node, evt) {
+      console.log(node, evt)
+    },
+    isAllowDrag(node) {
+      if(node.childNodes && node.childNodes.length === 0) return true;
+      return false;
+    },
+    allowDrop(evt) {
+      evt.preventDefault();
+    },
+    drop(evt) {
+      console.log(11111,evt)
+    },
   	save() {
-  		console.log(this.currentWidget)
+      console.log(this.currentWidget)
+      if(!this.currentWidget.data.datasetId) return;  //防止未选择 Cube 就提交
+
+      if(!this.categoryName) { // 给 categoryName 设置默认值
+        this.currentWidget.categoryName = 'Default Category';
+      }
+
+      let type = this.widgetTypes[this.activeTypeIndex];
+      this.currentWidget.data.config.chart_type = type.value;
+
+      let params = {
+        json: JSON.stringify(this.currentWidget)
+      }
+      this.$req.post(this.$api.saveNewWidget, params)
+        .then(response => {
+          if(response.statusText === 'OK') {
+            this.$message({
+                type: 'success',
+                message: '保存成功!'
+            });
+            this.$store.dispatch('config/getWidgetList');
+          }
+        })
+        .catch(error => {
+
+        })
   	}
   }
 }
@@ -428,6 +614,11 @@ export default {
 	font-size: 18px;
 	font-weight: bold;
 	cursor: pointer;
+}
+.box-header .el-icon-delete {
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
 }
 /*表单样式*/
 .el-form-item__label {
@@ -456,14 +647,12 @@ export default {
 .widget-type-list > li .widget-type-item.active {
 	border: 1px solid #97b6f7;
 }
-/*######### Widget Type Icon 样式 ##############*/
-.chart-type-icon {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    background-repeat: no-repeat;
-    background-position: 0 0;
+li:focus,
+i:focus,
+span:focus {
+  outline: none;
 }
+/*######### Widget Type Icon 样式 ##############*/
 .cLine{  background-image: url(../../assets/imgs/widgets/line-active.png);  }
 .cLine.disabled{background-image: url(../../assets/imgs/widgets/line.png);}
 .cContrast{  background-image: url(../../assets/imgs/widgets/contrast-active.png);  }
@@ -508,18 +697,19 @@ export default {
 .cRelation{ background-image: url(../../assets/imgs/widgets/relation-active.png); }
 .cRelation.disabled{ background-image: url(../../assets/imgs/widgets/relation.png); }
 
-.chart-type a.active{
-    background-color: #FFF;
-    box-shadow: 0 0 0 2px rgba(81,130,227,.06),inset 0 0 0 2px rgba(81,129,228,.6);
+.el-form-item {
+  margin-bottom: 5px;
 }
-.chart-type a {
-    display: block;
-    width: 40px;
-    height: 40px;
-    margin: 0 4px 4px 0;
-    cursor: pointer;
+.drop-input {
+  display: inline-block;
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  background-color: #fff;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
 }
-.chart-type a.active:hover {
-    background-color: rgba(179, 180, 182, 0.64);
+.drop-input.active {
+  border-color: #3c8dbc;
 }
 </style>

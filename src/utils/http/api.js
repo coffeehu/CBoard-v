@@ -42,8 +42,9 @@ const api = {
 
 	/*----widget config----*/
 	saveNewWidget: baseurl + 'dashboard/saveNewWidget.do',
+	deleteWidget: baseurl + 'dashboard/deleteWidget.do',
 	
-
+	
 }
 
 export default api;
