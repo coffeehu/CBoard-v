@@ -27,11 +27,14 @@
                         </div>
                     </div>
                     <div class="panel-body">
-                        <el-tree 
+                        <!-- <el-tree 
+                          ng-show="false"
                           :data="cubeTreeData" 
                           draggable
                           :allow-drag="isAllowDrag"
-                          @node-drag-start="handleTreeDragStart"></el-tree>
+                          @node-drag-start="handleTreeDragStart"></el-tree> -->
+                          <dimension-tree v-if="currentSchema.dimension" :treeData="currentDimension"></dimension-tree>
+                          <measure-tree v-if="currentSchema.measure" :treeData="currentMeasure"></measure-tree>
                     </div>
                 </div>
             </div>
@@ -98,24 +101,62 @@
                     </div>
                   </div>
 
+                  <!-- Column: 对应 Widget.data.config.groups 的值 -->
                   <div class="el-form-item">
                     <label class="el-form-item__label">Column:</label>
                     <div class="el-form-item__content">
-                      <div class="drop-input" @dragover="allowDrop($event)" @drop="drop($event)"></div>
+                        <draggable class="drop-input"
+                                   v-model="column" 
+                                   :options="dragOptions" 
+                                   element="ul">
+                          <li v-for="(col, index) in column" 
+                              :key="col.id"
+                              @click="removeDimension(index, 'col')"
+                              class="moveable">
+                            <span>
+                              <i class="schema-tree-icon blue-icon"></i>
+                              {{ col.alias || col.column || col.col }}
+                            </span>
+                          </li>
+                        </draggable>
                     </div>
                   </div>
 
+                  <!-- Row: 对应 Widget.data.config.keys 的值 -->
                   <div class="el-form-item">
                     <label class="el-form-item__label">Row:</label>
                     <div class="el-form-item__content">
-                      <div class="drop-input"></div>
+                      <draggable class="drop-input"
+                                     v-model="row" 
+                                     :options="dragOptions" 
+                                     element="ul">
+                        <li v-for="(col, index) in row" 
+                            :key="col.id"
+                            @click="removeDimension(index, 'row')"
+                            class="moveable">
+                          <span>
+                            <i class="schema-tree-icon blue-icon"></i>
+                            {{ col.alias || col.column || col.col }}
+                          </span>
+                        </li>
+                      </draggable>
                     </div>
                   </div>
 
                   <div class="el-form-item">
                     <label class="el-form-item__label">Filter:</label>
                     <div class="el-form-item__content">
-                      <div class="drop-input"></div>
+                      <draggable class="drop-input"
+                                 v-model="filter" 
+                                 :options="dragOptions" 
+                                 element="ul">
+                        <li v-for="(col, index) in filter" :key="col.id" class="moveable">
+                          <span>
+                            <i class="schema-tree-icon blue-icon"></i>
+                            {{ col.alias || col.column || col.col }}
+                          </span>
+                        </li>
+                      </draggable>
                     </div>
                   </div>
 
@@ -172,6 +213,11 @@ const configRule = {
 
 export default {
   name: 'WidgetConfig',
+  components: {
+    DimensionTree: () => import('@/components/widgetConfig/DimensionTree.vue'),
+    MeasureTree: () => import('@/components/widgetConfig/MeasureTree.vue'),
+    draggable: () => import('vuedraggable')
+  },
   created() {
   	this.$store.dispatch('config/getWidgetList');
   	this.$store.dispatch('config/getDatasetList');
@@ -188,9 +234,12 @@ export default {
   		dataSource: '',
   		widgetCategory: '',
   		widgetName: '',
-  		currentWidget: {},
-  		widgetConfigVisible: false,
-      activeTypeIndex: 0,
+  		currentWidget: {}, //当前选中的 Widget 对象
+      activeTypeIndex: 0, // 当前选中的 Widget Type 索引
+      widgetConfigVisible: false,
+      column: [], // Column 的值
+      row: [], // Row 的值
+      filter: [],
   		// widget Type 列表
   		widgetTypes: [
             {
@@ -393,41 +442,59 @@ export default {
       }
       return dataset;
     },
-    /*
-      根据当前的 dataset 数据，
-      将其转换成 Cube el-tree 需要的数据格式
-    */
-    cubeTreeData() {
+    currentSchema() {
       if(!this.currentDataset) return [];
-      let schema = this.currentDataset.data.schema;
-      console.log(123123123,schema)
-      let treeData = [];
-      for(let prop in schema) {
-        let treeItem = {
-          label: prop,
-          children: []
-        };
-        treeData.push(treeItem);
-        let childTreeData = schema[prop];
-        for(let i=0,l=childTreeData.length; i<l; i++) {
-          let childTreeItem = childTreeData[i];
-          childTreeItem.label = childTreeData[i].alias ? childTreeData[i].alias : childTreeData[i].column;
-          treeItem.children.push(childTreeItem);
+      return this.currentDataset.data.schema;
+    },
+    /*
+      过滤 Dimension Tree 的数据
+    */
+    currentDimension() {
+      // 当前 Widget 的 Column、Row 框中已有的 dimension 数据
+      //let currentArray = this.currentWidget.data.config.groups.concat(this.currentWidget.data.config.keys);
+      let currentArray = this.column.concat(this.row);
+      // 所有的 dimension 数据
+      let dimension = this.currentSchema.dimension;
+      // 过滤后的 dimension 数据
+      let currentDimension = [];
 
-          if(childTreeItem.columns && childTreeItem.columns.length > 0) {
-            childTreeItem.children = [];
-            let childTreeData2 = childTreeItem.columns;
-            for(let j=0,len=childTreeData2.length; j<len; j++) {
-              let childTreeItem2 = childTreeData2[j];
-              childTreeItem2.label = childTreeItem2.alias ? childTreeItem2.alias : childTreeItem2.column;
-              childTreeItem.children.push(childTreeItem2);
-            }
+      for(let i=0,l=dimension.length; i<l; i++) {
+        let item = copyObj(dimension[i]);
+        if( !inCurrentArray(item) ) currentDimension.push(item);
+
+        if(dimension[i].columns) {
+          item.columns = [];
+          let columns = dimension[i].columns;
+          for(let j=0,len=columns.length; j<len; j++) {
+            if( !inCurrentArray(columns[j]) ) item.columns.push( copyObj(columns[j]) );
           }
-
         }
       }
-      console.log(treeData)
-      return treeData;
+
+      function copyObj(obj) {
+        let newObj = {};
+        for(let p in obj) {
+          newObj[p] = obj[p];
+        }
+        return newObj;
+      }
+
+      function inCurrentArray(obj) {
+        for(let i=0,l=currentArray.length; i<l; i++) {
+          if(currentArray[i].id === obj.id) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      return currentDimension;
+    },
+    /*
+      过滤 Measure Tree 的数据
+    */
+    currentMeasure() {
+      return this.currentSchema.measure;
     },
     /*
     	根据选中的 widget 数据，
@@ -469,6 +536,12 @@ export default {
 	  	}
 
 	  	return this.baseChartTypesStatus;
+    },
+    dragOptions () {
+      return  {
+        animation: 0,
+        group: 'widgetConfig',
+      };
     }
   },
   methods: {
@@ -476,6 +549,9 @@ export default {
   		if(node.children && node.children.length > 0) {
   			return;
   		}else {
+        console.log('-----node-------', node)
+        this.column = node.data.config.groups;
+        this.row = node.data.config.keys;
   			this.widgetConfigVisible = true;
   			this.currentWidget = node;
         let index = this.getIndexByType(node.data.config.chart_type);
@@ -555,21 +631,17 @@ export default {
                 
       });
     },
-    handleTreeDragStart(node, evt) {
-      console.log(node, evt)
-    },
-    isAllowDrag(node) {
-      if(node.childNodes && node.childNodes.length === 0) return true;
-      return false;
-    },
-    allowDrop(evt) {
-      evt.preventDefault();
-    },
-    drop(evt) {
-      console.log(11111,evt)
+    removeDimension(index, type) {
+      if(type === 'col') {
+        this.column.splice(index, 1);
+      }else if(type === 'row') {
+        this.row.splice(index, 1);
+      }
     },
   	save() {
-      console.log(this.currentWidget)
+      //console.log(this.currentWidget)
+      console.log(this.column)
+      return
       if(!this.currentWidget.data.datasetId) return;  //防止未选择 Cube 就提交
 
       if(!this.categoryName) { // 给 categoryName 设置默认值
@@ -708,8 +780,25 @@ span:focus {
   background-color: #fff;
   border: 1px solid #dcdfe6;
   border-radius: 4px;
+  margin: 0;
+  padding: 0 10px;
+  box-sizing: border-box;
 }
 .drop-input.active {
   border-color: #3c8dbc;
+}
+
+.drop-input li {
+  display: inline-block;
+  height: 28px;
+  line-height: 28px;
+  margin: 0 5px;
+  padding: 0 8px;
+  border: 1px solid #d9e3ec;
+  border-radius: 2px;
+  list-style-type: none;
+  box-sizing: border-box;
+  background-color: #fbfcfd;
+  cursor: pointer;
 }
 </style>
