@@ -38,6 +38,7 @@
                     </div>
                 </div>
             </div>
+            <!-- 目录面板 END -->
 
 
             <!-- 配置面板 -->
@@ -101,27 +102,6 @@
                     </div>
                   </div>
 
-                  <!-- Column: 对应 Widget.data.config.groups 的值 -->
-                  <div class="el-form-item">
-                    <label class="el-form-item__label">Column:</label>
-                    <div class="el-form-item__content">
-                        <draggable class="drop-input"
-                                   v-model="column" 
-                                   :options="dragOptions" 
-                                   element="ul">
-                          <li v-for="(col, index) in column" 
-                              :key="col.id"
-                              @click="removeDimension(index, 'col')"
-                              class="moveable">
-                            <span>
-                              <i class="schema-tree-icon blue-icon"></i>
-                              {{ col.alias || col.column || col.col }}
-                            </span>
-                          </li>
-                        </draggable>
-                    </div>
-                  </div>
-
                   <!-- Row: 对应 Widget.data.config.keys 的值 -->
                   <div class="el-form-item">
                     <label class="el-form-item__label">Row:</label>
@@ -143,10 +123,32 @@
                     </div>
                   </div>
 
+                  <!-- Column: 对应 Widget.data.config.groups 的值 -->
+                  <div class="el-form-item">
+                    <label class="el-form-item__label">Column:</label>
+                    <div class="el-form-item__content">
+                        <draggable class="drop-input"
+                                   v-model="column" 
+                                   :options="dragOptions" 
+                                   element="ul">
+                          <li v-for="(col, index) in column" 
+                              :key="col.id"
+                              @click="removeDimension(index, 'col')"
+                              class="moveable">
+                            <span>
+                              <i class="schema-tree-icon blue-icon"></i>
+                              {{ col.alias || col.column || col.col }}
+                            </span>
+                          </li>
+                        </draggable>
+                    </div>
+                  </div>
+
+                  <!-- Filter -->
                   <div class="el-form-item">
                     <label class="el-form-item__label">Filter:</label>
                     <div class="el-form-item__content">
-                      <draggable class="drop-input"
+                      <!-- <draggable class="drop-input"
                                  v-model="filter" 
                                  :options="dragOptions" 
                                  element="ul">
@@ -156,25 +158,56 @@
                             {{ col.alias || col.column || col.col }}
                           </span>
                         </li>
+                      </draggable> -->
+                    </div>
+                  </div>
+
+                  <!-- Value: 对应 Widget.data.config.values 的值 -->
+                  <div class="el-form-item">
+                    <label class="el-form-item__label">Value:</label>
+                    <div class="el-form-item__content">
+                      <draggable class="drop-input"
+                                 v-model="value"
+                                 :options="dragValueOptions"
+                                 element="ul">
+                        <li v-for="(col, index) in value" 
+                            :key="col.col"
+                            @click="removeMeasure(index)"
+                            class="moveable">
+                          <span>
+                            <i class="schema-tree-icon blue-icon"></i>
+                            {{ col.col || col.column }}
+                          </span>
+                        </li>
                       </draggable>
                     </div>
                   </div>
 
                   <div class="el-form-item">
-                    <label class="el-form-item__label">Value Axis:</label>
-                    <div class="el-form-item__content">
-                      
-                    </div>
+                  	<!-- <button @click="save" class="pull-right">save</button> -->
+                    <el-button type="primary" @click="save" size="small" class="pull-right" style="margin-right: 10px">Save</el-button>
                   </div>
-
-                  <div class="el-form-item">
-                  	<button @click="save">save</button>
-                  </div>
-
-
   	            </div>
+
+                <!-- 底部面板内容，包含 Preview 等 -->
+                <div class="widget-config-tab">
+                  <div class="col-md-12">
+                    <el-tabs type="border-card">
+                      <el-tab-pane label="Preview">
+                        <component
+                           :is="currentPreview" 
+                           :widget="currentPreviewWidget"></component>
+                           <!-- <chart-content :widget="widget"></chart-content> -->
+                      </el-tab-pane>
+                      <el-tab-pane label="Query">Query</el-tab-pane>
+                      <el-tab-pane label="Option">Option</el-tab-pane>
+                    </el-tabs>
+                  </div>
+                </div>
+                
             	</div>
             </div>
+            <!-- 配置面板 END -->
 
        </div>
     </div>
@@ -211,12 +244,24 @@ const configRule = {
     relation: {keys: 2, groups: 2, filters: -1, values: 1}
 };
 
+const widgetTypeMap = {
+  table: 'TableContent',
+  line: 'ChartContent',
+  pie: 'ChartContent',
+  kpi: 'KpiContent',
+  map: 'MapContent'
+}
+
 export default {
   name: 'WidgetConfig',
   components: {
     DimensionTree: () => import('@/components/widgetConfig/DimensionTree.vue'),
     MeasureTree: () => import('@/components/widgetConfig/MeasureTree.vue'),
-    draggable: () => import('vuedraggable')
+    draggable: () => import('vuedraggable'),
+    KpiContent: () => import('@/components/dashboard/widgets/KpiContent'),
+    ChartContent: () => import('@/components/dashboard/widgets/ChartContent'),
+    TableContent: () => import('@/components/dashboard/widgets/TableContent'),
+    MapContent: () => import('@/components/dashboard/widgets/MapContent')
   },
   created() {
   	this.$store.dispatch('config/getWidgetList');
@@ -240,6 +285,8 @@ export default {
       column: [], // Column 的值
       row: [], // Row 的值
       filter: [],
+      value: [],
+      widget: {},
   		// widget Type 列表
   		widgetTypes: [
             {
@@ -494,7 +541,33 @@ export default {
       过滤 Measure Tree 的数据
     */
     currentMeasure() {
-      return this.currentSchema.measure;
+      let currentArray = this.value;
+      let measure = this.currentSchema.measure;
+      let currentMeasure = [];
+
+      for(let i=0,l=measure.length; i<l; i++) {
+        let item = copyObj(measure[i]);
+        if( !inCurrentArray(item) ) currentMeasure.push(item);
+      }
+
+      function copyObj(obj) {
+        let newObj = {};
+        for(let p in obj) {
+          newObj[p] = obj[p];
+        }
+        return newObj;
+      }
+
+      function inCurrentArray(obj) {
+        for(let i=0,l=currentArray.length; i<l; i++) {
+          if(currentArray[i].col === obj.column) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      return currentMeasure;
     },
     /*
     	根据选中的 widget 数据，
@@ -537,10 +610,27 @@ export default {
 
 	  	return this.baseChartTypesStatus;
     },
+    currentPreview() {
+      let type = this.widgetTypes[this.activeTypeIndex].value;
+      return widgetTypeMap[type] ? widgetTypeMap[type] : 'ChartContent';
+    },
+    currentPreviewWidget() {
+      let widget = {
+        name: '',
+        widget: this.currentWidget
+      }
+      return widget;
+    },
     dragOptions () {
       return  {
         animation: 0,
-        group: 'widgetConfig',
+        group: 'dimensionConfig',
+      };
+    },
+    dragValueOptions () {
+      return  {
+        animation: 0,
+        group: 'measureConfig',
       };
     }
   },
@@ -552,11 +642,12 @@ export default {
         console.log('-----node-------', node)
         this.column = node.data.config.groups;
         this.row = node.data.config.keys;
+        this.value = node.data.config.values[0].cols;
   			this.widgetConfigVisible = true;
   			this.currentWidget = node;
         let index = this.getIndexByType(node.data.config.chart_type);
         this.activeTypeIndex = index;
-  			this.$router.push({ path: '/config/widget', query: { id: node.id }})
+  			this.$router.push({ path: '/config/widget', query: { id: node.id }});
   		}
   	},
     getIndexByType(type) {
@@ -567,9 +658,6 @@ export default {
       }
       return 0;
     },
-  	handleContextmenu() {
-
-  	},
   	addWidget() {
       this.widgetConfigVisible = true;
       this.activeTypeIndex = 0;
@@ -598,13 +686,13 @@ export default {
     handleTypeClick(type, index) {
       let value = type.value;
       if(!this.chartTypesStatus[value]) {
-        console.log('return false')
         return false;
       }
       this.activeTypeIndex = index;
+      this.createCurrentWidget();
+      console.log(this.currentWidget)
     },
     delWidget() {
-      console.log(this.currentWidget)
       this.$confirm('是否删除该 Widget?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -638,23 +726,49 @@ export default {
         this.row.splice(index, 1);
       }
     },
+    removeMeasure(index) {
+      this.value.splice(index, 1);
+    },
+    createCurrentWidget() {
+      // 设置 widgetType
+      let type = this.widgetTypes[this.activeTypeIndex];
+      this.currentWidget.data.config.chart_type = type.value;
+
+      // 设置 keys（对应 Row 的值）
+      this.currentWidget.data.config.keys = this.row;
+
+      // 设置 groups（对应 Column 的值）
+      this.currentWidget.data.config.groups = this.column;
+
+      // 设置 values（对应 value 的值）
+      this.value.forEach(v => {
+        if(!v.aggregate_type) v.aggregate_type = 'sum';
+      })
+      this.currentWidget.data.config.values[0].cols = this.value;
+    },
   	save() {
-      //console.log(this.currentWidget)
-      console.log(this.column)
-      return
+      
       if(!this.currentWidget.data.datasetId) return;  //防止未选择 Cube 就提交
 
       if(!this.categoryName) { // 给 categoryName 设置默认值
         this.currentWidget.categoryName = 'Default Category';
       }
 
-      let type = this.widgetTypes[this.activeTypeIndex];
-      this.currentWidget.data.config.chart_type = type.value;
+      this.createCurrentWidget();
+      
+      /*console.log('--------this.currentWidget-----------', this.currentWidget);
+      return*/
+      let url;
+      if(this.currentWidget.id) { //更新
+        url = this.$api.updateWidget;
+      }else { //新增
+        url = this.$api.saveNewWidget;
+      }
 
       let params = {
         json: JSON.stringify(this.currentWidget)
       }
-      this.$req.post(this.$api.saveNewWidget, params)
+      this.$req.post(url, params)
         .then(response => {
           if(response.statusText === 'OK') {
             this.$message({
@@ -800,5 +914,11 @@ span:focus {
   box-sizing: border-box;
   background-color: #fbfcfd;
   cursor: pointer;
+}
+
+.widget-config-tab .el-tabs {
+  box-shadow: none;
+  border: none;
+  border-top: 1px solid #dcdfe6;
 }
 </style>

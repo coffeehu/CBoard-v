@@ -7,10 +7,10 @@
       </span>
 
       <draggable v-model="value" :options="dragOptions"  element="ul">
-        <li v-for="(item, index) in value" :key="item.id" class="moveable">
+        <li v-for="(item, index) in value" :key="item.column" class="moveable">
           <span>
             <i class="schema-tree-icon red-icon"></i>
-            {{ item.alias || item.column }}
+            {{ item.column || item.col }}
           </span>
         </li>
       </draggable>
@@ -36,20 +36,24 @@ export default {
     draggable: () => import('vuedraggable')
   },
   created() {
-    console.log('~~~~~~~~~treeData', this.treeData)
     this.value = this.treeData
+    console.log(123123, this.value)
+  },
+  watch: {
+    treeData() {
+      this.value = this.treeData
+    }
   },
   data() {
     return {
-      value: [],
-      value2: [],
+      value: []
     }
   },
   computed: {
     dragOptions () {
       return  {
         animation: 0,
-        group: 'widgetConfig',
+        group: 'measureConfig',
       };
     }
   }

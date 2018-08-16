@@ -7,7 +7,7 @@
         <b>Dimension</b>
       </span>
 
-      <draggable v-model="value2" :options="dragOptions" element="ul">
+      <draggable v-model="value" :options="dragOptions" element="ul">
         <li v-for="(item, index) in treeData" :key="item.id" :class="{'moveable': !item.columns}">
           <span>
             <i v-if="item.columns" class="fa fa-caret-down"></i>
@@ -48,20 +48,18 @@ export default {
     draggable: () => import('vuedraggable')
   },
   created() {
-    console.log('~~~~~~~~~treeData', this.treeData)
-    this.value2 = this.treeData;
+    this.value = this.treeData;
   },
   data() {
     return {
-      value: [],
-      value2: [],
+      value: []
     }
   },
   computed: {
     dragOptions () {
       return  {
         animation: 0,
-        group: 'widgetConfig',
+        group: 'dimensionConfig',
       };
     }
   }

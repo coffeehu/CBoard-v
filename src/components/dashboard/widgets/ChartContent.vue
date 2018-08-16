@@ -40,6 +40,7 @@ let options = {
     DashboardLoading
   },
   mounted() {
+    console.log('----chartContent----', this.widget)
     this.initByWidget();
     this.chartName = this.widget.name;
     this.chartType = this.widgetData.config.chart_type;  // 图表类型，如：line

@@ -12,6 +12,7 @@
 
         <el-table
           :data="tableData"
+          :span-method="objectSpanMethod"
           border
           style="width: 100%">
           <data-table :columnList="columnList"></data-table>
@@ -64,7 +65,9 @@ let options = {
     },
     filters: {
       type: Array,
-      default: []
+      default() {
+        return [];
+      }
     },
     mBackground: {
       type: String
@@ -133,6 +136,27 @@ let options = {
         tableData.push(tableDataItem);
       }
       return tableData;
+    },
+    // 表格--合并行
+    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+      //console.log(row)
+         /*if (columnIndex === 0) {
+          if (rowIndex % 2 === 0) {
+            return {
+              rowspan: 2,
+              colspan: 1
+            };
+          } else {
+            return {
+              rowspan: 0,
+              colspan: 0
+            };
+          }
+        }*/
+        return {
+              rowspan: 1,
+              colspan: 1
+            };
     },
     handeOpen() {
       let data = {
