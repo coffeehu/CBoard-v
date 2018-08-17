@@ -193,14 +193,14 @@
                 <div class="widget-config-tab">
                   <div class="col-md-12">
                     <el-tabs type="border-card">
-                      <el-tab-pane label="Preview">
+                      <el-tab-pane label="Preview" >
                         <component
                            :is="currentPreview" 
-                           :widget="currentPreviewWidget"></component>
-                           <!-- <chart-content :widget="widget"></chart-content> -->
+                           :widget="currentPreviewWidget"
+                           :key="currentPreviewWidget.widget.id+currentPreviewWidget.widget.data.chart_type"></component>
                       </el-tab-pane>
-                      <el-tab-pane label="Query">Query</el-tab-pane>
-                      <el-tab-pane label="Option">Option</el-tab-pane>
+                      <el-tab-pane label="Query" >Query</el-tab-pane>
+                      <el-tab-pane label="Option" >Option</el-tab-pane>
                     </el-tabs>
                   </div>
                 </div>
@@ -286,6 +286,7 @@ export default {
       row: [], // Row 的值
       filter: [],
       value: [],
+      values: [],
       widget: {},
   		// widget Type 列表
   		widgetTypes: [
@@ -420,6 +421,14 @@ export default {
   		  }
   	}
   },
+  watch: {
+    column() {
+      this.currentWidget.data.config.groups = this.column;
+    },
+    row() {
+      this.currentWidget.data.config.keys = this.row;
+    }
+  },
   computed: {
   	widgetList() {
       return this.$store.state.config.widgetList;
@@ -513,7 +522,21 @@ export default {
           item.columns = [];
           let columns = dimension[i].columns;
           for(let j=0,len=columns.length; j<len; j++) {
-            if( !inCurrentArray(columns[j]) ) item.columns.push( copyObj(columns[j]) );
+            if( !inCurrentArray(columns[j]) ) {
+              let o = copyObj(columns[j]);
+
+              if(item.type === 'level') { // 设置 level 字段
+                o.level = item.alias; 
+              }
+
+              // 设置一些必须字段的默认值
+              o.col = o.column;
+              o.type = 'eq';
+              o.values = [];
+              o.sort = 'asc';
+
+              item.columns.push(o);
+            }
           }
         }
       }
@@ -578,34 +601,30 @@ export default {
     		return {};
     	}
     	let result;
-	  	let config = this.currentWidget.data.config;
 	  	let tempConfig = {
-	  		keys: config.keys.length,
-	  		groups: config.groups.length,
+	  		keys: this.row.length,
+	  		groups: this.column.length,
 	  		values: 0
 	  	}
 	  	for(let type in this.baseChartTypesStatus) {
 	  		let rule = configRule[type];
 
 	  		let flattenValues = [];
-	        for(let i=0,l=config.values.length; i<l; i++) {
-	        	let value = config.values[i];
-	        	flattenValues = flattenValues.concat(value.cols);
-	        }
-	        tempConfig.values = flattenValues.length;
+        flattenValues = flattenValues.concat(this.value);
+        tempConfig.values = flattenValues.length;
 
-        	for(let p in rule) {
-        		if(rule[p] === 2) {
-        			result = (tempConfig[p] >= 1);
-        		}else if(rule[p] === -1) {
-        			result = true;
-        		}else {
-        			result = (rule[p] === tempConfig[p]);
-        		}
-        		if(!result) break;
-        	}
+      	for(let p in rule) {
+      		if(rule[p] === 2) {
+      			result = (tempConfig[p] >= 1);
+      		}else if(rule[p] === -1) {
+      			result = true;
+      		}else {
+      			result = (rule[p] === tempConfig[p]);
+      		}
+      		if(!result) break;
+      	}
 
-	        this.baseChartTypesStatus[type] = result;
+	      this.baseChartTypesStatus[type] = result;
 	  	}
 
 	  	return this.baseChartTypesStatus;
@@ -616,9 +635,9 @@ export default {
     },
     currentPreviewWidget() {
       let widget = {
-        name: '',
-        widget: this.currentWidget
+        name: ''
       }
+      widget.widget = this.currentWidget;
       return widget;
     },
     dragOptions () {
@@ -642,6 +661,7 @@ export default {
         console.log('-----node-------', node)
         this.column = node.data.config.groups;
         this.row = node.data.config.keys;
+        this.values = node.data.config.values; 
         this.value = node.data.config.values[0].cols;
   			this.widgetConfigVisible = true;
   			this.currentWidget = node;
@@ -690,7 +710,6 @@ export default {
       }
       this.activeTypeIndex = index;
       this.createCurrentWidget();
-      console.log(this.currentWidget)
     },
     delWidget() {
       this.$confirm('是否删除该 Widget?', '提示', {
@@ -745,6 +764,9 @@ export default {
         if(!v.aggregate_type) v.aggregate_type = 'sum';
       })
       this.currentWidget.data.config.values[0].cols = this.value;
+      if(this.currentWidget.data.config.values[0].series_type) {
+        this.currentWidget.data.config.values[0].series_type = type.value;
+      }
     },
   	save() {
       
@@ -756,8 +778,6 @@ export default {
 
       this.createCurrentWidget();
       
-      /*console.log('--------this.currentWidget-----------', this.currentWidget);
-      return*/
       let url;
       if(this.currentWidget.id) { //更新
         url = this.$api.updateWidget;

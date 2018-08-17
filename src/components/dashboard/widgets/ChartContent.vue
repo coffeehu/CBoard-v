@@ -40,7 +40,7 @@ let options = {
     DashboardLoading
   },
   mounted() {
-    console.log('----chartContent----', this.widget)
+    //console.log('----chartContent----', this.widget)
     this.initByWidget();
     this.chartName = this.widget.name;
     this.chartType = this.widgetData.config.chart_type;  // 图表类型，如：line
@@ -64,10 +64,22 @@ let options = {
   watch: {
     widget() {
       this.initByWidget();
+      this.chartName = this.widget.name;
+      this.chartType = this.widgetData.config.chart_type;
+      this.valueAxis = this.widgetData.config.valueAxis;
+    },
+    'widget.widget.data.config.chart_type': function() {
+      this.initByWidget();
+      this.chartName = this.widget.name;
+      this.chartType = this.widgetData.config.chart_type;
+      this.valueAxis = this.widgetData.config.valueAxis;
     },
     filters() {
       this.initByWidget();
-    },
+      this.chartName = this.widget.name;
+      this.chartType = this.widgetData.config.chart_type;
+      this.valueAxis = this.widgetData.config.valueAxis;
+    }
   },
   data() {
     return {
@@ -125,6 +137,7 @@ let options = {
     },
     renderChart(data) {
       const chartBody = this.$refs['chart-body'];
+      if(!chartBody) return;
       const chart = this.$echarts.init(chartBody, 'theme-fin1');
 
       const option = this.createOption(data);

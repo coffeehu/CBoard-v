@@ -37,7 +37,9 @@ export default {
   	},
     filters: {
       type: Array,
-      default: []
+      default() {
+        return []
+      }
     },
     mBackground: {
       type: String
