@@ -13,7 +13,7 @@ export default {
 <style>
 .content-wrapper {
   background-color: #ecf0f5;
-  min-height: 837px;
+  min-height: 837px!important;
 }
 .main-content {
   min-height: 837px;
