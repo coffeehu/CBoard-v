@@ -167,7 +167,7 @@
                     <label class="el-form-item__label">Value:</label>
                     <div class="el-form-item__content">
                       <draggable class="drop-input"
-                                 v-model="value"
+                                 v-model="value" 
                                  :options="dragValueOptions"
                                  element="ul">
                         <li v-for="(col, index) in value" 
@@ -762,6 +762,7 @@ export default {
       // 设置 values（对应 value 的值）
       this.value.forEach(v => {
         if(!v.aggregate_type) v.aggregate_type = 'sum';
+        if(!v.col) v.col = v.column;  //必须要有个 col 字段记录名称，否则返回回的数据 columnList 中对应的 name 为 null
       })
       this.currentWidget.data.config.values[0].cols = this.value;
       if(this.currentWidget.data.config.values[0].series_type) {
