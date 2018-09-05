@@ -186,6 +186,7 @@
                   <div class="el-form-item">
                     <!-- <button @click="save" class="pull-right">save</button> -->
                     <el-button type="primary" @click="save" size="small" class="pull-right" style="margin-right: 10px">Save</el-button>
+                    <el-button type="primary" @click="preview" size="small" class="pull-right" style="margin-right: 10px">Preview</el-button>
                   </div>
                 </div>
 
@@ -195,6 +196,7 @@
                     <el-tabs type="border-card">
                       <el-tab-pane label="Preview" >
                         <component
+                           v-if="isPreview"
                            :is="currentPreview" 
                            :widget="currentPreviewWidget"
                            :key="currentPreviewWidget.widget.id + currentPreviewWidget.widget.data.chart_type"></component>
@@ -288,6 +290,7 @@ export default {
       value: [],
       values: [],
       widget: {},
+      isPreview: false, // 是否显示预览
       // widget Type 列表
       widgetTypes: [
             {
@@ -777,12 +780,7 @@ export default {
       }
     },
     save() {
-      
       if(!this.currentWidget.data.datasetId) return;  //防止未选择 Cube 就提交
-
-      if(!this.categoryName) { // 给 categoryName 设置默认值
-        this.currentWidget.categoryName = 'Default Category';
-      }
 
       this.createCurrentWidget();
       
@@ -791,6 +789,10 @@ export default {
         url = this.$api.updateWidget;
       }else { //新增
         url = this.$api.saveNewWidget;
+      }
+
+      if(!this.currentWidget.categoryName) { // 给 categoryName 设置默认值
+        this.currentWidget.categoryName = 'Default Category';
       }
 
       let params = {
@@ -809,6 +811,9 @@ export default {
         .catch(error => {
 
         })
+    },
+    preview() {
+      this.isPreview = !this.isPreview;
     }
   }
 }

@@ -33,15 +33,15 @@
               </tr>
             </tbody>
           </table>
-              <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page.sync="currentPage2"
-                :page-sizes="[100, 200, 300, 400]"
-                :page-size="100"
-                layout="sizes, prev, pager, next"
-                :total="1000">
-              </el-pagination>
+            <!-- <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page.sync="currentPage2"
+              :page-sizes="[100, 200, 300, 400]"
+              :page-size="100"
+              layout="sizes, prev, pager, next"
+              :total="1000">
+            </el-pagination> -->
         </div>
 
       </div>

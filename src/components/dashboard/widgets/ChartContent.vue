@@ -108,9 +108,158 @@ let options = {
       this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters, reload: reload})
         .then(() => {
           let data = this.$store.state.dashboard.widgetInfoData;
+
+
+          //----------------TMP------------------------
+          const config = this.widget.widget.data.config;
+
+          //获得keys、groups 对应的 index ，以及 valueSeries 数组
+          let keysIndexArr = [];
+          let groupsIndexArr = [];
+          let valueSeries = [];
+          for(let i=0,l=data.columnList.length; i<l; i++) {
+            let col = data.columnList[i];
+            for(let j=0; j<config.keys.length; j++) {
+              if(config.keys[j].col === col.name) {
+                keysIndexArr.push(col.index);
+              }
+            }
+
+            for(let k=0; k<config.groups.length; k++) {
+              if(config.groups[k].col === col.name) {
+                groupsIndexArr.push(col.index);
+              }
+            }
+
+            if(col.aggType) {
+              valueSeries.push(col);
+            }
+          }
+
+          
+          //构建 newdata
+          var newData = {};
+          var joinedKeys = {};
+          var keysData = [];
+          var joinedGroups = {};
+          var groupsData = [];
+          for(let i=0,l=data.data.length; i<l; i++) {
+            let item = data.data[i];
+
+            // 获得 keys 的内容
+            let keyArr = [];
+            for(let j=0; j<keysIndexArr.length; j++) {
+              keyArr.push( item[ keysIndexArr[j] ] );
+            }
+
+            let KeyArrStr = keyArr.join('-');
+            if(!joinedKeys[KeyArrStr]) {
+              joinedKeys[KeyArrStr] = true;
+              keysData.push(keyArr);
+            }
+
+            // 获得 groups 的内容
+            let groupArr = [];
+            for(let j=0; j<groupsIndexArr.length; j++) {
+              groupArr.push( item[ groupsIndexArr[j] ] );
+            }
+
+            let groupArrStr = groupArr.join('-');
+            if(!joinedGroups[groupArrStr]) {
+              joinedGroups[groupArrStr] = true;
+              groupsData.push(groupArr);
+            }
+
+            //构建 newData
+            for(let j=0; j<valueSeries.length; j++) {
+              let series = valueSeries[j];
+              if(typeof newData[groupArrStr] === 'undefined') {
+                newData[groupArrStr] = {};
+              }
+
+              if(typeof newData[groupArrStr][series.name]  === 'undefined') {
+                newData[groupArrStr][series.name] = {};
+              }
+
+              if(typeof newData[groupArrStr][series.name][series.aggType]  === 'undefined') {
+                newData[groupArrStr][series.name][series.aggType] = {};
+              }
+
+              newData[groupArrStr][series.name][series.aggType][KeyArrStr] = item[series.index];
+            }
+
+          }
+          console.log('---------newData-------------', newData)
+
+
+          //排序
+          keysData.sort(mSort);
+
+          function mSort(a, b) {
+            var r = 0;
+            for(let i=0; i<a.length; i++) {
+              if(a[i] === b[i]) {
+                r = 0;
+                continue;
+              }
+              r = (toNumber(a[i]) > toNumber(b[i])) ? 1 : -1;
+              break;
+            }
+            return r;
+          }
+
+          function toNumber(value) {
+            let result = Number(value);
+            if(isNaN(result)) return value;
+            return result;
+          }
+
+          /*console.log('--------keysData---------', keysData)
+          console.log('--------groupsData---------', groupsData)
+          console.log('--------valueSeries---------', valueSeries)*/
+
+          let mData = {
+            keys: keysData,
+            groups: groupsData,
+            values: valueSeries,
+            data: newData
+          }
+
+
+          /*let tableData = [];
+          let seriesArr = [];
+          let index = 0;
+          for(let i=0; i<groupsData.length; i++) {
+            for(let j=0; j<valueSeries.length; j++) {
+
+              let seriesItemArr = [].concat(groupsData[i]);
+              seriesItemArr.push(valueSeries[j].name);
+              seriesArr[index] = seriesItemArr;
+
+              let colArr = [];
+              for(let k=0; k<keysData.length; k++) {
+                colArr[k] = newData[groupsData[i].join('-')][valueSeries[j].name][valueSeries[j].aggType][keysData[k].join('-')];
+              }
+              tableData[index] = colArr;
+              index++;
+            }
+          }
+          console.log('----tableData----', tableData, seriesArr)*/
+
+          
+
+
+          //----------------TMP END------------------------
+
+
+
+
+
+
+
           this.loading = false;
           this.$nextTick(()=>{
-            this.renderChart(data);
+            this.renderChart(data, mData);
           }) 
         })
     },
@@ -135,12 +284,12 @@ let options = {
         element["on" + type] = handler;
       }
     },
-    renderChart(data) {
+    renderChart(data, mData) {
       const chartBody = this.$refs['chart-body'];
       if(!chartBody) return;
       const chart = this.$echarts.init(chartBody, 'theme-fin1');
 
-      const option = this.createOption(data);
+      const option = this.createOption(data, mData);
 
       chart.setOption(option);
       chartBody.name = this.widget.name;
@@ -151,12 +300,12 @@ let options = {
         chart.resize();
       })
     },
-    createOption(data) {
+    createOption(data, mData) {
       switch(this.chartType) {
         case 'line':
-          return this.createLineOption(data);
+          return this.createLineOption(data, mData);
         case 'pie':
-          return this.createPieOption(data);
+          return this.createPieOption(data, mData);
         default:
           return {};
       }
@@ -252,7 +401,7 @@ let options = {
 
         return option;
     },
-    createPieOption(data) {
+    createPieOption(data, mData) {
       const aggType = this.valuesConfig[0].cols[0].aggregate_type;
       const dataArr = data.data;
       const columnList = data.columnList;
@@ -288,11 +437,11 @@ let options = {
         type = type || this.chartType;
 
         const seriesItem = {
-          name: nameData[i],
-                  type: type,
+          name: this.valuesConfig[i].cols[0].col,
+          type: type,
           center: ['50%', '50%'],
-            itemStyle: {},
-                  data: []
+          itemStyle: {},
+          data: []
         }
         series.push(seriesItem);
       }
@@ -301,17 +450,96 @@ let options = {
         series[i].data = seriesData;
       }
 
-      const option = {
+      /*let option = {
         toolbox: false,
         tooltip: {
           trigger: 'item',
           format: '{a} <br/>{b} : {c} ({d}%)'
         },
         legend: {
-          data: nameData
+          data: nameData,
+          left: 'left',
+          orient: 'vertical'
         },
         series: series
+      };*/
+
+
+
+      //------------tmp-------------------
+      console.log('--------mData------------', mData)
+      let option = {
+        toolbox: false,
+        tooltip: {
+          trigger: 'item',
+          format: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        title: parseTitle(mData.values),
+        legend: {
+          data: parseLegend(mData.keys),
+          left: mData.values.length === 1 ? 'left' : 'top',
+          orient: mData.values.length === 1 ? 'vertical' : 'horizontal'
+        },
+        series: parseSeries(mData.data, mData.groups, mData.keys, mData.values)
       };
+
+      function parseTitle(values) {
+        let arr = [];
+        for(let i=0; i<values.length; i++) {
+          let titleObj = {
+            top: '90%',
+            textStyle: {
+              fontSize: 12,
+              fontWeight: 'normal'
+            },
+            textAlign: 'center',
+            text: values[i].name,
+            left: (100/values.length*i) + (100/values.length/2) +'%'
+          };
+          arr.push(titleObj);
+        }
+        return arr;
+      }
+
+      function parseLegend(keys) {
+        var arr = [];
+        for(let i=0; i<keys.length; i++) {
+          arr.push( keys[i].join('-') );
+        }
+        return arr;
+      }
+
+      function parseSeries(data, groups, keys, values) {
+        var arr = [];
+        for(let i=0; i<groups.length; i++) {
+          for(let j=0; j<values.length; j++) {
+            //---构造 seriesItem----
+            let seriesItem = {
+              name: values[j].name,
+              type: 'pie',
+              data: null,
+              center: [(100/values.length*j) + (100/values.length/2) +'%', '50%']
+            };
+            let seriesItemData = [];
+            let seriesObj = data[groups[i]][values[j].name][values[j].aggType];
+            for(let prop in seriesObj) {
+              let obj = {
+                name: prop,
+                value: seriesObj[prop]
+              };
+              seriesItemData.push(obj);
+            }
+            seriesItem.data = seriesItemData;
+            //---构造 seriesItem END----
+            arr.push(seriesItem);
+          }
+        }
+        return arr;
+      }
+      //------------tmp END-------------------
+
+
+      console.log('-------option----------', option)
       return option;
     }
   }
