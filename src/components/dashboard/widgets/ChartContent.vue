@@ -402,7 +402,7 @@ let options = {
         return option;
     },
     createPieOption(data, mData) {
-      const aggType = this.valuesConfig[0].cols[0].aggregate_type;
+      /*const aggType = this.valuesConfig[0].cols[0].aggregate_type;
       const dataArr = data.data;
       const columnList = data.columnList;
       let nameData = [];
@@ -448,7 +448,7 @@ let options = {
 
       for(let i=0,l=series.length; i<l; i++) {
         series[i].data = seriesData;
-      }
+      }*/
 
       /*let option = {
         toolbox: false,
@@ -466,7 +466,11 @@ let options = {
 
 
 
-      //------------tmp-------------------
+      /*------------tmp-------------------
+        当 values 为 n 个时，pieChart 为 n 个；
+        当 columns（groups） 为 m 时，pieChart 为 m 个；
+        当 values 为 n 个，columns 为 m 个，pieChart 个数为 n*m 个
+      */
       console.log('--------mData------------', mData)
       let option = {
         toolbox: false,
@@ -513,12 +517,16 @@ let options = {
         var arr = [];
         for(let i=0; i<groups.length; i++) {
           for(let j=0; j<values.length; j++) {
+            let chartNum = groups.length * values.length;
+            let currIndex = values.length*i+j;
+
             //---构造 seriesItem----
+            let name = groups[i].join('-') === '' ? values[j].name : groups[i].join('-') + '-' + values[j].name;
             let seriesItem = {
-              name: values[j].name,
+              name: name,
               type: 'pie',
               data: null,
-              center: [(100/values.length*j) + (100/values.length/2) +'%', '50%']
+              center: [(100/chartNum*currIndex) + (100/chartNum/2) +'%', '50%']
             };
             let seriesItemData = [];
             let seriesObj = data[groups[i]][values[j].name][values[j].aggType];
