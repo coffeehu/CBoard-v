@@ -1,5 +1,5 @@
 <template>
-	<aside class="main-sidebar">
+  <aside class="main-sidebar">
       <div class="user-panel clearfix">
         <div class="pull-left image">
             <img src="../assets/user-male-circle-blue-128.png" class="img-circle" alt="User Image">
@@ -13,6 +13,7 @@
 
       <el-menu
         router
+        :collapse="collapse"
         :default-active="$route.path"
         background-color="#222d32"
         text-color="#b8c7ce"
@@ -25,26 +26,26 @@
           </template>
 
           <template v-for="category in categoryList">
-      			<el-submenu :index="'/dashboard/'+category.name" :key="category.id">
-      				<template slot="title"><i class="el-icon-document"></i>{{ category.name }}</template>
-      				<el-menu-item v-for="(board, index) in boardList" v-if="inTheCategory(category.id, board)" :index="'/dashboard/'+category.name+'/'+board.id" :key="board.id">
-      					<i class="el-icon-menu"></i>
-      					<span slot="title">{{ board.name }}</span>
-      				</el-menu-item>
-      			</el-submenu>
+            <el-submenu :index="'/dashboard/'+category.name" :key="category.id">
+              <template slot="title"><i class="el-icon-document"></i>{{ category.name }}</template>
+              <el-menu-item v-for="(board, index) in boardList" v-if="inTheCategory(category.id, board)" :index="'/dashboard/'+category.name+'/'+board.id" :key="board.id">
+                <i class="el-icon-menu"></i>
+                <span slot="title">{{ board.name }}</span>
+              </el-menu-item>
+            </el-submenu>
           </template>
         </el-submenu>
 
         <el-submenu :index="'/'+menuItem.menuCode" v-for="(menuItem, index) in menuList" :key="menuItem.menuId">
-    			<template slot="title">
-    				<i class="el-icon-location"></i>
-    				<span>{{ $t(menuItem.menuName) }}</span>
-    			</template>
-    			<el-menu-item :index="formatRouteByMenuCode(childItem.menuCode)" v-for="childItem in menuItem.children" :key="childItem.menuId">
-    				<i class="el-icon-document"></i>
-    				<span slot="title">{{$t(childItem.menuName)}}</span>
-    			</el-menu-item>
-  		  </el-submenu>
+          <template slot="title">
+            <i class="el-icon-location"></i>
+            <span>{{ $t(menuItem.menuName) }}</span>
+          </template>
+          <el-menu-item :index="formatRouteByMenuCode(childItem.menuCode)" v-for="childItem in menuItem.children" :key="childItem.menuId">
+            <i class="el-icon-document"></i>
+            <span slot="title">{{$t(childItem.menuName)}}</span>
+          </el-menu-item>
+        </el-submenu>
 
       </el-menu>
     </aside>
@@ -53,7 +54,10 @@
 <script>
 
 export default {
-	name: 'MainSider',
+  name: 'MainSider',
+  props: {
+    collapse: Boolean
+  },
   computed: {
     menuList() {
       return this.$store.state.menu.menuList;
@@ -65,26 +69,26 @@ export default {
       return this.$store.state.menu.boardList;
     }
   },
-	data() {
-		return {
-			
-		};
-	},
-	methods: {
-		hasChildren(category) {
-			for(let i=0,l=this.boardList.length; i<l; i++){
-				if(category.id === this.boardList[i].categoryId) return true;
-			}
-			return false;
-		},
-		inTheCategory(categoryId, board) {
-			return categoryId === board.categoryId;
-		},
+  data() {
+    return {
+      
+    };
+  },
+  methods: {
+    hasChildren(category) {
+      for(let i=0,l=this.boardList.length; i<l; i++){
+        if(category.id === this.boardList[i].categoryId) return true;
+      }
+      return false;
+    },
+    inTheCategory(categoryId, board) {
+      return categoryId === board.categoryId;
+    },
     formatRouteByMenuCode(menuCode) {
       const menuCodeArr = menuCode.split('.');
       return '/' + menuCodeArr[0] + '/' +menuCodeArr[1];
     }
-	}
+  }
 }
 </script>
 
@@ -130,6 +134,10 @@ export default {
 }
 .el-menu {
   border-right: none;
+}
+
+.layout-wrapper.is-collapse .main-sidebar {
+  width: 70px!important;
 }
 
 </style>

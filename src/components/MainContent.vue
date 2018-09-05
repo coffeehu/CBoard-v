@@ -25,4 +25,8 @@ export default {
   -o-transition: -o-transform 0.3s ease-in-out, margin 0.3s ease-in-out;
   transition: transform 0.3s ease-in-out, margin 0.3s ease-in-out;
 }
+
+.layout-wrapper.is-collapse .content-wrapper {
+  margin-left: 70px!important;
+}
 </style>

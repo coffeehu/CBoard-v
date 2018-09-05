@@ -1,10 +1,10 @@
 <template>
-  <div class="layout-wrapper">
+  <div class="layout-wrapper" :class="isCollapse ? 'is-collapse' : ''">
     <!-- 头部 -->
-    <main-header></main-header>
+    <main-header @sider-collapse="siderCollapse"></main-header>
 
     <!-- 左侧菜单栏 -->
-    <main-sider></main-sider>
+    <main-sider :collapse="isCollapse"></main-sider>
 
     <!-- 内容主体 -->
     <main-content></main-content>
@@ -26,7 +26,12 @@ export default {
   },
   data () {
     return {
-      
+      isCollapse: false
+    }
+  },
+  methods: {
+    siderCollapse() {
+      this.isCollapse = !this.isCollapse;
     }
   }
 }

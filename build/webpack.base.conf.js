@@ -79,8 +79,8 @@ module.exports = {
     tls: 'empty',
     child_process: 'empty'
   },
-  externals: {
+  /*externals: {  // in production
     'vue': 'Vue',
     'element-ui': 'ELEMENT'
-  }
+  }*/
 }

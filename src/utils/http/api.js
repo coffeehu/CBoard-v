@@ -1,5 +1,5 @@
-//const baseurl = '/api/';
-const baseurl = 'http://www.hcbook.cc/cboard/';
+const baseurl = '/api/'; // In Dev
+//const baseurl = 'http://www.hcbook.cc/cboard/';  // In Production
 const api = {
 	//登录
 	//login: baseurl + 'login',
