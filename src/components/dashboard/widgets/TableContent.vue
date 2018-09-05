@@ -10,13 +10,39 @@
                    @refresh-widget="handeRefresh">
       <div class="box-body" ref="table-body" :style="boxHeight" style="padding: 5px 20px 20px 20px;overflow-y: auto">
 
-        <el-table
-          :data="tableData"
-          :span-method="objectSpanMethod"
-          border
-          style="width: 100%">
-          <data-table :columnList="columnList"></data-table>
-        </el-table>   
+        <div class="mTable-wrapper">
+          <table cellspacing="0" cellpadding="0" border="0" class="mTable">
+            <thead>
+              <tr v-for="tableTr in headTableData">
+                <th v-for="tableTh in tableTr" :colspan="tableTh.colspan" :class="tableTh.property === 'head-empty' ? 'head-empty' : ''">
+                  <div class="cell">{{ tableTh.data }}</div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(tableTr, index) in realTableData">
+                <template v-for="(tableTd, childIndex) in tableTr">
+                  <td v-if="tableTd.property === 'column-key'"
+                      :class="['mTable-head', temp(realTableData, index, childIndex, tableTd.data)]">
+                    <div class="cell">{{ temp(realTableData, index, childIndex, tableTd.data) === 'is-null' ? '' : tableTd.data }}</div>
+                  </td>
+                  <td v-else>
+                    <div class="cell">{{ tableTd.data }}</div>
+                  </td>
+                </template>
+              </tr>
+            </tbody>
+          </table>
+              <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page.sync="currentPage2"
+                :page-sizes="[100, 200, 300, 400]"
+                :page-size="100"
+                layout="sizes, prev, pager, next"
+                :total="1000">
+              </el-pagination>
+        </div>
 
       </div>
     </dashboard-box>
@@ -28,30 +54,6 @@
 import { injectFilter, formatConfig } from '@/utils/dashboardConfig.js';
 import DashboardBox from '@/components/dashboard/DashboardBox';
 import DashboardLoading from '@/components/dashboard/DashboardLoading';
-
-const DataTable = {
-  name: 'DataTable',
-  props: {
-    columnList: {
-      type: Array
-    }
-  },
-  render(h) {
-    let columnListArr = [];
-    if(this.columnList.length > 0){
-      for(let i=0,l=this.columnList.length; i<l; i++) {
-        let column = this.columnList[i];
-        let col = <el-table-column prop={column.name} label={column.name}></el-table-column>;
-        columnListArr.push(col);
-      }
-    }
-    return (
-      <template>
-        {columnListArr}
-      </template>
-    )
-  }
-}
 
 let options = {
   name: 'TableContent',
@@ -75,8 +77,7 @@ let options = {
   },
   components: {
     DashboardBox,
-    DashboardLoading,
-    DataTable
+    DashboardLoading
   },
   mounted() {
     this.initByWidget();
@@ -95,7 +96,10 @@ let options = {
       widgetData: {},
       tableData: [],
       columnList: [],
-      mTableData: []
+      mTableData: [],
+      realTableData: [],
+      headTableData: [],
+      currentPage2: 1
     }
   },
   computed: {
@@ -109,6 +113,16 @@ let options = {
     }
   },
   methods: {
+    temp(realTableData, index, childIndex, currentValue) {
+      if(realTableData[index-1]) {
+        let value = realTableData[index-1][childIndex].data;
+        if(currentValue === value) {
+          return 'is-null';
+        }
+      }
+
+      return null;
+    },
     initByWidget(reload) {
       this.widgetData = this.widget.widget.data;
       const format = this.widgetData.config.values[0].format;
@@ -147,7 +161,6 @@ let options = {
               valueSeries.push(col);
             }
           }
-          console.log(keysIndexArr, groupsIndexArr, valueSeries)
 
           
           //构建 newdata
@@ -183,11 +196,6 @@ let options = {
               groupsData.push(groupArr);
             }
 
-            //构建 newData
-            /*for(let j=0; j<valueSeries.length; j++) {
-              let value = valueSeries[j];
-              item[value.index];
-            }*/
             //构建 newData
             for(let j=0; j<valueSeries.length; j++) {
               let series = valueSeries[j];
@@ -235,9 +243,108 @@ let options = {
           console.log(keysData, groupsData)
 
 
+          /*let tableData = [];
+          let seriesArr = [];
+          let index = 0;
           for(let i=0; i<groupsData.length; i++) {
-            
+            for(let j=0; j<valueSeries.length; j++) {
+
+              let seriesItemArr = [].concat(groupsData[i]);
+              seriesItemArr.push(valueSeries[j].name);
+              seriesArr[index] = seriesItemArr;
+
+              let colArr = [];
+              for(let k=0; k<keysData.length; k++) {
+                colArr[k] = newData[groupsData[i].join('-')][valueSeries[j].name][valueSeries[j].aggType][keysData[k].join('-')];
+              }
+              tableData[index] = colArr;
+              index++;
+            }
           }
+          console.log('----tableData----', tableData, seriesArr)*/
+
+
+          // 构建表格内容数据
+          let realTableData = [];
+          const keysLength = keysData[0].length;
+          for(let i=0; i<keysData.length; i++) {
+            let colArr = [];
+
+            for(let j=0; j<keysLength; j++) {
+              colArr[j] = {
+                property: 'column-key',
+                data: keysData[i][j]
+              };
+            }
+
+            for(let j=0; j<groupsData.length; j++) {
+              for(let k=0; k<valueSeries.length; k++) {
+                let obj = {
+                  property: 'data',
+                  data: newData[groupsData[j].join('-')][valueSeries[k].name][valueSeries[k].aggType][keysData[i].join('-')]
+                };
+                colArr.push(obj);
+              }
+            } 
+
+            realTableData[i] = colArr;
+          }
+          console.log('----------realTableData----------', realTableData)
+          this.realTableData = realTableData;
+
+          //构建表头数据
+          let headTableData = [];
+          const groupsLength = groupsData[0].length;
+          for(let i=0; i<groupsLength+1; i++) {
+            let colArr = [];
+
+            //填充
+            for(let j=0; j<keysLength; j++) {
+              if(i === groupsLength) {
+                colArr.push({
+                  property: 'head-key',
+                  data: config.keys[j].alias || config.keys[j].col
+                });
+              }
+
+              else {
+                colArr.push({
+                  property: 'head-empty',
+                  data: null
+                });
+              }
+            }
+
+            for(let j=0; j<groupsData.length; j++) {
+              for(let k=0; k<valueSeries.length; k++) {
+                if(i === groupsLength) {
+                  colArr.push({
+                    property: 'head-key',
+                    data: valueSeries[k].name
+                  });
+                }
+
+                else {
+                  // 合并相同 col
+                  if(colArr[colArr.length-1] && groupsData[j][i] === colArr[colArr.length-1].data) {
+                    colArr[colArr.length-1].colspan = colArr[colArr.length-1].colspan ? colArr[colArr.length-1].colspan+1 : 2;
+                  }else {
+                    colArr.push({
+                      property: 'head-key',
+                      data: groupsData[j][i]
+                    });
+                  }
+
+                }
+
+              }
+            }
+
+            headTableData[i] = colArr;
+          }
+
+          console.log('----------headTableData----------', headTableData)
+          this.headTableData = headTableData;
 
 
           //----------------TMP END------------------------
@@ -294,7 +401,9 @@ let options = {
     },
     handeRefresh() {
       this.initByWidget(true);
-    }
+    },
+    handleSizeChange() {},
+    handleCurrentChange() {},
 
   }
 }
@@ -307,6 +416,46 @@ export default options;
   
 }
 .box .box-body {
-  max-height: 700px;
+  max-height: 800px;
+}
+
+
+.mTable-wrapper {
+
+}
+.mTable {
+  width: 100%;
+  min-width: 900px;
+  table-layout: fixed;
+  border: 1px solid #ebeef5;
+  color: #606266;
+}
+.mTable .mTable-head {
+  background: #f5f7fa;
+  font-weight: bold;
+}
+.mTable .head-empty {
+  border: none;
+  background-color: transparent;
+}
+.mTable td,
+.mTable th {
+  line-height: 23px;
+  min-width: 80px;
+  padding: 12px 0;
+  border-top: 1px solid #ebeef5;
+  border-right: 1px solid #ebeef5;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  white-space: normal;
+}
+.mTable th {
+  background: #f5f7fa;
+}
+.mTable .cell {
+  padding: 0 10px;
+}
+.is-null {
+  border-top: none!important;
 }
 </style>

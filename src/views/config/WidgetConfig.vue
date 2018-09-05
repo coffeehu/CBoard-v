@@ -1,8 +1,8 @@
 <template>
     <div class="content">
        <div class="row">
-       	
-       		<!-- 目录面板 -->
+        
+          <!-- 目录面板 -->
             <div class="col-md-3">
                 <div class="box box-solid">
                     <div class="box-header with-border">
@@ -49,11 +49,11 @@
                   <i class="pull-right el-icon-delete" @click="delWidget"></i>
                 </div>
 
-  	            <div class="box-body">
+                <div class="box-body">
                   <!-- Cube 数据源 -->
                   <div class="el-form-item">
-                  	<label class="el-form-item__label">Cube:</label>
-                  	<div class="el-form-item__content">
+                    <label class="el-form-item__label">Cube:</label>
+                    <div class="el-form-item__content">
                       <el-select v-model="currentWidget.data.datasetId" placeholder="请选择">
                         <el-option
                         v-for="item in datasetList"
@@ -62,7 +62,7 @@
                         :value="item.id">
                         </el-option>
                       </el-select>
-                  	</div>
+                    </div>
                   </div>
 
                   <!-- Category Name -->
@@ -74,12 +74,12 @@
                   </div>
 
                   <!-- Widget Name -->
-                	<div class="el-form-item">
+                  <div class="el-form-item">
                     <label class="el-form-item__label">Widget Name:</label>
                     <div class="el-form-item__content">
                       <el-input v-model="currentWidget.name" placeholder="Widget Name"></el-input>
                     </div>
-                	</div>
+                  </div>
 
                   <!-- Widget Type -->
                   <div class="el-form-item">
@@ -90,11 +90,11 @@
                           <el-popover
                             placement="bottom"
                             trigger="hover">
-                          	<div>
-                          		<p><b>{{ type.row }} {{ $t('CONFIG.WIDGET.TIPS_ROW_DIM') }}</b></p>
-                          		<p><b>{{ type.column }} {{ $t('CONFIG.WIDGET.TIPS_COLUMN_DIM') }}</b></p>
-                          		<p><b>{{ type.measure }} {{ $t('CONFIG.WIDGET.TIPS_MEASURE') }}</b></p>
-                          	</div>
+                            <div>
+                              <p><b>{{ type.row }} {{ $t('CONFIG.WIDGET.TIPS_ROW_DIM') }}</b></p>
+                              <p><b>{{ type.column }} {{ $t('CONFIG.WIDGET.TIPS_COLUMN_DIM') }}</b></p>
+                              <p><b>{{ type.measure }} {{ $t('CONFIG.WIDGET.TIPS_MEASURE') }}</b></p>
+                            </div>
                             <i slot="reference" :class="[type.class, chartTypesStatus[type.value]?'':'disabled', index===activeTypeIndex?'active':'']" class="widget-type-item"></i>
                           </el-popover>
                         </li>
@@ -184,10 +184,10 @@
                   </div>
 
                   <div class="el-form-item">
-                  	<!-- <button @click="save" class="pull-right">save</button> -->
+                    <!-- <button @click="save" class="pull-right">save</button> -->
                     <el-button type="primary" @click="save" size="small" class="pull-right" style="margin-right: 10px">Save</el-button>
                   </div>
-  	            </div>
+                </div>
 
                 <!-- 底部面板内容，包含 Preview 等 -->
                 <div class="widget-config-tab">
@@ -197,7 +197,7 @@
                         <component
                            :is="currentPreview" 
                            :widget="currentPreviewWidget"
-                           :key="currentPreviewWidget.widget.id+currentPreviewWidget.widget.data.chart_type"></component>
+                           :key="currentPreviewWidget.widget.id + currentPreviewWidget.widget.data.chart_type"></component>
                       </el-tab-pane>
                       <el-tab-pane label="Query" >Query</el-tab-pane>
                       <el-tab-pane label="Option" >Option</el-tab-pane>
@@ -205,7 +205,7 @@
                   </div>
                 </div>
                 
-            	</div>
+              </div>
             </div>
             <!-- 配置面板 END -->
 
@@ -264,22 +264,22 @@ export default {
     MapContent: () => import('@/components/dashboard/widgets/MapContent')
   },
   created() {
-  	this.$store.dispatch('config/getWidgetList');
-  	this.$store.dispatch('config/getDatasetList');
+    this.$store.dispatch('config/getWidgetList');
+    this.$store.dispatch('config/getDatasetList');
   },
   beforeRouteUpdate(to, from, next) {
-  	let id = to.query.id;
-  	next();
+    let id = to.query.id;
+    next();
   },
   data() {
-  	return {
-  		defaultProps: {
-  			label: 'name'
-  		},
-  		dataSource: '',
-  		widgetCategory: '',
-  		widgetName: '',
-  		currentWidget: {}, //当前选中的 Widget 对象
+    return {
+      defaultProps: {
+        label: 'name'
+      },
+      dataSource: '',
+      widgetCategory: '',
+      widgetName: '',
+      currentWidget: {}, //当前选中的 Widget 对象
       activeTypeIndex: 0, // 当前选中的 Widget Type 索引
       widgetConfigVisible: false,
       column: [], // Column 的值
@@ -288,8 +288,8 @@ export default {
       value: [],
       values: [],
       widget: {},
-  		// widget Type 列表
-  		widgetTypes: [
+      // widget Type 列表
+      widgetTypes: [
             {
                 name: this.$t('CONFIG.WIDGET.TABLE'), value: 'table', class: 'cTable',
                 row: this.$t('CONFIG.WIDGET.TIPS_DIM_NUM_0_MORE'),
@@ -413,13 +413,13 @@ export default {
         ],
         //用于判断哪些 Widget Type 可选（Base值）
         baseChartTypesStatus: {
-  		    "line": true, "pie": true, "kpi": true, "table": true,
-  		    "funnel": true, "sankey": true, "radar": true, "map": true,
-  		    "scatter": true, "gauge": true, "wordCloud": true, "treeMap": true,
-  		    "heatMapCalendar": true, "heatMapTable": true, "liquidFill": true,
-  		    "areaMap": true, "contrast": true,"chinaMap":true,"chinaMapBmap":true,"relation":true
-  		  }
-  	}
+          "line": true, "pie": true, "kpi": true, "table": true,
+          "funnel": true, "sankey": true, "radar": true, "map": true,
+          "scatter": true, "gauge": true, "wordCloud": true, "treeMap": true,
+          "heatMapCalendar": true, "heatMapTable": true, "liquidFill": true,
+          "areaMap": true, "contrast": true,"chinaMap":true,"chinaMapBmap":true,"relation":true
+        }
+    }
   },
   watch: {
     column() {
@@ -427,10 +427,17 @@ export default {
     },
     row() {
       this.currentWidget.data.config.keys = this.row;
+    },
+    value() {
+      this.value.forEach(v => {
+        if(!v.aggregate_type) v.aggregate_type = 'sum';
+        if(!v.col) v.col = v.column;  //必须要有个 col 字段记录名称，否则返回回的数据 columnList 中对应的 name 为 null
+      })
+      this.currentWidget.data.config.values[0].cols = this.value;
     }
   },
   computed: {
-  	widgetList() {
+    widgetList() {
       return this.$store.state.config.widgetList;
     },
     datasetList() {
@@ -440,48 +447,48 @@ export default {
       将 widgetList 转换成 Widget el-tree 需要的数据格式
     */
     treeData() {
-    	let widgetList = this.widgetList;
-    	let treeData = [];
-    	for(let i=0,l=widgetList.length; i<l; i++) {
-    		let widget = widgetList[i];
-    		addToTree(widget.categoryName, widget)
-    	}
+      let widgetList = this.widgetList;
+      let treeData = [];
+      for(let i=0,l=widgetList.length; i<l; i++) {
+        let widget = widgetList[i];
+        addToTree(widget.categoryName, widget)
+      }
 
-    	function addToTree(categoryName, widget) {
-    		let nameArr = categoryName.split('/');
-    		let name;
-    		let i = 0;
-    		let arr = treeData;
-    		while( i < nameArr.length ) {
-    			name = nameArr[i];
-    			let result = existInArr(name, arr);
-    			if(result) {
-    				arr = result.children;
-    				if(i === nameArr.length - 1) {
-    					result.children.push(widget);
-    				}
-	    		}else {
-	    			let treeItem = { name: name, children: [] };
-	    			arr.push(treeItem);
-	    			arr = treeItem.children;
-	    			if(i === nameArr.length - 1) {
-	    				treeItem.children.push(widget);
-    				}
-	    		}
-	    		i++;
-    		}
-    	}
+      function addToTree(categoryName, widget) {
+        let nameArr = categoryName.split('/');
+        let name;
+        let i = 0;
+        let arr = treeData;
+        while( i < nameArr.length ) {
+          name = nameArr[i];
+          let result = existInArr(name, arr);
+          if(result) {
+            arr = result.children;
+            if(i === nameArr.length - 1) {
+              result.children.push(widget);
+            }
+          }else {
+            let treeItem = { name: name, children: [] };
+            arr.push(treeItem);
+            arr = treeItem.children;
+            if(i === nameArr.length - 1) {
+              treeItem.children.push(widget);
+            }
+          }
+          i++;
+        }
+      }
 
-    	function existInArr(name, arr) {
-    		for(let i=0,l=arr.length; i<l; i++) {
-    			if(arr[i].name === name) {
-    				return arr[i];
-    			}
-    		}
-    		return false;
-    	}
+      function existInArr(name, arr) {
+        for(let i=0,l=arr.length; i<l; i++) {
+          if(arr[i].name === name) {
+            return arr[i];
+          }
+        }
+        return false;
+      }
 
-    	return treeData;
+      return treeData;
     },
     /*
       根据当前选中的 widget 的 datasetId，找到对应的 dataset 数据
@@ -593,41 +600,41 @@ export default {
       return currentMeasure;
     },
     /*
-    	根据选中的 widget 数据，
-    	判断哪些 Widget Type 可选
+      根据选中的 widget 数据，
+      判断哪些 Widget Type 可选
     */
     chartTypesStatus() {
-    	if(!this.currentWidget.data) {
-    		return {};
-    	}
-    	let result;
-	  	let tempConfig = {
-	  		keys: this.row.length,
-	  		groups: this.column.length,
-	  		values: 0
-	  	}
-	  	for(let type in this.baseChartTypesStatus) {
-	  		let rule = configRule[type];
+      if(!this.currentWidget.data) {
+        return {};
+      }
+      let result;
+      let tempConfig = {
+        keys: this.row.length,
+        groups: this.column.length,
+        values: 0
+      }
+      for(let type in this.baseChartTypesStatus) {
+        let rule = configRule[type];
 
-	  		let flattenValues = [];
+        let flattenValues = [];
         flattenValues = flattenValues.concat(this.value);
         tempConfig.values = flattenValues.length;
 
-      	for(let p in rule) {
-      		if(rule[p] === 2) {
-      			result = (tempConfig[p] >= 1);
-      		}else if(rule[p] === -1) {
-      			result = true;
-      		}else {
-      			result = (rule[p] === tempConfig[p]);
-      		}
-      		if(!result) break;
-      	}
+        for(let p in rule) {
+          if(rule[p] === 2) {
+            result = (tempConfig[p] >= 1);
+          }else if(rule[p] === -1) {
+            result = true;
+          }else {
+            result = (rule[p] === tempConfig[p]);
+          }
+          if(!result) break;
+        }
 
-	      this.baseChartTypesStatus[type] = result;
-	  	}
+        this.baseChartTypesStatus[type] = result;
+      }
 
-	  	return this.baseChartTypesStatus;
+      return this.baseChartTypesStatus;
     },
     currentPreview() {
       let type = this.widgetTypes[this.activeTypeIndex].value;
@@ -654,22 +661,22 @@ export default {
     }
   },
   methods: {
-  	handleNodeClick(node) {
-  		if(node.children && node.children.length > 0) {
-  			return;
-  		}else {
+    handleNodeClick(node) {
+      if(node.children && node.children.length > 0) {
+        return;
+      }else {
         console.log('-----node-------', node)
         this.column = node.data.config.groups;
         this.row = node.data.config.keys;
         this.values = node.data.config.values; 
         this.value = node.data.config.values[0].cols;
-  			this.widgetConfigVisible = true;
-  			this.currentWidget = node;
+        this.widgetConfigVisible = true;
+        this.currentWidget = node;
         let index = this.getIndexByType(node.data.config.chart_type);
         this.activeTypeIndex = index;
-  			this.$router.push({ path: '/config/widget', query: { id: node.id }});
-  		}
-  	},
+        this.$router.push({ path: '/config/widget', query: { id: node.id }});
+      }
+    },
     getIndexByType(type) {
       for(let i=0,l=this.widgetTypes.length; i<l; i++) {
         if(this.widgetTypes[i].value === type) {
@@ -678,31 +685,31 @@ export default {
       }
       return 0;
     },
-  	addWidget() {
+    addWidget() {
       this.widgetConfigVisible = true;
       this.activeTypeIndex = 0;
-  		this.currentWidget = {
-  			name: '',
-  			categoryName: '',
-  			data: {
+      this.currentWidget = {
+        name: '',
+        categoryName: '',
+        data: {
           config: {},
           datasetId: '',
           expressions: [],
           filterGroups: []
         }
-  		};
-  		this.currentWidget.data.config = {
-    			"option": {},
-    			"chart_type": "",
-    			"keys": [],
-    			"groups": [],
-    			"values": [{
-    				"name": "",
-    				"cols": []
-    			}],
-    			"filters": []
-  		}
-  	},
+      };
+      this.currentWidget.data.config = {
+          "option": {},
+          "chart_type": "",
+          "keys": [],
+          "groups": [],
+          "values": [{
+            "name": "",
+            "cols": []
+          }],
+          "filters": []
+      }
+    },
     handleTypeClick(type, index) {
       let value = type.value;
       if(!this.chartTypesStatus[value]) {
@@ -769,7 +776,7 @@ export default {
         this.currentWidget.data.config.values[0].series_type = type.value;
       }
     },
-  	save() {
+    save() {
       
       if(!this.currentWidget.data.datasetId) return;  //防止未选择 Cube 就提交
 
@@ -802,7 +809,7 @@ export default {
         .catch(error => {
 
         })
-  	}
+    }
   }
 }
 </script>
@@ -818,9 +825,9 @@ export default {
     padding: 10px 20px;
 }
 .box-tools > i {
-	font-size: 18px;
-	font-weight: bold;
-	cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
 }
 .box-header .el-icon-delete {
   font-size: 20px;
@@ -829,30 +836,30 @@ export default {
 }
 /*表单样式*/
 .el-form-item__label {
-	font-weight: bold;
-	width: 130px;
+  font-weight: bold;
+  width: 130px;
 }
 .el-form-item__content {
-	overflow: hidden;
+  overflow: hidden;
 }
 
 .widget-type-list {
-	padding: 0;
-	margin: 0;
+  padding: 0;
+  margin: 0;
 }
 .widget-type-list > li {
-	display: inline-block;
-	padding-right: 5px;
-	padding-left: 5px;
+  display: inline-block;
+  padding-right: 5px;
+  padding-left: 5px;
 }
 .widget-type-list > li .widget-type-item {
-	display: block;
-	width: 40px;
-	height: 40px;
-	cursor: pointer;
+  display: block;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
 }
 .widget-type-list > li .widget-type-item.active {
-	border: 1px solid #97b6f7;
+  border: 1px solid #97b6f7;
 }
 li:focus,
 i:focus,
