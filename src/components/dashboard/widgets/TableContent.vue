@@ -23,8 +23,8 @@
               <tr v-for="(tableTr, index) in realTableData">
                 <template v-for="(tableTd, childIndex) in tableTr">
                   <td v-if="tableTd.property === 'column-key'"
-                      :class="['mTable-head', temp(realTableData, index, childIndex, tableTd.data)]">
-                    <div class="cell">{{ temp(realTableData, index, childIndex, tableTd.data) === 'is-null' ? '' : tableTd.data }}</div>
+                      :class="['mTable-head', parse2null(realTableData, index, childIndex, tableTd.data)]">
+                    <div class="cell">{{ parse2null(realTableData, index, childIndex, tableTd.data) === 'is-null' ? '' : tableTd.data }}</div>
                   </td>
                   <td v-else>
                     <div class="cell">{{ tableTd.data }}</div>
@@ -113,14 +113,14 @@ let options = {
     }
   },
   methods: {
-    temp(realTableData, index, childIndex, currentValue) {
+    //对于行的表头，用于合并行
+    parse2null(realTableData, index, childIndex, currentValue) {
       if(realTableData[index-1]) {
         let value = realTableData[index-1][childIndex].data;
         if(currentValue === value) {
           return 'is-null';
         }
       }
-
       return null;
     },
     initByWidget(reload) {
@@ -129,140 +129,13 @@ let options = {
       const style = this.style = this.widgetData.config.values[0].style;
 
       this.loading = true;
-      this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters, reload: reload})
-        .then(() => {
-          let data = this.$store.state.dashboard.widgetInfoData;
-          console.log('-------data config-----------', this.widget.widget.data.config);
-          console.log('------http get data-----', data);
-
-
-          //----------------TMP------------------------
-          const config = this.widget.widget.data.config;
-
-          //获得keys、groups 对应的 index ，以及 valueSeries 数组
-          let keysIndexArr = [];
-          let groupsIndexArr = [];
-          let valueSeries = [];
-          for(let i=0,l=data.columnList.length; i<l; i++) {
-            let col = data.columnList[i];
-            for(let j=0; j<config.keys.length; j++) {
-              if(config.keys[j].col === col.name) {
-                keysIndexArr.push(col.index);
-              }
-            }
-
-            for(let k=0; k<config.groups.length; k++) {
-              if(config.groups[k].col === col.name) {
-                groupsIndexArr.push(col.index);
-              }
-            }
-
-            if(col.aggType) {
-              valueSeries.push(col);
-            }
-          }
-
-          
-          //构建 newdata
-          var newData = {};
-          var joinedKeys = {};
-          var keysData = [];
-          var joinedGroups = {};
-          var groupsData = [];
-          for(let i=0,l=data.data.length; i<l; i++) {
-            let item = data.data[i];
-
-            // 获得 keys 的内容
-            let keyArr = [];
-            for(let j=0; j<keysIndexArr.length; j++) {
-              keyArr.push( item[ keysIndexArr[j] ] );
-            }
-
-            let KeyArrStr = keyArr.join('-');
-            if(!joinedKeys[KeyArrStr]) {
-              joinedKeys[KeyArrStr] = true;
-              keysData.push(keyArr);
-            }
-
-            // 获得 groups 的内容
-            let groupArr = [];
-            for(let j=0; j<groupsIndexArr.length; j++) {
-              groupArr.push( item[ groupsIndexArr[j] ] );
-            }
-
-            let groupArrStr = groupArr.join('-');
-            if(!joinedGroups[groupArrStr]) {
-              joinedGroups[groupArrStr] = true;
-              groupsData.push(groupArr);
-            }
-
-            //构建 newData
-            for(let j=0; j<valueSeries.length; j++) {
-              let series = valueSeries[j];
-              if(typeof newData[groupArrStr] === 'undefined') {
-                newData[groupArrStr] = {};
-              }
-
-              if(typeof newData[groupArrStr][series.name]  === 'undefined') {
-                newData[groupArrStr][series.name] = {};
-              }
-
-              if(typeof newData[groupArrStr][series.name][series.aggType]  === 'undefined') {
-                newData[groupArrStr][series.name][series.aggType] = {};
-              }
-
-              newData[groupArrStr][series.name][series.aggType][KeyArrStr] = item[series.index];
-            }
-
-          }
-          console.log('111111111111', newData)
-
-
-          //排序
-          keysData.sort(mSort);
-
-          function mSort(a, b) {
-            var r = 0;
-            for(let i=0; i<a.length; i++) {
-              if(a[i] === b[i]) {
-                r = 0;
-                continue;
-              }
-              r = (toNumber(a[i]) > toNumber(b[i])) ? 1 : -1;
-              break;
-            }
-            return r;
-          }
-
-          function toNumber(value) {
-            let result = Number(value);
-            if(isNaN(result)) return value;
-            return result;
-          }
-
-          console.log(keysData, groupsData)
-
-
-          /*let tableData = [];
-          let seriesArr = [];
-          let index = 0;
-          for(let i=0; i<groupsData.length; i++) {
-            for(let j=0; j<valueSeries.length; j++) {
-
-              let seriesItemArr = [].concat(groupsData[i]);
-              seriesItemArr.push(valueSeries[j].name);
-              seriesArr[index] = seriesItemArr;
-
-              let colArr = [];
-              for(let k=0; k<keysData.length; k++) {
-                colArr[k] = newData[groupsData[i].join('-')][valueSeries[j].name][valueSeries[j].aggType][keysData[k].join('-')];
-              }
-              tableData[index] = colArr;
-              index++;
-            }
-          }
-          console.log('----tableData----', tableData, seriesArr)*/
-
+      this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters, reload: reload, config: this.widget.widget.data.config})
+        .then((seriesData) => {
+          let keysData = seriesData.keys;
+          let groupsData = seriesData.groups;
+          let valueSeries = seriesData.values;
+          let newData = seriesData.data;
+          let config = this.widget.widget.data.config;
 
           // 构建表格内容数据
           let realTableData = [];
@@ -306,7 +179,6 @@ let options = {
                   data: config.keys[j].alias || config.keys[j].col
                 });
               }
-
               else {
                 colArr.push({
                   property: 'head-empty',
@@ -323,7 +195,6 @@ let options = {
                     data: valueSeries[k].name
                   });
                 }
-
                 else {
                   // 合并相同 col
                   if(colArr[colArr.length-1] && groupsData[j][i] === colArr[colArr.length-1].data) {
@@ -334,61 +205,18 @@ let options = {
                       data: groupsData[j][i]
                     });
                   }
-
                 }
-
               }
             }
-
             headTableData[i] = colArr;
           }
 
           console.log('----------headTableData----------', headTableData)
           this.headTableData = headTableData;
 
-
-          //----------------TMP END------------------------
-
-
-
-          const columnList = this.columnList = data.columnList;
-          const mTableData = this.mTableData = data.data;
-          this.tableData = this.formatTableData(columnList, mTableData);
           this.loading = false;
         })
         .catch(() => {});
-    },
-    formatTableData(columnList, data) {
-      let tableData = [];
-      for(let i=0,l=data.length; i<l; i++) {
-        let tableDataItem = {};
-        for(let j=0,len=columnList.length; j<len; j++) {
-          tableDataItem[ columnList[j].name ] = data[i][j];
-        }
-        tableData.push(tableDataItem);
-      }
-      return tableData;
-    },
-    // 表格--合并行
-    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
-      //console.log(row)
-         /*if (columnIndex === 0) {
-          if (rowIndex % 2 === 0) {
-            return {
-              rowspan: 2,
-              colspan: 1
-            };
-          } else {
-            return {
-              rowspan: 0,
-              colspan: 0
-            };
-          }
-        }*/
-        return {
-              rowspan: 1,
-              colspan: 1
-            };
     },
     handeOpen() {
       let data = {

@@ -105,161 +105,11 @@ let options = {
     initByWidget(reload) {
       this.widgetData = this.widget.widget.data;
       this.loading = true;
-      this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters, reload: reload})
-        .then(() => {
-          let data = this.$store.state.dashboard.widgetInfoData;
-
-
-          //----------------TMP------------------------
-          const config = this.widget.widget.data.config;
-
-          //获得keys、groups 对应的 index ，以及 valueSeries 数组
-          let keysIndexArr = [];
-          let groupsIndexArr = [];
-          let valueSeries = [];
-          for(let i=0,l=data.columnList.length; i<l; i++) {
-            let col = data.columnList[i];
-            for(let j=0; j<config.keys.length; j++) {
-              if(config.keys[j].col === col.name) {
-                keysIndexArr.push(col.index);
-              }
-            }
-
-            for(let k=0; k<config.groups.length; k++) {
-              if(config.groups[k].col === col.name) {
-                groupsIndexArr.push(col.index);
-              }
-            }
-
-            if(col.aggType) {
-              valueSeries.push(col);
-            }
-          }
-
-          
-          //构建 newdata
-          var newData = {};
-          var joinedKeys = {};
-          var keysData = [];
-          var joinedGroups = {};
-          var groupsData = [];
-          for(let i=0,l=data.data.length; i<l; i++) {
-            let item = data.data[i];
-
-            // 获得 keys 的内容
-            let keyArr = [];
-            for(let j=0; j<keysIndexArr.length; j++) {
-              keyArr.push( item[ keysIndexArr[j] ] );
-            }
-
-            let KeyArrStr = keyArr.join('-');
-            if(!joinedKeys[KeyArrStr]) {
-              joinedKeys[KeyArrStr] = true;
-              keysData.push(keyArr);
-            }
-
-            // 获得 groups 的内容
-            let groupArr = [];
-            for(let j=0; j<groupsIndexArr.length; j++) {
-              groupArr.push( item[ groupsIndexArr[j] ] );
-            }
-
-            let groupArrStr = groupArr.join('-');
-            if(!joinedGroups[groupArrStr]) {
-              joinedGroups[groupArrStr] = true;
-              groupsData.push(groupArr);
-            }
-
-            //构建 newData
-            for(let j=0; j<valueSeries.length; j++) {
-              let series = valueSeries[j];
-              if(typeof newData[groupArrStr] === 'undefined') {
-                newData[groupArrStr] = {};
-              }
-
-              if(typeof newData[groupArrStr][series.name]  === 'undefined') {
-                newData[groupArrStr][series.name] = {};
-              }
-
-              if(typeof newData[groupArrStr][series.name][series.aggType]  === 'undefined') {
-                newData[groupArrStr][series.name][series.aggType] = {};
-              }
-
-              newData[groupArrStr][series.name][series.aggType][KeyArrStr] = item[series.index];
-            }
-
-          }
-          console.log('---------newData-------------', newData)
-
-
-          //排序
-          keysData.sort(mSort);
-
-          function mSort(a, b) {
-            var r = 0;
-            for(let i=0; i<a.length; i++) {
-              if(a[i] === b[i]) {
-                r = 0;
-                continue;
-              }
-              r = (toNumber(a[i]) > toNumber(b[i])) ? 1 : -1;
-              break;
-            }
-            return r;
-          }
-
-          function toNumber(value) {
-            let result = Number(value);
-            if(isNaN(result)) return value;
-            return result;
-          }
-
-          /*console.log('--------keysData---------', keysData)
-          console.log('--------groupsData---------', groupsData)
-          console.log('--------valueSeries---------', valueSeries)*/
-
-          let mData = {
-            keys: keysData,
-            groups: groupsData,
-            values: valueSeries,
-            data: newData
-          }
-
-
-          /*let tableData = [];
-          let seriesArr = [];
-          let index = 0;
-          for(let i=0; i<groupsData.length; i++) {
-            for(let j=0; j<valueSeries.length; j++) {
-
-              let seriesItemArr = [].concat(groupsData[i]);
-              seriesItemArr.push(valueSeries[j].name);
-              seriesArr[index] = seriesItemArr;
-
-              let colArr = [];
-              for(let k=0; k<keysData.length; k++) {
-                colArr[k] = newData[groupsData[i].join('-')][valueSeries[j].name][valueSeries[j].aggType][keysData[k].join('-')];
-              }
-              tableData[index] = colArr;
-              index++;
-            }
-          }
-          console.log('----tableData----', tableData, seriesArr)*/
-
-          
-
-
-          //----------------TMP END------------------------
-
-
-
-
-
-
-
+      this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters, reload: reload, config: this.widget.widget.data.config})
+        .then((seriesData) => {
           this.loading = false;
           this.$nextTick(()=>{
-            this.renderChart(data, mData);
+            this.renderChart(seriesData);
           }) 
         })
     },
@@ -284,12 +134,12 @@ let options = {
         element["on" + type] = handler;
       }
     },
-    renderChart(data, mData) {
+    renderChart(seriesData) {
       const chartBody = this.$refs['chart-body'];
       if(!chartBody) return;
       const chart = this.$echarts.init(chartBody, 'theme-fin1');
 
-      const option = this.createOption(data, mData);
+      const option = this.createOption(seriesData);
 
       chart.setOption(option);
       chartBody.name = this.widget.name;
@@ -300,191 +150,152 @@ let options = {
         chart.resize();
       })
     },
-    createOption(data, mData) {
+    createOption(seriesData) {
       switch(this.chartType) {
         case 'line':
-          return this.createLineOption(data, mData);
+          return this.createLineOption(seriesData);
         case 'pie':
-          return this.createPieOption(data, mData);
+          return this.createPieOption(seriesData);
         default:
           return {};
       }
     },
+    /*
+      row(即 keys) 为 axis 值
+      value 和 column(groups) 决定有多少条线
+
+      TODO: 1、添加 bar 类型；2、添加 horizontal bar
+    */
     createLineOption(data) {
-      const aggType = this.valuesConfig[0].cols[0].aggregate_type;
-      const dataArr = data.data;
-      const columnList = data.columnList;
-      let nameData = [];
-      let seriesData = [];
-      let seriesDataIndex = -1;
-      let nameDataIndex = [];
-      for(let i=0,l=columnList.length; i<l; i++) {
-        if(columnList[i].aggType === aggType) {
-          seriesDataIndex = columnList[i].index;
-        }else if(columnList[i].aggType === null) {
-          nameDataIndex.push(columnList[i].index);
+
+      //-------------------------------------------------------------
+      console.log('-----------------data--------', data);
+      //console.log('--------this.valuesConfig-------------', this.valuesConfig)
+      console.log('--------this.valuesConfig-------------', this.widget.widget.data.config)
+
+      let isHorizon = this.widget.widget.data.config.valueAxis === 'horizontal' ? true : false;
+
+      let xAxis;
+      let yAxis;
+      if(isHorizon) { //水平
+        xAxis = [
+          {
+            type: 'value'
+          }
+        ];
+        yAxis = {
+          type: 'category',
+          //boundaryGap: false,
+          data: parseCategory(data.keys)
         }
-      }
-
-      for(let i=0,l=dataArr.length; i<l; i++) {
-        let nameDataItem = [];
-        for(let j=0,l=nameDataIndex.length; j<l; j++) {
-          let nameDataItemIndex = nameDataIndex[j];
-          nameDataItem.push( dataArr[i][nameDataItemIndex] );
-        }
-        nameData.push( nameDataItem.join('-') );
-
-        seriesData.push(dataArr[i][seriesDataIndex]);
-      }
-
-      const xAxis = {};
-      const yAxis = {};
-      if(this.valueAxis === 'vertical') {
-        yAxis.type = 'value';
-        xAxis.type = 'category';
-        xAxis.data = nameData;
-      } else if(this.valueAxis === 'horizontal') {
-        xAxis.type = 'value';
-        yAxis.type = 'category';
-        yAxis.data = nameData;
-      }
-
-      const legend = [];
-      const series = [];
-      for(let i=0,l=this.valuesConfig.length; i<l; i++) {
-        let type = this.valuesConfig[i].series_type;
-        type = type || this.chartType;
-        if(type === 'percentbar') {
-          type = 'bar';
-        }
-        const seriesItem = {
-          name: this.valuesConfig[i].cols[0].col,
-                  type: type,
-          barMaxWidth: 40,
-                  valueAxisIndex: 0,
-                  yAxisIndex: 0,
-                  data: []
-        }
-        series.push(seriesItem);
-        legend.push(this.valuesConfig[i].cols[0].col);
-      }
-
-      for(let i=0,l=series.length; i<l; i++) {
-        series[i].data = seriesData;
-      }
-
-      const option = {
-            title: {
-            },
-            tooltip: {
-              trigger: 'axis'
-            },
-            grid: {
-            left: '0',
-            right: '20',
-            bottom: '15%',
-            top: '15%',
-            containLabel: true
-        },
-            legend: {
-                data: legend
-            },
-            /*xAxis: {
-                data: xAxisData,
-                boundaryGap: true,
-                type: 'category'
-            },*/
-            xAxis: xAxis,
-            yAxis: yAxis,
-            series: series
+      }else {
+        xAxis = {
+          type: 'category',
+          //boundaryGap: false,
+          data: parseCategory(data.keys)
         };
-
-        return option;
-    },
-    createPieOption(data, mData) {
-      /*const aggType = this.valuesConfig[0].cols[0].aggregate_type;
-      const dataArr = data.data;
-      const columnList = data.columnList;
-      let nameData = [];
-      let seriesData = [];
-      let seriesDataIndex = -1;
-      let nameDataIndex = [];
-      for(let i=0,l=columnList.length; i<l; i++) {
-        if(columnList[i].aggType === aggType) {
-          seriesDataIndex = columnList[i].index;
-        }else if(columnList[i].aggType === null) {
-          nameDataIndex.push(columnList[i].index);
-        }
+        yAxis = [
+          {
+            type: 'value'
+          }
+        ]
       }
 
-      for(let i=0,l=dataArr.length; i<l; i++) {
-        let nameDataItem = [];
-        for(let j=0,l=nameDataIndex.length; j<l; j++) {
-          let nameDataItemIndex = nameDataIndex[j];
-          nameDataItem.push( dataArr[i][nameDataItemIndex] );
-        }
-        nameData.push( nameDataItem.join('-') );
-
-        seriesData.push({
-          name: nameDataItem.join('-'),
-          value: dataArr[i][seriesDataIndex]
-        });
-      }
-
-      const series = [];
-      for(let i=0,l=this.valuesConfig.length; i<l; i++) {
-        let type = this.valuesConfig[i].series_type;
-        type = type || this.chartType;
-
-        const seriesItem = {
-          name: this.valuesConfig[i].cols[0].col,
-          type: type,
-          center: ['50%', '50%'],
-          itemStyle: {},
-          data: []
-        }
-        series.push(seriesItem);
-      }
-
-      for(let i=0,l=series.length; i<l; i++) {
-        series[i].data = seriesData;
-      }*/
-
-      /*let option = {
-        toolbox: false,
+      let option = {
         tooltip: {
-          trigger: 'item',
-          format: '{a} <br/>{b} : {c} ({d}%)'
+          axisPointer: {
+            type: 'cross',
+            label: {
+              backgroundColor: '#6a7985',
+            }
+          }
+        },
+        grid: {
+          bottom: '15%',
+          left: '50',
+          right: '20',
+          top: '15%'
         },
         legend: {
-          data: nameData,
-          left: 'left',
-          orient: 'vertical'
+          data: parseLegend(data.values, data.groups)
         },
-        series: series
-      };*/
+        xAxis: xAxis,
+        yAxis: yAxis,
+        series: parseSeries(data.values, data.groups, data.keys, data.data)
+      };
 
+      function parseCategory(keys) {
+        let arr = [];
+        for(var i=0; i<keys.length; i++) {
+          arr.push( keys[i].join('-') );
+        }
+        return arr;
+      }
 
+      function parseLegend(values, groups) {
+        let arr = [];
+        for(let i=0; i<groups.length; i++) {
+          for(let j=0; j<values.length; j++) {
+            let name = groups[i].join('-') + '-' + values[j].name;
+            arr.push(name);
+          }
+        }
+        return arr;
+      }
 
-      /*------------tmp-------------------
+      function parseSeries(values, groups, keys, data) {
+        let arr = [];
+        for(let i=0; i<groups.length; i++) {
+          for(let j=0; j<values.length; j++) {
+            let name = groups[i].join('-') + '-' + values[j].name;
+            //------tmp------
+            if(values[j].series_type === 'percentbar') values[j].series_type = 'bar';
+            //------tmp end-----
+            let seriesItem = {
+              type: values[j].series_type,
+              name: name,
+              barMaxWidth: 40,
+              data: []
+            };
+
+            //parse seriesItemData
+            let seriesItemData = [];
+            for(let k=0; k<keys.length; k++) {
+              let value = data[groups[i].join('-')][values[j].name][values[j].aggType][keys[k].join('-')] || '0';
+              seriesItemData.push(value);
+            }
+            seriesItem.data = seriesItemData;
+            
+            arr.push(seriesItem);
+          }
+        }
+        return arr;
+      }
+
+      console.log('-----------option-----------', option);
+
+      return option;
+      
+    },
+    createPieOption(seriesData) {
+      /*-------------------------------
         当 values 为 n 个时，pieChart 为 n 个；
         当 columns（groups） 为 m 时，pieChart 为 m 个；
         当 values 为 n 个，columns 为 m 个，pieChart 个数为 n*m 个
       */
-      console.log('--------mData------------', mData)
       let option = {
         toolbox: false,
         tooltip: {
           trigger: 'item',
           format: '{a} <br/>{b} : {c} ({d}%)'
         },
-        title: parseTitle(mData.values),
+        title: parseTitle(seriesData.values),
         legend: {
-          data: parseLegend(mData.keys),
-          left: mData.values.length === 1 ? 'left' : 'top',
-          orient: mData.values.length === 1 ? 'vertical' : 'horizontal'
+          data: parsePieLegend(seriesData.keys),
+          left: seriesData.values.length === 1 ? 'left' : 'top',
+          orient: seriesData.values.length === 1 ? 'vertical' : 'horizontal'
         },
-        series: parseSeries(mData.data, mData.groups, mData.keys, mData.values)
+        series: parsePieSeries(seriesData.data, seriesData.groups, seriesData.keys, seriesData.values)
       };
 
       function parseTitle(values) {
@@ -505,7 +316,7 @@ let options = {
         return arr;
       }
 
-      function parseLegend(keys) {
+      function parsePieLegend(keys) {
         var arr = [];
         for(let i=0; i<keys.length; i++) {
           arr.push( keys[i].join('-') );
@@ -513,7 +324,7 @@ let options = {
         return arr;
       }
 
-      function parseSeries(data, groups, keys, values) {
+      function parsePieSeries(data, groups, keys, values) {
         var arr = [];
         for(let i=0; i<groups.length; i++) {
           for(let j=0; j<values.length; j++) {
@@ -529,7 +340,7 @@ let options = {
               center: [(100/chartNum*currIndex) + (100/chartNum/2) +'%', '50%']
             };
             let seriesItemData = [];
-            let seriesObj = data[groups[i]][values[j].name][values[j].aggType];
+            let seriesObj = data[groups[i].join('-')][values[j].name][values[j].aggType];
             for(let prop in seriesObj) {
               let obj = {
                 name: prop,
@@ -544,8 +355,6 @@ let options = {
         }
         return arr;
       }
-      //------------tmp END-------------------
-
 
       console.log('-------option----------', option)
       return option;
