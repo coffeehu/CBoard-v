@@ -37,7 +37,6 @@ export default {
   },
   created() {
     this.value = this.treeData
-    console.log(123123, this.value)
   },
   watch: {
     treeData() {

@@ -54,7 +54,7 @@
                   <div class="el-form-item">
                     <label class="el-form-item__label">Cube:</label>
                     <div class="el-form-item__content">
-                      <el-select v-model="currentWidget.data.datasetId" placeholder="请选择">
+                      <el-select v-model="currentWidget.data.datasetId" placeholder="请选择" class="select-axis">
                         <el-option
                         v-for="item in datasetList"
                         :key="item.id"
@@ -95,7 +95,9 @@
                               <p><b>{{ type.column }} {{ $t('CONFIG.WIDGET.TIPS_COLUMN_DIM') }}</b></p>
                               <p><b>{{ type.measure }} {{ $t('CONFIG.WIDGET.TIPS_MEASURE') }}</b></p>
                             </div>
-                            <i slot="reference" :class="[type.class, chartTypesStatus[type.value]?'':'disabled', index===activeTypeIndex?'active':'']" class="widget-type-item"></i>
+                            <i slot="reference" 
+                               :class="[type.class, chartTypesStatus[type.value]?'':'disabled', index===activeTypeIndex?'active':'']" 
+                               class="widget-type-item"></i>
                           </el-popover>
                         </li>
                       </ul>
@@ -163,7 +165,8 @@
                   </div>
 
                   <!-- Value: 对应 Widget.data.config.values 的值 -->
-                  <div class="el-form-item">
+                  <!-- value -->
+                  <div class="el-form-item" v-if="axisValueType === 'normal'">
                     <label class="el-form-item__label">Value:</label>
                     <div class="el-form-item__content">
                       <draggable class="drop-input"
@@ -180,6 +183,44 @@
                           </span>
                         </li>
                       </draggable>
+                    </div>
+                  </div>
+
+                  <!-- value axis -->
+                  <div class="el-form-item" v-if="axisValueType === 'axis'">
+                    <label class="el-form-item__label">
+                      Value Axis
+                      <i class="el-icon-circle-plus" style="cursor:pointer;margin-left:2px;"></i>
+                    </label>
+                    <div class="el-form-item__content">
+
+                      <div v-for="(axisValue, index) in axisValueArray" :key="axisValue.series_type">
+                        <el-select v-model="axisValue.series_type" :class="['select-axis']">
+                          <el-option 
+                            v-for="item in valueAxisOption"
+                            :label="item"
+                            :value="item"
+                            :key="item"
+                          ></el-option>
+                        </el-select>
+                        <div class="drop-input drop-input-axis">
+                          <draggable
+                                 v-model="axisValue.data" 
+                                 :options="dragValueOptions"
+                                 element="ul">
+                            <li v-for="(col, index) in axisValue.data" 
+                                :key="col.col"
+                                @click="removeAxisMeasure(index, axisValue.data)"
+                                class="moveable">
+                              <span>
+                                <i class="schema-tree-icon blue-icon"></i>
+                                {{ col.col || col.column }}
+                              </span>
+                            </li>
+                          </draggable>
+                        </div>
+                      </div>
+
                     </div>
                   </div>
 
@@ -254,6 +295,11 @@ const widgetTypeMap = {
   map: 'MapContent'
 }
 
+const valueAxisOptionMap = {
+  'line': ['line', 'bar'],
+  'pie': ['pie', 'doughnut', 'coxcomb']
+}
+
 export default {
   name: 'WidgetConfig',
   components: {
@@ -288,9 +334,14 @@ export default {
       row: [], // Row 的值
       filter: [],
       value: [],
-      values: [],
       widget: {},
       isPreview: false, // 是否显示预览
+      axisValue: '',
+      axisValue2: '',
+      axisValueArray: [
+        [],
+        []
+      ],
       // widget Type 列表
       widgetTypes: [
             {
@@ -414,14 +465,14 @@ export default {
                 measure: this.$t('CONFIG.WIDGET.TIPS_DIM_NUM_1')
             }
         ],
-        //用于判断哪些 Widget Type 可选（Base值）
-        baseChartTypesStatus: {
-          "line": true, "pie": true, "kpi": true, "table": true,
-          "funnel": true, "sankey": true, "radar": true, "map": true,
-          "scatter": true, "gauge": true, "wordCloud": true, "treeMap": true,
-          "heatMapCalendar": true, "heatMapTable": true, "liquidFill": true,
-          "areaMap": true, "contrast": true,"chinaMap":true,"chinaMapBmap":true,"relation":true
-        }
+      //用于判断哪些 Widget Type 可选（Base值）
+      baseChartTypesStatus: {
+        "line": true, "pie": true, "kpi": true, "table": true,
+        "funnel": true, "sankey": true, "radar": true, "map": true,
+        "scatter": true, "gauge": true, "wordCloud": true, "treeMap": true,
+        "heatMapCalendar": true, "heatMapTable": true, "liquidFill": true,
+        "areaMap": true, "contrast": true,"chinaMap":true,"chinaMapBmap":true,"relation":true
+      }
     }
   },
   watch: {
@@ -650,6 +701,21 @@ export default {
       widget.widget = this.currentWidget;
       return widget;
     },
+    axisValueType() {
+      let type = this.widgetTypes[this.activeTypeIndex];
+      switch(type.value) {
+        case 'line':
+        //case 'pie':
+          return 'axis';
+        default:
+          return 'normal';
+      }
+    },
+    valueAxisOption() {
+      let type = this.widgetTypes[this.activeTypeIndex];
+      if(valueAxisOptionMap[type.value]) this.axisValue = valueAxisOptionMap[type.value][0];
+      return valueAxisOptionMap[type.value];
+    },
     dragOptions () {
       return  {
         animation: 0,
@@ -671,12 +737,55 @@ export default {
         console.log('-----node-------', node)
         this.column = node.data.config.groups;
         this.row = node.data.config.keys;
-        this.values = node.data.config.values; 
-        this.value = node.data.config.values[0].cols;
+
         this.widgetConfigVisible = true;
         this.currentWidget = node;
         let index = this.getIndexByType(node.data.config.chart_type);
         this.activeTypeIndex = index;
+
+         //-------构造 value-------
+        this.value = node.data.config.values[0].cols;
+        let _value = [];
+        node.data.config.values.forEach(item => {
+          console.log('item-----', item)
+          let _obj = item.cols[0];
+          _obj['series_type'] = item['series_type'];
+          _value.push(_obj);
+        });
+        this.value = _value;
+        console.log('------------this.value----------',this.value)
+        console.log('------------node.data.config.values----------',node.data.config.values)
+        let type = this.widgetTypes[this.activeTypeIndex];
+        console.log('------------this.type----------', type)
+
+
+        let inArray = function(obj, arr) {
+          for(let i=0; i<arr.length; i++) {
+            if(arr[i].series_type === obj.series_type) {
+              return arr[i];
+            }
+          }
+          return false;
+        };
+
+        if(type.value === 'line') {
+          this.axisValueArray = [];
+          this.value.forEach(item => {
+            let result = inArray(item, this.axisValueArray);
+            if(result) {
+              result.data.push(item);
+            }else {
+              let obj = {
+                series_type: item['series_type'],
+                data: [item]
+              }
+              this.axisValueArray.push(obj);
+            }
+          });
+          console.log('----!!!!---', this.axisValueArray)
+        }
+        //-------构造 value END-------
+
         this.$router.push({ path: '/config/widget', query: { id: node.id }});
       }
     },
@@ -757,6 +866,9 @@ export default {
     },
     removeMeasure(index) {
       this.value.splice(index, 1);
+    },
+    removeAxisMeasure(index, data) {
+      data.splice(index, 1);
     },
     createCurrentWidget() {
       // 设置 widgetType
@@ -947,6 +1059,20 @@ span:focus {
   box-sizing: border-box;
   background-color: #fbfcfd;
   cursor: pointer;
+}
+.drop-input-axis {
+  display: block;
+  overflow: hidden;
+  width: auto;
+}
+.drop-input-axis ul {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+.select-axis {
+  float: left;
+  width: 150px;
 }
 
 .widget-config-tab .el-tabs {

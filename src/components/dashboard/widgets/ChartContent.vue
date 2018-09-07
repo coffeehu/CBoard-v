@@ -249,7 +249,8 @@ let options = {
           for(let j=0; j<values.length; j++) {
             let name = groups[i].join('-') + '-' + values[j].name;
             //------tmp------
-            if(values[j].series_type === 'percentbar') values[j].series_type = 'bar';
+            //if(values[j].series_type === 'percentbar') values[j].series_type = 'bar';
+            if(values[j].series_type.indexOf('bar') !== -1) values[j].series_type = 'bar';
             //------tmp end-----
             let seriesItem = {
               type: values[j].series_type,
