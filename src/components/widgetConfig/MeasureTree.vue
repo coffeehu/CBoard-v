@@ -52,7 +52,10 @@ export default {
     dragOptions () {
       return  {
         animation: 0,
-        group: 'measureConfig',
+        group: {
+          name: 'measureConfig',
+          pull: 'clone'
+        }
       };
     }
   }

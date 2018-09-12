@@ -72,7 +72,6 @@ const actions = {
 
 // 处理数据
 function parseData(data, config) {
-  
   //获得keys、groups 对应的 index ，以及 valueSeries 数组
   let keysIndexArr = [];
   let groupsIndexArr = [];
@@ -96,11 +95,6 @@ function parseData(data, config) {
     }
   }
 
-  for(let i=0; i<valueSeries.length; i++) {
-    valueSeries[i].series_type = (config.values[i] && config.values[i].series_type) || 'line';
-  }
-
-  
   //构建 newdata
   var newData = {};
   var joinedKeys = {};
@@ -183,26 +177,6 @@ function parseData(data, config) {
     data: newData
   }
 
-
-  /*let tableData = [];
-  let seriesArr = [];
-  let index = 0;
-  for(let i=0; i<groupsData.length; i++) {
-    for(let j=0; j<valueSeries.length; j++) {
-
-      let seriesItemArr = [].concat(groupsData[i]);
-      seriesItemArr.push(valueSeries[j].name);
-      seriesArr[index] = seriesItemArr;
-
-      let colArr = [];
-      for(let k=0; k<keysData.length; k++) {
-        colArr[k] = newData[groupsData[i].join('-')][valueSeries[j].name][valueSeries[j].aggType][keysData[k].join('-')];
-      }
-      tableData[index] = colArr;
-      index++;
-    }
-  }
-  console.log('----tableData----', tableData, seriesArr)*/
 }
 
 

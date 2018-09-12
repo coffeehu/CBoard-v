@@ -39,7 +39,7 @@
             <div class="col-md-9" v-if="widgetConfigVisible">
               <div class="box">
                 <div class="box-header with-border">
-                  <h3 class="box-title" style="font-weight: bold">{{ currentNode.name }}</h3>
+                  <h3 class="box-title" style="font-weight: bold">{{ currentWidget.name }}</h3>
                   <i class="pull-right el-icon-delete" @click="delWidget"></i>
                 </div>
 
@@ -48,7 +48,7 @@
                   <div class="el-form-item">
                     <label class="el-form-item__label">Cube:</label>
                     <div class="el-form-item__content">
-                      <el-select v-model="currentNode.data.datasetId" placeholder="请选择" class="select-axis">
+                      <el-select v-model="currentWidget.data.datasetId" placeholder="请选择" class="select-axis">
                         <el-option
                         v-for="item in datasetList"
                         :key="item.id"
@@ -63,7 +63,7 @@
                   <div class="el-form-item">
                     <label class="el-form-item__label">Widget Category:</label>
                     <div class="el-form-item__content">
-                      <el-input v-model="currentNode.categoryName" placeholder="Widget Category"></el-input>
+                      <el-input v-model="currentWidget.categoryName" placeholder="Widget Category"></el-input>
                     </div>
                   </div>
 
@@ -71,7 +71,7 @@
                   <div class="el-form-item">
                     <label class="el-form-item__label">Widget Name:</label>
                     <div class="el-form-item__content">
-                      <el-input v-model="currentNode.name" placeholder="Widget Name"></el-input>
+                      <el-input v-model="currentWidget.name" placeholder="Widget Name"></el-input>
                     </div>
                   </div>
 
@@ -162,12 +162,12 @@
                   <!-- value -->
                   <div class="el-form-item" v-if="axisValueType === 'normal'">
                     <label class="el-form-item__label">Value:</label>
-                    <div class="el-form-item__content" style="height: 42px;">
+                    <div class="el-form-item__content">
                       <draggable class="drop-input"
-                                 v-model="value[0].cols" 
+                                 v-model="value" 
                                  :options="dragValueOptions"
                                  element="ul">
-                        <li v-for="(col, index) in value[0].cols" 
+                        <li v-for="(col, index) in value" 
                             :key="col.col + index"
                             @click="removeMeasure(index)"
                             class="moveable">
@@ -184,11 +184,11 @@
                   <div class="el-form-item" v-if="axisValueType === 'axis'">
                     <label class="el-form-item__label">
                       Value Axis
-                      <i class="el-icon-circle-plus" style="cursor:pointer;margin-left:2px;" @click="addValueAxis"></i>
+                      <i class="el-icon-circle-plus" style="cursor:pointer;margin-left:2px;"></i>
                     </label>
                     <div class="el-form-item__content">
 
-                      <div v-for="(axisValue, index) in value" :key="axisValue.series_type + index">
+                      <div v-for="(axisValue, index) in axisValueArray" :key="axisValue.series_type">
                         <el-select v-model="axisValue.series_type" :class="['select-axis']">
                           <el-option 
                             v-for="item in valueAxisOption"
@@ -199,12 +199,12 @@
                         </el-select>
                         <div class="drop-input drop-input-axis">
                           <draggable
-                                 v-model="axisValue.cols" 
+                                 v-model="axisValue.data" 
                                  :options="dragValueOptions"
                                  element="ul">
-                            <li v-for="(col, index) in axisValue.cols" 
+                            <li v-for="(col, index) in axisValue.data" 
                                 :key="col.col"
-                                @click="removeAxisMeasure(index, axisValue.cols)"
+                                @click="removeAxisMeasure(index, axisValue.data)"
                                 class="moveable">
                               <span>
                                 <i class="schema-tree-icon blue-icon"></i>
@@ -236,8 +236,8 @@
                            :widget="currentPreviewWidget"
                            :key="currentPreviewWidget.widget.id + currentPreviewWidget.widget.data.chart_type"></component>
                       </el-tab-pane>
-                      <el-tab-pane label="Query">Query</el-tab-pane>
-                      <el-tab-pane label="Option">Option</el-tab-pane>
+                      <el-tab-pane label="Query" >Query</el-tab-pane>
+                      <el-tab-pane label="Option" >Option</el-tab-pane>
                     </el-tabs>
                   </div>
                 </div>
@@ -290,7 +290,7 @@ const widgetTypeMap = {
 }
 
 const valueAxisOptionMap = {
-  'line': [ 'line', 'bar'],
+  'line': ['line', 'bar'],
   'pie': ['pie', 'doughnut', 'coxcomb']
 }
 
@@ -309,19 +309,33 @@ export default {
     this.$store.dispatch('config/getWidgetList');
     this.$store.dispatch('config/getDatasetList');
   },
+  beforeRouteUpdate(to, from, next) {
+    let id = to.query.id;
+    next();
+  },
   data() {
     return {
-      defaultProps: {  // widget 目录配置
+      defaultProps: {
         label: 'name'
       },
-      currentNode: {}, // 点击 widget 目录，选中的 node（即当前选中的 Widget 对象）
+      dataSource: '',
+      widgetCategory: '',
+      widgetName: '',
+      currentWidget: {}, //当前选中的 Widget 对象
       activeTypeIndex: 0, // 当前选中的 Widget Type 索引
-      widgetConfigVisible: false, // 配置面板是否显示
+      widgetConfigVisible: false,
       column: [], // Column 的值
       row: [], // Row 的值
-      filter: [], // Filter 的值
-      value: [], // Value 的值
+      filter: [],
+      value: [],
+      widget: {},
       isPreview: false, // 是否显示预览
+      axisValue: '',
+      axisValue2: '',
+      axisValueArray: [
+        [],
+        []
+      ],
       // widget Type 列表
       widgetTypes: [
             {
@@ -455,6 +469,21 @@ export default {
       }
     }
   },
+  watch: {
+    column() {
+      this.currentWidget.data.config.groups = this.column;
+    },
+    row() {
+      this.currentWidget.data.config.keys = this.row;
+    },
+    value() {
+      this.value.forEach(v => {
+        if(!v.aggregate_type) v.aggregate_type = 'sum';
+        if(!v.col) v.col = v.column;  //必须要有个 col 字段记录名称，否则返回回的数据 columnList 中对应的 name 为 null
+      })
+      this.currentWidget.data.config.values[0].cols = this.value;
+    }
+  },
   computed: {
     widgetList() {
       return this.$store.state.config.widgetList;
@@ -513,8 +542,8 @@ export default {
       根据当前选中的 widget 的 datasetId，找到对应的 dataset 数据
     */
     currentDataset() {
-      if(!this.currentNode.data) return null;
-      let datasetId = this.currentNode.data.datasetId;
+      if(!this.currentWidget.data) return null;
+      let datasetId = this.currentWidget.data.datasetId;
       let dataset;
       for(let i=0,l=this.datasetList.length; i<l; i++) {
         if(this.datasetList[i].id === datasetId) {
@@ -587,7 +616,7 @@ export default {
       return currentDimension;
     },
     /*
-      //过滤 Measure Tree 的数据
+      过滤 Measure Tree 的数据
       (Measure Tree 不过滤，因为 value 值有时可以重复，如 line+bar 图的情况)
     */
     currentMeasure() {
@@ -595,6 +624,29 @@ export default {
       let measure = this.currentSchema.measure;
       let currentMeasure = [];
 
+      /*for(let i=0,l=measure.length; i<l; i++) {
+        let item = copyObj(measure[i]);
+        if( !inCurrentArray(item) ) currentMeasure.push(item);
+      }
+
+      function copyObj(obj) {
+        let newObj = {};
+        for(let p in obj) {
+          newObj[p] = obj[p];
+        }
+        return newObj;
+      }
+
+      function inCurrentArray(obj) {
+        for(let i=0,l=currentArray.length; i<l; i++) {
+          if(currentArray[i].col === obj.column) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      return currentMeasure;*/
       return measure;
     },
     /*
@@ -602,7 +654,7 @@ export default {
       判断哪些 Widget Type 可选
     */
     chartTypesStatus() {
-      if(!this.currentNode.data) {
+      if(!this.currentWidget.data) {
         return {};
       }
       let result;
@@ -614,14 +666,9 @@ export default {
       for(let type in this.baseChartTypesStatus) {
         let rule = configRule[type];
 
-        // 计算 value 的长度
-        let length = 0;
-        this.value.forEach(v => {
-          v.cols.forEach(c => {
-            length++;
-          });
-        });
-        tempConfig.values = length;
+        let flattenValues = [];
+        flattenValues = flattenValues.concat(this.value);
+        tempConfig.values = flattenValues.length;
 
         for(let p in rule) {
           if(rule[p] === 2) {
@@ -639,76 +686,32 @@ export default {
 
       return this.baseChartTypesStatus;
     },
-    // 当前选中的 widget 配置数据
-    currentWidgetConfig() {
-      //this.isPreview = false;
-      let config = {};
-
-      // 设置 widgetType
-      let type = this.widgetTypes[this.activeTypeIndex];
-      config.chart_type = type.value;
-
-      // 设置 keys（对应 Row 的值）
-      config.keys = this.row;
-
-      // 设置 groups（对应 Column 的值）
-      config.groups = this.column;
-
-      // 设置 values（对应 value 的值）
-      for(let i=this.value.length-1; i>=0; i--) {
-        //if(this.axisValueType === 'axis' && this.value[i].cols.length === 0) this.value.splice(i, 1); // 若 cols 无内容则移除
-        this.value[i].cols.forEach(c => {
-          if(!c.aggregate_type) c.aggregate_type = 'sum'; // 必须要有字段 aggregate_type，默认 'sum'
-          if(!c.col) c.col = c.column;  //必须要有个 col 字段记录名称，否则返回回的数据 columnList 中对应的 name 为 null
-        })
-      }
-
-      config.values = this.value;
-
-      return config;
-    },
-    // 当前预览的组件名
     currentPreview() {
       let type = this.widgetTypes[this.activeTypeIndex].value;
       return widgetTypeMap[type] ? widgetTypeMap[type] : 'ChartContent';
     },
-    // 当前预览的组件数据
     currentPreviewWidget() {
       let widget = {
         name: ''
       }
-
-      let widgetData = {
-        name: this.currentNode.name,
-        categoryName: this.currentNode.categoryName,
-        data: this.currentNode.data,
-        id: this.currentNode.id
-      };
-      widgetData.data.config = this.currentWidgetConfig;
-
-      widget.widget = widgetData;
-
-      console.log('11111----this.currentPreviewWidget-----', widget.widget.data.config)
-
+      widget.widget = this.currentWidget;
       return widget;
     },
-    // value 输入框的类型
     axisValueType() {
       let type = this.widgetTypes[this.activeTypeIndex];
       switch(type.value) {
         case 'line':
-        case 'pie':
+        //case 'pie':
           return 'axis';
         default:
           return 'normal';
       }
     },
-    // 当为 value axis 类型的输入框时，对应下拉框的内容
     valueAxisOption() {
       let type = this.widgetTypes[this.activeTypeIndex];
+      if(valueAxisOptionMap[type.value]) this.axisValue = valueAxisOptionMap[type.value][0];
       return valueAxisOptionMap[type.value];
     },
-    // 拖拽配置
     dragOptions () {
       return  {
         animation: 0,
@@ -720,6 +723,7 @@ export default {
         animation: 0,
         group: {
           name: 'measureConfig',
+          pull: 'clone'
         }
       };
     }
@@ -729,17 +733,59 @@ export default {
       if(node.children && node.children.length > 0) {
         return;
       }else {
-        this.widgetConfigVisible = true;
-
-        this.currentNode = node;
+        console.log('-----node-------', node)
         this.column = node.data.config.groups;
         this.row = node.data.config.keys;
-        this.value = node.data.config.values;
 
-        // 根据图表类型获得索引，根据索引展示 widget type
+        this.widgetConfigVisible = true;
+        this.currentWidget = node;
         let index = this.getIndexByType(node.data.config.chart_type);
         this.activeTypeIndex = index;
+
+         //-------构造 value-------
+        this.value = node.data.config.values[0].cols;
+        let _value = [];
+        node.data.config.values.forEach(item => {
+          console.log('item-----', item)
+          let _obj = item.cols[0];
+          _obj['series_type'] = item['series_type'];
+          _value.push(_obj);
+        });
+        this.value = _value;
+        console.log('------------this.value----------',this.value)
+        console.log('------------node.data.config.values----------',node.data.config.values)
         let type = this.widgetTypes[this.activeTypeIndex];
+        console.log('------------this.type----------', type)
+
+
+        let inArray = function(obj, arr) {
+          for(let i=0; i<arr.length; i++) {
+            if(arr[i].series_type === obj.series_type) {
+              return arr[i];
+            }
+          }
+          return false;
+        };
+
+        if(type.value === 'line') {
+          this.axisValueArray = [];
+          this.value.forEach(item => {
+            let result = inArray(item, this.axisValueArray);
+            if(result) {
+              result.data.push(item);
+            }else {
+              let obj = {
+                series_type: item['series_type'],
+                data: [item]
+              }
+              this.axisValueArray.push(obj);
+            }
+          });
+          console.log('----!!!!---', this.axisValueArray)
+        }
+        //-------构造 value END-------
+
+        this.$router.push({ path: '/config/widget', query: { id: node.id }});
       }
     },
     getIndexByType(type) {
@@ -752,9 +798,8 @@ export default {
     },
     addWidget() {
       this.widgetConfigVisible = true;
-
       this.activeTypeIndex = 0;
-      this.currentNode = {
+      this.currentWidget = {
         name: '',
         categoryName: '',
         data: {
@@ -764,7 +809,7 @@ export default {
           filterGroups: []
         }
       };
-      this.currentNode.data.config = {
+      this.currentWidget.data.config = {
           "option": {},
           "chart_type": "",
           "keys": [],
@@ -775,10 +820,6 @@ export default {
           }],
           "filters": []
       }
-
-      this.column = this.currentNode.data.config.groups;
-      this.row = this.currentNode.data.config.keys;
-      this.value = this.currentNode.data.config.values;
     },
     handleTypeClick(type, index) {
       let value = type.value;
@@ -786,24 +827,7 @@ export default {
         return false;
       }
       this.activeTypeIndex = index;
-
-      /*
-        切换 widgetType，碰到有 Value Axis 的表单时，初始化下拉框的默认值
-      */
-      console.log('-----value------', this.value)
-      console.log('-----valueAxisOption------', this.valueAxisOption)
-
-      this.value.forEach(v => {
-        if(this.valueAxisOption) {
-          let inArr = false;
-          this.valueAxisOption.forEach(option => {
-            if(option === v.series_type) inArr = true;
-          })
-          if(!inArr) v.series_type = this.valueAxisOption[0];
-        }
-      })
-
-
+      this.createCurrentWidget();
     },
     delWidget() {
       this.$confirm('是否删除该 Widget?', '提示', {
@@ -814,7 +838,7 @@ export default {
         customClass: 'preview-config-modal'
       }).then(() => {
         let params = {
-          id: this.currentNode.id
+          id: this.currentWidget.id
         }
         this.$req.post(this.$api.deleteWidget, params)
           .then(response => {
@@ -840,49 +864,50 @@ export default {
       }
     },
     removeMeasure(index) {
-      this.value[0].cols.splice(index, 1);
+      this.value.splice(index, 1);
     },
     removeAxisMeasure(index, data) {
       data.splice(index, 1);
     },
-    addValueAxis() {
-      //this.isPreview = false; // 添加 value axis 时，会动态影响 widget data，导致页面刷新，因此此时将关闭预览
-      if(this.value.length >= 2) return;
-      let valueAxisItem = {
-        cols: [],
-        name: '',
-        series_type: this.valueAxisOption[0]
+    createCurrentWidget() {
+      // 设置 widgetType
+      let type = this.widgetTypes[this.activeTypeIndex];
+      this.currentWidget.data.config.chart_type = type.value;
+
+      // 设置 keys（对应 Row 的值）
+      this.currentWidget.data.config.keys = this.row;
+
+      // 设置 groups（对应 Column 的值）
+      this.currentWidget.data.config.groups = this.column;
+
+      // 设置 values（对应 value 的值）
+      this.value.forEach(v => {
+        if(!v.aggregate_type) v.aggregate_type = 'sum';
+        if(!v.col) v.col = v.column;  //必须要有个 col 字段记录名称，否则返回回的数据 columnList 中对应的 name 为 null
+      })
+      this.currentWidget.data.config.values[0].cols = this.value;
+      if(this.currentWidget.data.config.values[0].series_type) {
+        this.currentWidget.data.config.values[0].series_type = type.value;
       }
-      this.value.push(valueAxisItem);
     },
     save() {
-      if(!this.currentNode.data.datasetId) return;  //防止未选择 Cube 就提交
+      if(!this.currentWidget.data.datasetId) return;  //防止未选择 Cube 就提交
 
-      let widgetData = {
-        name: this.currentNode.name,
-        categoryName: this.currentNode.categoryName,
-        data: this.currentNode.data,
-        id: this.currentNode.id
-      };
-      widgetData.data.config = this.currentWidgetConfig; 
-      if(widgetData.categoryName === '') widgetData.categoryName = 'Default Category';
-      if(widgetData.data.datasetId === '') widgetData.data.datasetId = this.currentDataset.id;
+      this.createCurrentWidget();
       
       let url;
-      if(widgetData.id) { //更新
+      if(this.currentWidget.id) { //更新
         url = this.$api.updateWidget;
       }else { //新增
         url = this.$api.saveNewWidget;
       }
 
-      // values 的成员中，cols 没有值则删去该 values 成员
-      let values = widgetData.data.config.values;
-      for(let i=values.length-1; i>=0; i--) {
-        if(values[i].cols.length === 0) values.splice(i, 1);
+      if(!this.currentWidget.categoryName) { // 给 categoryName 设置默认值
+        this.currentWidget.categoryName = 'Default Category';
       }
 
       let params = {
-        json: JSON.stringify(widgetData)
+        json: JSON.stringify(this.currentWidget)
       }
       this.$req.post(url, params)
         .then(response => {

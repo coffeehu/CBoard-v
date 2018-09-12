@@ -167,11 +167,27 @@ let options = {
       TODO: 1、添加 bar 类型；2、添加 horizontal bar
     */
     createLineOption(data) {
-
       //-------------------------------------------------------------
-      console.log('-----------------data--------', data);
+      //console.log('-----------------data--------', data);
       //console.log('--------this.valuesConfig-------------', this.valuesConfig)
-      console.log('--------this.valuesConfig-------------', this.widget.widget.data.config)
+      //console.log('--------this.valuesConfig-------------', this.widget.widget.data.config)
+
+      //------根据 this.widget.widget.data.config.values, 重新构造 data.values 数组-----
+      let configValues = this.widget.widget.data.config.values;
+      let configValuesArr = [];
+      configValues.forEach(v => {
+        v.cols.forEach(c => {
+          let item = {
+            aggType: c.aggregate_type,
+            series_type: v.series_type,
+            name: c.col,
+            col: c.col,
+          };
+          configValuesArr.push(item);
+        })
+      })
+      data.values = configValuesArr;
+      //------构造END-----
 
       let isHorizon = this.widget.widget.data.config.valueAxis === 'horizontal' ? true : false;
 
@@ -273,7 +289,7 @@ let options = {
         return arr;
       }
 
-      console.log('-----------option-----------', option);
+      //console.log('-----------option-----------', option);
 
       return option;
       
