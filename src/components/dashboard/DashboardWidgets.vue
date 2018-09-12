@@ -36,7 +36,8 @@ export default {
     KpiContent: () => import('./widgets/KpiContent'),
     ChartContent: () => import('./widgets/ChartContent'),
     TableContent: () => import('./widgets/TableContent'),
-    MapContent: () => import('./widgets/MapContent')
+    MapContent: () => import('./widgets/MapContent'),
+    RadarContent: () => import('@/components/dashboard/widgets/RadarContent')
   },
   created() {
     
@@ -54,6 +55,8 @@ export default {
           return 'TableContent';
         case 'map':
           return 'MapContent';
+        case 'radar':
+          return 'RadarContent';
         default:
           return 'ChartContent';
       }
