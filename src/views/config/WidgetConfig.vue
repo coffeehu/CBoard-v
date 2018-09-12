@@ -286,7 +286,8 @@ const widgetTypeMap = {
   line: 'ChartContent',
   pie: 'ChartContent',
   kpi: 'KpiContent',
-  map: 'MapContent'
+  map: 'MapContent',
+  radar: 'RadarContent'
 }
 
 const valueAxisOptionMap = {
@@ -303,7 +304,8 @@ export default {
     KpiContent: () => import('@/components/dashboard/widgets/KpiContent'),
     ChartContent: () => import('@/components/dashboard/widgets/ChartContent'),
     TableContent: () => import('@/components/dashboard/widgets/TableContent'),
-    MapContent: () => import('@/components/dashboard/widgets/MapContent')
+    MapContent: () => import('@/components/dashboard/widgets/MapContent'),
+    RadarContent: () => import('@/components/dashboard/widgets/RadarContent')
   },
   created() {
     this.$store.dispatch('config/getWidgetList');
@@ -688,8 +690,6 @@ export default {
 
       widget.widget = widgetData;
 
-      console.log('11111----this.currentPreviewWidget-----', widget.widget.data.config)
-
       return widget;
     },
     // value 输入框的类型
@@ -790,8 +790,6 @@ export default {
       /*
         切换 widgetType，碰到有 Value Axis 的表单时，初始化下拉框的默认值
       */
-      console.log('-----value------', this.value)
-      console.log('-----valueAxisOption------', this.valueAxisOption)
 
       this.value.forEach(v => {
         if(this.valueAxisOption) {
@@ -846,7 +844,6 @@ export default {
       data.splice(index, 1);
     },
     addValueAxis() {
-      //this.isPreview = false; // 添加 value axis 时，会动态影响 widget data，导致页面刷新，因此此时将关闭预览
       if(this.value.length >= 2) return;
       let valueAxisItem = {
         cols: [],

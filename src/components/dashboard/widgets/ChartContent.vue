@@ -1,5 +1,5 @@
 <template>
-
+  <!-- Pie图 与 line、bar图 -->
   <dashboard-loading v-if="loading" :name="widget.name"></dashboard-loading>
 
 	<dashboard-box v-else :name="chartName"
