@@ -381,96 +381,21 @@ let options = {
     },
     createContrastOption(seriesData) {
       console.log('----seriesData----', seriesData);
-      /*let option = {
-        grid: {
-          containLabel: true,
-          bottom: '3%',
-          left: '3%',
-          right: '4%'
-        },
-        legend: {
-          data: ['hehe', 'xixi']
-        },
-        tooltip: {
-          formatter(params) {
-            var name = params[0].name;
-            var s = name + "</br>";
-            for (var i = 0; i < params.length; i++) {
-                s += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + params[i].color + '"></span>';
-                if (params[i].value instanceof Array) {
-                    s += params[i].seriesName + " : " + params[i].value[1] + "% (" + params[i].value[2] + ")<br>";
-                } else {
-                    s += params[i].seriesName + " : " + params[i].value + "<br>";
-                }
-            }
-            return s;
-          }
-        },
-        xAxis: [
-          {
-            max: '1234',
-            min: -1234,
-            type: 'value'
-          }
-        ],
-        yAxis: [
-          {
-            axisTick: {
-              show: false
-            },
-            type: 'category',
-            data: ['2016', '2017']
-          }
-        ],
-        series: [
-          {
-            barWidth: 20,
-            itemStyle: {
-              normal: {
-                color: '#C23531'
-              }
-            },
-            label: {
-              normal: {
-                show: false
-              }
-            },
-            name: 'hehe',
-            stack: 'sum',
-            type: 'bar',
-            data: [-789, -1000]
-          },
-          {
-            barWidth: 20,
-            itemStyle: {
-              normal: {
-                color: '#C23531'
-              }
-            },
-            label: {
-              normal: {
-                show: false
-              }
-            },
-            name: 'xixi',
-            stack: 'sum',
-            type: 'bar',
-            data: ['989', '666']
-          }
-        ]
-      };*/
 
       let series = parseSeries(seriesData.values, seriesData.keys, seriesData.data);
 
       //-----设置 min 的值-----
-      let _data = series[1].data.slice();
-      _data.sort((a, b) => {
-        if( Number(a) < Number(b) ) {
-          return -1;
-        }
-        return 1;
-      })
-      let min = _data[0] * 1.3;
+      let min = undefined;
+      if(series[1]) {
+        let _data = series[1].data.slice();
+        _data.sort((a, b) => {
+          if( Number(a) < Number(b) ) {
+            return -1;
+          }
+          return 1;
+        })
+        min = _data[0] * 1.3;
+      }
       //----设置 min END----
 
       let option = {
@@ -529,6 +454,7 @@ let options = {
               name: value.name,
               type:'bar',
               stack: 'sum',
+              barWidth: 40,
               label: {
                   normal: {
                       show: true,

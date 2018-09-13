@@ -275,7 +275,7 @@ const configRule = {
     heatMapCalendar: {keys: 1, groups: 0, filters: -1, values: 1},
     heatMapTable: {keys: 2, groups: 2, filters: -1, values: 1},
     liquidFill: {keys: 0, groups: 0, filters: -1, values: 1},
-    contrast: {keys: 1, groups: 0, filters: -1, values: 2},
+    contrast: {keys: 2, groups: 0, filters: -1, values: 2},
     chinaMap:{keys: 2, groups: -1, filters: -1, values: 2},
     chinaMapBmap:{keys: 2, groups: -1, filters: -1, values: 2},
     relation: {keys: 2, groups: 2, filters: -1, values: 1}
@@ -343,9 +343,9 @@ export default {
             },
             {
                 name: this.$t('CONFIG.WIDGET.CONTRAST'), value: 'contrast', class: 'cContrast',
-                row: this.$t('CONFIG.WIDGET.TIPS_DIM_NUM_1'),
+                row: this.$t('CONFIG.WIDGET.TIPS_DIM_NUM_1_MORE'),
                 column: this.$t('CONFIG.WIDGET.TIPS_DIM_NUM_0'),
-                measure: this.$t('CONFIG.WIDGET.TIPS_DIM_NUM_2')
+                measure: this.$t('CONFIG.WIDGET.TIPS_DIM_NUM_1_MORE')
             },
             {
                 name: this.$t('CONFIG.WIDGET.SCATTER'), value: 'scatter', class: 'cScatter',
