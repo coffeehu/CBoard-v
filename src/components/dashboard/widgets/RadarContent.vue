@@ -21,7 +21,7 @@ import DashboardLoading from '@/components/dashboard/DashboardLoading';
 import DashboardBox from '@/components/dashboard/DashboardBox';
 
 let options = {
-  name: 'ChartContent',
+  name: 'RadarContent',
   props: {
     widget: {
       type: Object,

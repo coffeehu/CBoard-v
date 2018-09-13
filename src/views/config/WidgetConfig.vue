@@ -287,7 +287,8 @@ const widgetTypeMap = {
   pie: 'ChartContent',
   kpi: 'KpiContent',
   map: 'MapContent',
-  radar: 'RadarContent'
+  radar: 'RadarContent',
+  funnel: 'FunnelContent'
 }
 
 const valueAxisOptionMap = {
@@ -305,7 +306,8 @@ export default {
     ChartContent: () => import('@/components/dashboard/widgets/ChartContent'),
     TableContent: () => import('@/components/dashboard/widgets/TableContent'),
     MapContent: () => import('@/components/dashboard/widgets/MapContent'),
-    RadarContent: () => import('@/components/dashboard/widgets/RadarContent')
+    RadarContent: () => import('@/components/dashboard/widgets/RadarContent'), //雷达图
+    FunnelContent: () => import('@/components/dashboard/widgets/FunnelContent'), //漏斗图 
   },
   created() {
     this.$store.dispatch('config/getWidgetList');
@@ -672,6 +674,7 @@ export default {
     // 当前预览的组件名
     currentPreview() {
       let type = this.widgetTypes[this.activeTypeIndex].value;
+      console.log(11111, type)
       return widgetTypeMap[type] ? widgetTypeMap[type] : 'ChartContent';
     },
     // 当前预览的组件数据

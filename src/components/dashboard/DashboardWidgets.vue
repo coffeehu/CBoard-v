@@ -37,7 +37,8 @@ export default {
     ChartContent: () => import('./widgets/ChartContent'),
     TableContent: () => import('./widgets/TableContent'),
     MapContent: () => import('./widgets/MapContent'),
-    RadarContent: () => import('@/components/dashboard/widgets/RadarContent')
+    RadarContent: () => import('@/components/dashboard/widgets/RadarContent'), //雷达图
+    FunnelContent: () => import('@/components/dashboard/widgets/FunnelContent'), //漏斗图 
   },
   created() {
     
@@ -57,6 +58,8 @@ export default {
           return 'MapContent';
         case 'radar':
           return 'RadarContent';
+        case 'funnel':
+          return 'FunnelContent';
         default:
           return 'ChartContent';
       }
