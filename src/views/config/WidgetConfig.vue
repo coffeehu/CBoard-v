@@ -285,6 +285,7 @@ const widgetTypeMap = {
   table: 'TableContent',
   line: 'ChartContent',
   pie: 'ChartContent',
+  contrast: 'ChartContent',
   kpi: 'KpiContent',
   map: 'MapContent',
   radar: 'RadarContent',

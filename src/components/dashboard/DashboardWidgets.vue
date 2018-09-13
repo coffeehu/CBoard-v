@@ -50,6 +50,10 @@ export default {
   methods: {
     currentComponent(widget) {
       switch(widget.widget.data.config.chart_type) {
+        case 'line':
+        case 'pie':
+        case 'contrast':
+          return 'ChartContent';
         case 'kpi':
           return 'KpiContent';
         case 'table':
