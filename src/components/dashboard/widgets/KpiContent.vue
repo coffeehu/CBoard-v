@@ -68,7 +68,7 @@ export default {
     initByWidget(reload) {
       this.widgetData = this.widget.widget.data;
       const format = this.widgetData.config.values[0].format;
-      const style = this.style = this.widgetData.config.values[0].style;
+      const style = this.style = this.widgetData.config.values[0].style || 'bg-aqua';
 
       this.loading = true;
       this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters, reload: reload})

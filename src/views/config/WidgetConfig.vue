@@ -289,7 +289,8 @@ const widgetTypeMap = {
   kpi: 'KpiContent',
   map: 'MapContent',
   radar: 'RadarContent',
-  funnel: 'FunnelContent'
+  funnel: 'FunnelContent',
+  chinaMap: 'ChinaMapContent'
 }
 
 const valueAxisOptionMap = {
@@ -308,7 +309,8 @@ export default {
     TableContent: () => import('@/components/dashboard/widgets/TableContent'),
     MapContent: () => import('@/components/dashboard/widgets/MapContent'),
     RadarContent: () => import('@/components/dashboard/widgets/RadarContent'), //雷达图
-    FunnelContent: () => import('@/components/dashboard/widgets/FunnelContent'), //漏斗图 
+    FunnelContent: () => import('@/components/dashboard/widgets/FunnelContent'), //漏斗图
+    ChinaMapContent: () => import('@/components/dashboard/widgets/ChinaMapContent'),
   },
   created() {
     this.$store.dispatch('config/getWidgetList');
