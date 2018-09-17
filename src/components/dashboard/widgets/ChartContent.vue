@@ -177,50 +177,80 @@ let options = {
 
       /*------
         根据 this.widget.widget.data.config.values, 重新构造 data.values 数组
-        主要是为了在每个 item 中，添加 series_type 字段
+        1、主要是为了在每个 item 中，添加 series_type 字段
+        2、valueCount 决定有几个 category 轴（只会有1个或2个的情况）
       -----*/
       let configValues = this.widget.widget.data.config.values;
       let configValuesArr = [];
-      configValues.forEach(v => {
+      let valueCount = 0;
+      configValues.forEach((v, index) => {
         v.cols.forEach(c => {
           let item = {
             aggType: c.aggregate_type,
             series_type: v.series_type,
             name: c.col,
             col: c.col,
+            categoryIndex: valueCount
           };
           configValuesArr.push(item);
         })
+
+        if(v.cols.length > 0) valueCount++;
       })
       data.values = configValuesArr;
       //------构造END-----
 
-      let isHorizon = this.widget.widget.data.config.valueAxis === 'horizontal' ? true : false;
 
-      let xAxis;
-      let yAxis;
+      /*----------处理 option，调整图表样式----------*/
+      let styleOption = this.widget.widget.data.config.option;
+
+      //水平or垂直展示
+      let isHorizon = this.widget.widget.data.config.valueAxis === 'horizontal' ? true : false;
+      if(styleOption) {
+        if(styleOption.value) {
+          isHorizon = styleOption.value.orient === 'horizontal' ? true : false;
+        }  
+      }      
+
+      /*
+        对于bar图以及对于bar+line图，boundaryGap = false；
+        对于line图，boundaryGap = true；
+      */
+      let hasBar = false;
+      data.values.forEach(value => {
+        if(value.series_type === 'bar') hasBar = true;
+      })
+
+      let xAxis = [];
+      let yAxis = [];
       if(isHorizon) { //水平
-        xAxis = [
-          {
-            type: 'value'
-          }
-        ];
+        for(let i=0; i<valueCount; i++) {
+          xAxis.push({type: 'value'});
+        }
         yAxis = {
           type: 'category',
-          //boundaryGap: false,
+          boundaryGap: hasBar,
           data: parseCategory(data.keys)
         }
-      }else {
+        if(hasBar) {
+          yAxis.axisPointer = {
+            type: 'shadow'
+          }
+        }
+      }else { // 垂直
         xAxis = {
           type: 'category',
-          //boundaryGap: false,
+          boundaryGap: hasBar,
           data: parseCategory(data.keys)
         };
-        yAxis = [
-          {
-            type: 'value'
+        for(let i=0; i<valueCount; i++) {
+          yAxis.push({type: 'value'});
+        }
+        if(hasBar) {
+          xAxis.axisPointer = {
+            type: 'shadow'
           }
-        ]
+        }
       }
 
       let option = {
@@ -230,12 +260,13 @@ let options = {
             label: {
               backgroundColor: '#6a7985',
             }
-          }
+          },
+          trigger: 'axis'
         },
         grid: {
           bottom: '15%',
           left: '50',
-          right: '20',
+          right: '50',
           top: '15%'
         },
         legend: {
@@ -248,7 +279,7 @@ let options = {
 
       function parseCategory(keys) {
         let arr = [];
-        for(var i=0; i<keys.length; i++) {
+        for(let i=0; i<keys.length; i++) {
           arr.push( keys[i].join('-') );
         }
         return arr;
@@ -258,7 +289,7 @@ let options = {
         let arr = [];
         for(let i=0; i<groups.length; i++) {
           for(let j=0; j<values.length; j++) {
-            let name = groups[i].join('-') + '-' + values[j].name;
+            let name = groups[i].join('-') ? (groups[i].join('-') + '-' + values[j].name) : values[j].name;
             arr.push(name);
           }
         }
@@ -269,7 +300,7 @@ let options = {
         let arr = [];
         for(let i=0; i<groups.length; i++) {
           for(let j=0; j<values.length; j++) {
-            let name = groups[i].join('-') + '-' + values[j].name;
+            let name = groups[i].join('-') ? (groups[i].join('-') + '-' + values[j].name) : values[j].name;
             //------tmp------
             //if(values[j].series_type === 'percentbar') values[j].series_type = 'bar';
             if(values[j].series_type.indexOf('bar') !== -1) values[j].series_type = 'bar';
@@ -280,6 +311,12 @@ let options = {
               barMaxWidth: 40,
               data: []
             };
+            //水平布局时的处理
+            if(isHorizon) {
+              seriesItem.xAxisIndex = values[j].categoryIndex;
+            }else {
+              seriesItem.yAxisIndex = values[j].categoryIndex;
+            }
 
             //parse seriesItemData
             let seriesItemData = [];
@@ -295,7 +332,7 @@ let options = {
         return arr;
       }
 
-      //console.log('-----------option-----------', option);
+      console.log('-----------option-----------', option);
 
       return option;
       
@@ -361,7 +398,7 @@ let options = {
       }
 
       function parsePieLegend(keys) {
-        var arr = [];
+        let arr = [];
         for(let i=0; i<keys.length; i++) {
           arr.push( keys[i].join('-') );
         }
@@ -369,7 +406,7 @@ let options = {
       }
 
       function parsePieSeries(data, groups, keys, values) {
-        var arr = [];
+        let arr = [];
         for(let i=0; i<groups.length; i++) {
           for(let j=0; j<values.length; j++) {
             let chartNum = groups.length * values.length;

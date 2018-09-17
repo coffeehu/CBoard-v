@@ -237,7 +237,31 @@
                            :key="currentPreviewWidget.widget.id + currentPreviewWidget.widget.data.chart_type"></component>
                       </el-tab-pane>
                       <el-tab-pane label="Query">Query</el-tab-pane>
-                      <el-tab-pane label="Option">Option</el-tab-pane>
+                      <el-tab-pane label="Option">
+                        <el-tabs tab-position="left">
+                          <el-tab-pane label="Grid">Grid</el-tab-pane>
+                          <el-tab-pane label="Legend">Legend</el-tab-pane>
+                          <el-tab-pane label="Category">Category</el-tab-pane>
+                          <el-tab-pane label="Value">
+                            <div class="option-wrapper">
+                              <div class="option-item">
+                                <label>Orient:</label>
+                                <el-select v-model="option.value.orient" size="small" placeholder="请选择">
+                                  <el-option
+                                    v-for="item in orientOptions"
+                                    :key="item"
+                                    :label="item"
+                                    :value="item">
+                                  </el-option>
+                                </el-select>                                
+                              </div>
+                              <div class="option-item">
+                                <el-button type="primary" size="mini" @click="applyValueOption(option.value)">应用</el-button>
+                              </div>
+                            </div>
+                          </el-tab-pane>
+                        </el-tabs>
+                      </el-tab-pane>
                     </el-tabs>
                   </div>
                 </div>
@@ -322,6 +346,7 @@ export default {
         label: 'name'
       },
       currentNode: {}, // 点击 widget 目录，选中的 node（即当前选中的 Widget 对象）
+      currentOption: {},
       activeTypeIndex: 0, // 当前选中的 Widget Type 索引
       widgetConfigVisible: false, // 配置面板是否显示
       column: [], // Column 的值
@@ -329,6 +354,12 @@ export default {
       filter: [], // Filter 的值
       value: [], // Value 的值
       isPreview: false, // 是否显示预览
+      option: {
+        value: {
+          orient: ''
+        }
+      },
+      orientOptions: ['horizontal', 'vertical'],
       // widget Type 列表
       widgetTypes: [
             {
@@ -649,6 +680,9 @@ export default {
       //this.isPreview = false;
       let config = {};
 
+      // 图表水平or垂直显示，用于 bar 图
+      if(this.currentNode.data.config.valueAxis !== undefined) config.valueAxis = this.currentNode.data.config.valueAxis;
+
       // 设置 widgetType
       let type = this.widgetTypes[this.activeTypeIndex];
       config.chart_type = type.value;
@@ -658,6 +692,9 @@ export default {
 
       // 设置 groups（对应 Column 的值）
       config.groups = this.column;
+
+      // 设置 option
+      config.option = this.currentOption;
 
       // 设置 values（对应 value 的值）
       for(let i=this.value.length-1; i>=0; i--) {
@@ -737,6 +774,7 @@ export default {
         this.widgetConfigVisible = true;
 
         this.currentNode = node;
+        this.currentOption = node.data.config.option;
         this.column = node.data.config.groups;
         this.row = node.data.config.keys;
         this.value = node.data.config.values;
@@ -911,6 +949,11 @@ export default {
     },
     preview() {
       this.isPreview = !this.isPreview;
+    },
+    applyValueOption(option) {
+      console.log(option);
+      console.log(this.currentOption)
+      this.currentOption.value = option;
     }
   }
 }
@@ -1065,4 +1108,19 @@ span:focus {
   border: none;
   border-top: 1px solid #dcdfe6;
 }
+
+.option-wrapper {
+  padding: 10px;
+}
+.option-item .el-button {
+  float: right;
+  margin-right: 10px;
+}
+.option-item label {
+  margin-right: 10px;
+}
+.option-item .el-input {
+  width: 180px;
+}
+
 </style>
