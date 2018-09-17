@@ -598,9 +598,7 @@ export default {
       (Measure Tree 不过滤，因为 value 值有时可以重复，如 line+bar 图的情况)
     */
     currentMeasure() {
-      let currentArray = this.value;
       let measure = this.currentSchema.measure;
-      let currentMeasure = [];
 
       return measure;
     },
@@ -663,7 +661,6 @@ export default {
 
       // 设置 values（对应 value 的值）
       for(let i=this.value.length-1; i>=0; i--) {
-        //if(this.axisValueType === 'axis' && this.value[i].cols.length === 0) this.value.splice(i, 1); // 若 cols 无内容则移除
         this.value[i].cols.forEach(c => {
           if(!c.aggregate_type) c.aggregate_type = 'sum'; // 必须要有字段 aggregate_type，默认 'sum'
           if(!c.col) c.col = c.column;  //必须要有个 col 字段记录名称，否则返回回的数据 columnList 中对应的 name 为 null
@@ -671,6 +668,8 @@ export default {
       }
 
       config.values = this.value;
+
+      console.log('-----config----', config)
 
       return config;
     },
@@ -787,16 +786,26 @@ export default {
       this.value = this.currentNode.data.config.values;
     },
     handleTypeClick(type, index) {
-      let value = type.value;
-      if(!this.chartTypesStatus[value]) {
+      let typeValue = type.value;
+      if(!this.chartTypesStatus[typeValue]) {
         return false;
       }
       this.activeTypeIndex = index;
 
+      // value axis 切换到 value 时，currentValue 数据格式的处理
+      if(this.axisValueType === 'normal') {
+        for(let i=this.value.length-1; i>=0; i--) {
+          let item = this.value[i];
+          if(i>0) {
+            this.value[0].cols = this.value[0].cols.concat(item.cols);
+            this.value.splice(i, 1);
+          }
+        }
+      }
+
       /*
         切换 widgetType，碰到有 Value Axis 的表单时，初始化下拉框的默认值
       */
-
       this.value.forEach(v => {
         if(this.valueAxisOption) {
           let inArr = false;
@@ -806,7 +815,6 @@ export default {
           if(!inArr) v.series_type = this.valueAxisOption[0];
         }
       })
-
 
     },
     delWidget() {
@@ -850,7 +858,7 @@ export default {
       data.splice(index, 1);
     },
     addValueAxis() {
-      if(this.value.length >= 2) return;
+      if(this.value.length >= this.valueAxisOption.length) return;
       let valueAxisItem = {
         cols: [],
         name: '',

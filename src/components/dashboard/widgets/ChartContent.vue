@@ -151,7 +151,7 @@ let options = {
       })
     },
     createOption(seriesData) {
-      console.log(123123, this.chartType)
+      console.log('----seriesData---', seriesData)
       switch(this.chartType) {
         case 'line':
           return this.createLineOption(seriesData);
@@ -175,7 +175,10 @@ let options = {
       //console.log('--------this.valuesConfig-------------', this.valuesConfig)
       //console.log('--------this.valuesConfig-------------', this.widget.widget.data.config)
 
-      //------根据 this.widget.widget.data.config.values, 重新构造 data.values 数组-----
+      /*------
+        根据 this.widget.widget.data.config.values, 重新构造 data.values 数组
+        主要是为了在每个 item 中，添加 series_type 字段
+      -----*/
       let configValues = this.widget.widget.data.config.values;
       let configValuesArr = [];
       configValues.forEach(v => {
@@ -303,6 +306,27 @@ let options = {
         当 columns（groups） 为 m 时，pieChart 为 m 个；
         当 values 为 n 个，columns 为 m 个，pieChart 个数为 n*m 个
       */
+
+      /*------
+        根据 this.widget.widget.data.config.values, 重新构造 data.values 数组
+        主要是为了在每个 item 中，添加 series_type 字段
+      -----*/
+      let configValues = this.widget.widget.data.config.values;
+      let configValuesArr = [];
+      configValues.forEach(v => {
+        v.cols.forEach(c => {
+          let item = {
+            aggType: c.aggregate_type,
+            series_type: v.series_type,
+            name: c.col,
+            col: c.col,
+          };
+          configValuesArr.push(item);
+        })
+      })
+      seriesData.values = configValuesArr;
+      //------构造END-----
+
       let option = {
         toolbox: false,
         tooltip: {
@@ -359,6 +383,11 @@ let options = {
               data: null,
               center: [(100/chartNum*currIndex) + (100/chartNum/2) +'%', '50%']
             };
+            if(values[j].series_type === 'doughnut') {
+              seriesItem.radius = ['50%', '70%'];
+            }else if(values[j].series_type === 'coxcomb') {
+              seriesItem.roseType = 'radius';
+            }
             let seriesItemData = [];
             let seriesObj = data[groups[i].join('-')][values[j].name][values[j].aggType];
             for(let prop in seriesObj) {
