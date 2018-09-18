@@ -182,7 +182,7 @@ let options = {
       -----*/
       let configValues = this.widget.widget.data.config.values;
       let configValuesArr = [];
-      let valueCount = 0;
+      let valueCount = 0; // 用于计算有几个 category 轴（只会有1个或2个的情况）
       configValues.forEach((v, index) => {
         v.cols.forEach(c => {
           let item = {
@@ -201,10 +201,10 @@ let options = {
       //------构造END-----
 
 
-      /*----------处理 option，调整图表样式----------*/
+      /*----------获得 option，用于调整图表样式----------*/
       let styleOption = this.widget.widget.data.config.option;
 
-      //水平or垂直展示
+      /*-----判断水平or垂直展示----*/
       let isHorizon = this.widget.widget.data.config.valueAxis === 'horizontal' ? true : false;
       if(styleOption) {
         if(styleOption.value) {
@@ -213,6 +213,7 @@ let options = {
       }      
 
       /*
+        默认情况下：
         对于bar图以及对于bar+line图，boundaryGap = false；
         对于line图，boundaryGap = true；
       */
@@ -221,38 +222,57 @@ let options = {
         if(value.series_type === 'bar') hasBar = true;
       })
 
+      /*-----水平、垂直时分别对应的 xAxis、yAxis 的配置------*/
       let xAxis = [];
       let yAxis = [];
-      if(isHorizon) { //水平
-        for(let i=0; i<valueCount; i++) {
-          xAxis.push({type: 'value'});
-        }
-        yAxis = {
-          type: 'category',
-          boundaryGap: hasBar,
-          data: parseCategory(data.keys)
-        }
+      let axisCategory = {
+        type: 'category',
+        boundaryGap: hasBar,
+        data: parseCategory(data.keys)
+      };
+      /*----设置 boundaryGap----*/
+      if(styleOption.line && typeof styleOption.line.boundaryGap === 'boolean') {
+        axisCategory.boundaryGap = styleOption.line.boundaryGap;
+      }
+
+      let axisValue = [];
+      for(let i=0; i<valueCount; i++) {
+        axisValue.push({type: 'value'});
+      }
+
+      /*----设置 axisLabel.rotate----*/
+      if(styleOption.category) {
+        if(styleOption.category.rotate !== '') axisCategory.axisLabel = { rotate: styleOption.category.rotate };
+      }
+
+      if(isHorizon) { // 水平时
+        xAxis = axisValue;
+        yAxis = axisCategory;
         if(hasBar) {
-          yAxis.axisPointer = {
+          axisCategory.axisPointer = {
             type: 'shadow'
           }
         }
-      }else { // 垂直
-        xAxis = {
-          type: 'category',
-          boundaryGap: hasBar,
-          data: parseCategory(data.keys)
-        };
-        for(let i=0; i<valueCount; i++) {
-          yAxis.push({type: 'value'});
-        }
+      }else { // 垂直时
+        xAxis = axisCategory;
+        yAxis = axisValue;
         if(hasBar) {
-          xAxis.axisPointer = {
+          axisCategory.axisPointer = {
             type: 'shadow'
           }
         }
       }
 
+      function parseCategory(keys) {
+        let arr = [];
+        for(let i=0; i<keys.length; i++) {
+          arr.push( keys[i].join('-') );
+        }
+        return arr;
+      }
+
+      console.log('----styleOption---', styleOption)
+      /*-----构造图表的 option----*/
       let option = {
         tooltip: {
           axisPointer: {
@@ -263,29 +283,59 @@ let options = {
           },
           trigger: 'axis'
         },
-        grid: {
-          bottom: '15%',
-          left: '50',
-          right: '50',
-          top: '15%'
-        },
-        legend: {
-          data: parseLegend(data.values, data.groups)
-        },
+        grid: parseGrid(styleOption),
+        legend: parseLegend(styleOption, data),
         xAxis: xAxis,
         yAxis: yAxis,
         series: parseSeries(data.values, data.groups, data.keys, data.data)
       };
 
-      function parseCategory(keys) {
-        let arr = [];
-        for(let i=0; i<keys.length; i++) {
-          arr.push( keys[i].join('-') );
+      /*----设置 color----*/
+      if(styleOption.value && styleOption.value.color) {
+        if(styleOption.value.color === '') {
+          option.color = null;
+          delete option.color;
+        }else {
+          let colorString = styleOption.value.color;
+          let colorArray = colorString.trim().split(',');
+          option.color = colorArray;
         }
-        return arr;
       }
 
-      function parseLegend(values, groups) {
+      /*----设置 grid----*/
+      function parseGrid(styleOption) {
+        if(styleOption.grid) {
+          return {
+            top: styleOption.grid.top === '' ? '15%' : styleOption.grid.top,
+            left: styleOption.grid.left === '' ? '20' : styleOption.grid.left,
+            right: styleOption.grid.right === '' ? '20' : styleOption.grid.right,
+            bottom: styleOption.grid.bottom === '' ? '5%' : styleOption.grid.bottom,
+            containLabel: true
+          }
+        }else {
+          return {
+            top: '15%',
+            left: '50',
+            right: '50',
+            bottom: '15%',
+            containLabel: true
+          }
+        }
+      }
+
+      /*----设置 legend----*/
+      function parseLegend(styleOption, data) {
+        let legend = {};
+        if(styleOption.legend) {
+          for(let prop in styleOption.legend) {
+            if(styleOption.legend[prop] !== '') legend[prop] = styleOption.legend[prop];
+          }
+        }
+        legend.data = parseLegendData(data.values, data.groups);
+        return legend;
+      }
+
+      function parseLegendData(values, groups) {
         let arr = [];
         for(let i=0; i<groups.length; i++) {
           for(let j=0; j<values.length; j++) {
@@ -296,13 +346,13 @@ let options = {
         return arr;
       }
 
+      /*----设置 series----*/
       function parseSeries(values, groups, keys, data) {
         let arr = [];
         for(let i=0; i<groups.length; i++) {
           for(let j=0; j<values.length; j++) {
             let name = groups[i].join('-') ? (groups[i].join('-') + '-' + values[j].name) : values[j].name;
-            //------tmp------
-            //if(values[j].series_type === 'percentbar') values[j].series_type = 'bar';
+            //------ tmp：有些 series_type 为 percentbar，将其转为 bar ------            
             if(values[j].series_type.indexOf('bar') !== -1) values[j].series_type = 'bar';
             //------tmp end-----
             let seriesItem = {
@@ -311,6 +361,16 @@ let options = {
               barMaxWidth: 40,
               data: []
             };
+            //根据 option 设置 bar 的样式
+            if(styleOption.bar) {
+              if(styleOption.bar.width !== '') seriesItem.barWidth = styleOption.bar.width;
+              if(styleOption.bar.maxWidth !== '') seriesItem.barMaxWidth = styleOption.bar.maxWidth;
+              if(styleOption.bar.minHeight !== '') seriesItem.barMinHeight = styleOption.bar.minHeight;
+            }
+            //设置 smooth 
+            if(styleOption.line && typeof styleOption.line.smooth === 'boolean') {
+              seriesItem.smooth = styleOption.line.smooth;
+            }
             //水平布局时的处理
             if(isHorizon) {
               seriesItem.xAxisIndex = values[j].categoryIndex;
@@ -364,6 +424,9 @@ let options = {
       seriesData.values = configValuesArr;
       //------构造END-----
 
+      /*----------获得 option，用于调整图表样式----------*/
+      let styleOption = this.widget.widget.data.config.option;
+
       let option = {
         toolbox: false,
         tooltip: {
@@ -372,12 +435,24 @@ let options = {
         },
         title: parseTitle(seriesData.values),
         legend: {
-          data: parsePieLegend(seriesData.keys),
+          data: parseLegendData(seriesData.keys),
           left: seriesData.values.length === 1 ? 'left' : 'top',
           orient: seriesData.values.length === 1 ? 'vertical' : 'horizontal'
         },
         series: parsePieSeries(seriesData.data, seriesData.groups, seriesData.keys, seriesData.values)
       };
+
+      /*----设置 color----*/
+      if(styleOption.size && styleOption.size.color) {
+        if(styleOption.size.color === '') {
+          option.color = null;
+          delete option.color;
+        }else {
+          let colorString = styleOption.size.color;
+          let colorArray = colorString.trim().split(',');
+          option.color = colorArray;
+        }
+      }
 
       function parseTitle(values) {
         let arr = [];
@@ -397,7 +472,14 @@ let options = {
         return arr;
       }
 
-      function parsePieLegend(keys) {
+      /*----设置 legend----*/
+      if(styleOption.legend) {
+        for(let prop in styleOption.legend) {
+          if(styleOption.legend[prop] !== '') option.legend[prop] = styleOption.legend[prop];
+        }
+      }
+
+      function parseLegendData(keys) {
         let arr = [];
         for(let i=0; i<keys.length; i++) {
           arr.push( keys[i].join('-') );
@@ -405,6 +487,7 @@ let options = {
         return arr;
       }
 
+      /*----设置 series----*/
       function parsePieSeries(data, groups, keys, values) {
         let arr = [];
         for(let i=0; i<groups.length; i++) {
@@ -420,11 +503,38 @@ let options = {
               data: null,
               center: [(100/chartNum*currIndex) + (100/chartNum/2) +'%', '50%']
             };
+
+            //---设置 center----
+            // TODO: 目前仅针对第一个 pie 图表设置，需要能够对多个设置
+            if(styleOption.size && styleOption.size.center) {
+              if(styleOption.size.center !== '' && i === 0 && j === 0 ) {
+                let centerString = styleOption.size.center;
+                let centerArray = centerString.trim().split(',');
+                seriesItem.center = centerArray;
+              }
+            }
+
+            //---设置为环形图---
             if(values[j].series_type === 'doughnut') {
               seriesItem.radius = ['50%', '70%'];
-            }else if(values[j].series_type === 'coxcomb') {
+            }
+            //---设置为南丁格尔图---
+            else if(values[j].series_type === 'coxcomb') {
               seriesItem.roseType = 'radius';
             }
+
+            //---设置 radius----
+            if(styleOption.size && styleOption.size.radius) {
+              //seriesItem.radius = styleOption.size.radius;
+              let radiusString = styleOption.size.radius;
+              let radiusArray = radiusString.trim().split(',');
+              if(radiusArray.length === 1) {
+                seriesItem.radius = radiusArray[0];
+              }else {
+                seriesItem.radius = radiusArray;  
+              }
+            }
+
             let seriesItemData = [];
             let seriesObj = data[groups[i].join('-')][values[j].name][values[j].aggType];
             for(let prop in seriesObj) {

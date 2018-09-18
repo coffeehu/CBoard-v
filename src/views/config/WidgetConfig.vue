@@ -238,29 +238,10 @@
                       </el-tab-pane>
                       <el-tab-pane label="Query">Query</el-tab-pane>
                       <el-tab-pane label="Option">
-                        <el-tabs tab-position="left">
-                          <el-tab-pane label="Grid">Grid</el-tab-pane>
-                          <el-tab-pane label="Legend">Legend</el-tab-pane>
-                          <el-tab-pane label="Category">Category</el-tab-pane>
-                          <el-tab-pane label="Value">
-                            <div class="option-wrapper">
-                              <div class="option-item">
-                                <label>Orient:</label>
-                                <el-select v-model="option.value.orient" size="small" placeholder="请选择">
-                                  <el-option
-                                    v-for="item in orientOptions"
-                                    :key="item"
-                                    :label="item"
-                                    :value="item">
-                                  </el-option>
-                                </el-select>                                
-                              </div>
-                              <div class="option-item">
-                                <el-button type="primary" size="mini" @click="applyValueOption(option.value)">应用</el-button>
-                              </div>
-                            </div>
-                          </el-tab-pane>
-                        </el-tabs>
+                        <component
+                           :is="currentOptionComponent"
+                           @apply-option="applyOption"></component>
+                        <!-- <bar-option @apply-option="applyOption"></bar-option> -->
                       </el-tab-pane>
                     </el-tabs>
                   </div>
@@ -317,6 +298,11 @@ const widgetTypeMap = {
   chinaMap: 'ChinaMapContent'
 }
 
+const optionMap = {
+  line: 'BarOption',
+  pie: 'PieOption'
+}
+
 const valueAxisOptionMap = {
   'line': [ 'line', 'bar'],
   'pie': ['pie', 'doughnut', 'coxcomb']
@@ -335,6 +321,9 @@ export default {
     RadarContent: () => import('@/components/dashboard/widgets/RadarContent'), //雷达图
     FunnelContent: () => import('@/components/dashboard/widgets/FunnelContent'), //漏斗图
     ChinaMapContent: () => import('@/components/dashboard/widgets/ChinaMapContent'),
+    //---option---
+    BarOption: () => import('@/components/config/options/BarOption'),
+    PieOption: () => import('@/components/config/options/PieOption'),
   },
   created() {
     this.$store.dispatch('config/getWidgetList');
@@ -346,7 +335,7 @@ export default {
         label: 'name'
       },
       currentNode: {}, // 点击 widget 目录，选中的 node（即当前选中的 Widget 对象）
-      currentOption: {},
+      currentOption: {}, // option-样式配置
       activeTypeIndex: 0, // 当前选中的 Widget Type 索引
       widgetConfigVisible: false, // 配置面板是否显示
       column: [], // Column 的值
@@ -750,6 +739,10 @@ export default {
       let type = this.widgetTypes[this.activeTypeIndex];
       return valueAxisOptionMap[type.value];
     },
+    currentOptionComponent() {
+      let type = this.widgetTypes[this.activeTypeIndex].value;
+      return optionMap[type] ? optionMap[type] : '';
+    },
     // 拖拽配置
     dragOptions () {
       return  {
@@ -774,7 +767,7 @@ export default {
         this.widgetConfigVisible = true;
 
         this.currentNode = node;
-        this.currentOption = node.data.config.option;
+        this.currentOption = node.data.config.option || {};
         this.column = node.data.config.groups;
         this.row = node.data.config.keys;
         this.value = node.data.config.values;
@@ -950,10 +943,14 @@ export default {
     preview() {
       this.isPreview = !this.isPreview;
     },
-    applyValueOption(option) {
-      console.log(option);
-      console.log(this.currentOption)
-      this.currentOption.value = option;
+    applyOption(option) {
+      for(let prop in option) {
+        this.currentOption[prop] = option[prop];
+      }
+      this.$message({
+          type: 'success',
+          message: '应用成功！可切换到预览查看'
+      });
     }
   }
 }
@@ -1107,20 +1104,6 @@ span:focus {
   box-shadow: none;
   border: none;
   border-top: 1px solid #dcdfe6;
-}
-
-.option-wrapper {
-  padding: 10px;
-}
-.option-item .el-button {
-  float: right;
-  margin-right: 10px;
-}
-.option-item label {
-  margin-right: 10px;
-}
-.option-item .el-input {
-  width: 180px;
 }
 
 </style>
