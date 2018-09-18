@@ -293,8 +293,8 @@ let options = {
       /*----设置 color----*/
       if(styleOption.value && styleOption.value.color) {
         if(styleOption.value.color === '') {
-          option.color = null;
-          delete option.color;
+          /*option.color = null;
+          delete option.color;*/
         }else {
           let colorString = styleOption.value.color;
           let colorArray = colorString.trim().split(',');
@@ -445,8 +445,8 @@ let options = {
       /*----设置 color----*/
       if(styleOption.size && styleOption.size.color) {
         if(styleOption.size.color === '') {
-          option.color = null;
-          delete option.color;
+          /*option.color = null;
+          delete option.color;*/
         }else {
           let colorString = styleOption.size.color;
           let colorArray = colorString.trim().split(',');
@@ -525,7 +525,6 @@ let options = {
 
             //---设置 radius----
             if(styleOption.size && styleOption.size.radius) {
-              //seriesItem.radius = styleOption.size.radius;
               let radiusString = styleOption.size.radius;
               let radiusArray = radiusString.trim().split(',');
               if(radiusArray.length === 1) {

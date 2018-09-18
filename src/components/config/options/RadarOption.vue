@@ -59,11 +59,24 @@
           <div class="option-item row">
             <div class="col-md-6">
               <label>Radius:</label>
-              <el-input v-model="option.size.radius" size="small" placeholder="输入number \ n% \ x%,y%"></el-input>              
+              <el-input v-model="option.size.radius" size="small" placeholder="输入number 或 n%"></el-input>              
             </div>
             <div class="col-md-6">
               <label>Center:</label>
               <el-input v-model="option.size.center" size="small" placeholder="输入x%,y% - 逗号分隔"></el-input>              
+            </div>
+          </div>
+          <div class="option-item row">
+            <div class="col-md-6">
+              <label>Shape:</label>
+              <el-select v-model="option.size.shape" size="small" placeholder="请选择">
+                <el-option
+                  v-for="item in shapeOptions"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
             </div>
           </div>
           <div class="option-item row">
@@ -72,7 +85,18 @@
               <el-input style="width: 300px" v-model="option.size.color" size="small" placeholder="输入颜色代码，英文逗号隔开"></el-input>
             </div>
           </div>
+          <div class="option-item row">
+            <div class="col-md-6">
+              <label style="width: auto">AreaColor:</label>
+              <el-switch
+                v-model="option.size.areaColor"
+                active-color="#409eff"
+                inactive-color="#dcdfe6">
+              </el-switch>
+            </div>
+          </div>
           <div class="option-item">
+            <el-button size="mini" @click="clearOption('size')">清除</el-button>
             <el-button type="primary" size="mini" @click="applyOption('size')">应用</el-button>
           </div>
         </div>
@@ -84,7 +108,7 @@
 
 <script>
 export default {
-  name: 'PieOption',
+  name: 'RadarOption',
   data() {
     return {
       option: {
@@ -99,11 +123,13 @@ export default {
         size: {
           radius: '',
           center: '',
-          color: ''
+          color: '',
+          areaColor: ''
         }
       },
       orientOptions: ['horizontal', 'vertical'],
       alignOptions: ['auto', 'left', 'right'],
+      shapeOptions: ['polygon', 'circle'],
     }
   },
   methods: {
@@ -118,7 +144,7 @@ export default {
       for(let prop in this.option[type]) {
         obj[type][prop] = '';
       }
-      this.$emit('apply-option', obj);
+      this.$emit('clear-option', obj);
     }
   }
 }

@@ -144,17 +144,19 @@ let options = {
     createOption(seriesData) {
     	console.log('----seriesData-----', seriesData)
 
+      /*----------获得 option，用于调整图表样式----------*/
+      let styleOption = this.widget.widget.data.config.option;
+
     	let data = parseSeriesData(seriesData.data, seriesData.values, seriesData.keys);
     	let indicator = parseIndicator(seriesData.keys);
 
     	//---计算 max 的值---
-		let maxArray = [];
-		data.forEach(item => {
-			console.log(item.value)
-			let max = getMax(item.value);
-			maxArray.push(max);
-		})
-		let max = getMax(maxArray) * 1.05;
+  		let maxArray = [];
+  		data.forEach(item => {
+  			let max = getMax(item.value);
+  			maxArray.push(max);
+  		})
+  		let max = getMax(maxArray) * 1.05;
 
     	indicator.forEach(item => {
     		item.max = max;
@@ -178,7 +180,7 @@ let options = {
 		        data: parseLegendData(seriesData.values)
 		    },
 		    radar: {
-		        // shape: 'circle',
+		        //shape: 'circle',
 		        name: {
 		            textStyle: {
 		                color: '#fff',
@@ -192,15 +194,63 @@ let options = {
 		    series: [{
 		        name: 'radar',
 		        type: 'radar',
-		        itemStyle: {
-		        	areaStyle: {
-		        		color: 'rgba(0,250,0,0.3)'
-		        	}
-		        },
-		        // areaStyle: {normal: {}},
+            itemStyle: {
+              normal: {}
+            },
 		        data: data
 		    }]
 		}
+
+    /*----设置 legend----*/
+    if(styleOption.legend) {
+      for(let prop in styleOption.legend) {
+        if(styleOption.legend[prop] !== '') option.legend[prop] = styleOption.legend[prop];
+      }
+    }
+
+    /*----设置 radius----*/
+    if(styleOption.size && styleOption.size.radius) {
+      option.radar.radius = styleOption.size.radius;
+    }
+
+    /*----设置 center----*/
+    if(styleOption.size && styleOption.size.center) {
+      if(styleOption.size.center !== '') {
+        let centerString = styleOption.size.center;
+        let centerArray = centerString.trim().split(',');
+        option.radar.center = centerArray;
+      }
+    }
+
+    /*----设置 shape----*/
+    if(styleOption.size && styleOption.size.shape) {
+      if(styleOption.size.shape !== '') {
+        option.radar.shape = styleOption.size.shape;
+      }
+    }
+
+    /*----设置 color----*/
+    if(styleOption.size && styleOption.size.color) {
+      if(styleOption.size.color === '') {
+        /*option.color = null;
+        delete option.color;*/
+      }else {
+        let colorString = styleOption.size.color;
+        let colorArray = colorString.trim().split(',');
+        option.color = colorArray;
+      }
+    }
+
+    /*----设置是否开启 areaColor----*/
+    if(styleOption.size && typeof styleOption.size.areaColor === 'boolean' ) {
+      if(styleOption.size.areaColor) {
+        option.series[0].itemStyle.normal = {
+          areaStyle: {
+            type: 'default',
+          }
+        }
+      }
+    }
 
 		function parseLegendData(values) {
 			let legendData = [];

@@ -240,7 +240,8 @@
                       <el-tab-pane label="Option">
                         <component
                            :is="currentOptionComponent"
-                           @apply-option="applyOption"></component>
+                           @apply-option="applyOption"
+                           @clear-option="clearOption"></component>
                         <!-- <bar-option @apply-option="applyOption"></bar-option> -->
                       </el-tab-pane>
                     </el-tabs>
@@ -300,7 +301,8 @@ const widgetTypeMap = {
 
 const optionMap = {
   line: 'BarOption',
-  pie: 'PieOption'
+  pie: 'PieOption',
+  radar: 'RadarOption',
 }
 
 const valueAxisOptionMap = {
@@ -324,6 +326,7 @@ export default {
     //---option---
     BarOption: () => import('@/components/config/options/BarOption'),
     PieOption: () => import('@/components/config/options/PieOption'),
+    RadarOption: () => import('@/components/config/options/RadarOption'),
   },
   created() {
     this.$store.dispatch('config/getWidgetList');
@@ -945,12 +948,22 @@ export default {
     },
     applyOption(option) {
       for(let prop in option) {
-        this.currentOption[prop] = option[prop];
+        //this.currentOption[prop] = option[prop];
+        if(typeof option[prop] === 'object') {
+          for(let p in option[prop]) {
+            if(option[prop][p] !== '') this.currentOption[prop][p] = option[prop][p];
+          }
+        }
       }
       this.$message({
           type: 'success',
           message: '应用成功！可切换到预览查看'
       });
+    },
+    clearOption(option) {
+      for(let prop in option) {
+        this.currentOption[prop] = option[prop];
+      }
     }
   }
 }
