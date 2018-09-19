@@ -145,7 +145,7 @@ let options = {
     	console.log('----seriesData-----', seriesData)
 
       /*----------获得 option，用于调整图表样式----------*/
-      let styleOption = this.widget.widget.data.config.option;
+      let styleOption = this.widget.widget.data.config.option || {};
 
     	let data = parseSeriesData(seriesData.data, seriesData.values, seriesData.keys);
     	let indicator = parseIndicator(seriesData.keys);

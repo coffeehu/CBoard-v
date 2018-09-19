@@ -202,7 +202,7 @@ let options = {
 
 
       /*----------获得 option，用于调整图表样式----------*/
-      let styleOption = this.widget.widget.data.config.option;
+      let styleOption = this.widget.widget.data.config.option || {};
 
       /*-----判断水平or垂直展示----*/
       let isHorizon = this.widget.widget.data.config.valueAxis === 'horizontal' ? true : false;
@@ -425,7 +425,7 @@ let options = {
       //------构造END-----
 
       /*----------获得 option，用于调整图表样式----------*/
-      let styleOption = this.widget.widget.data.config.option;
+      let styleOption = this.widget.widget.data.config.option || {};
 
       let option = {
         toolbox: false,

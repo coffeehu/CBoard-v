@@ -20,7 +20,7 @@
           <grid-layout
             :style="{'background-color': row.background}"
             :layout="row.widgets"
-            :col-num="parseInt(row.columnsNumber)"
+            :col-num="parseInt(row.columnsNumber) || 12"
             :row-height="60"
             :is-draggable="false"
             :is-resizable="false"
