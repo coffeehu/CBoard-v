@@ -55,50 +55,44 @@
         </div>
       </el-tab-pane>
 
-      <el-tab-pane label="Size">
+      <el-tab-pane label="Value">
         <div class="option-wrapper">
           <div class="option-item row">
             <div class="col-md-6">
-              <label>Radius:</label>
-              <el-input v-model="option.size.radius" size="small" placeholder="输入number 或 n%"></el-input>              
-            </div>
-            <div class="col-md-6">
-              <label>Center:</label>
-              <el-input v-model="option.size.center" size="small" placeholder="输入x%,y% - 逗号分隔"></el-input>              
-            </div>
-          </div>
-          <div class="option-item row">
-            <div class="col-md-6">
-              <label>Shape:</label>
-              <el-select v-model="option.size.shape" size="small" placeholder="请选择">
+              <label>Sort:</label>
+              <el-select v-model="option.value.sort" size="small" placeholder="请选择">
                 <el-option
-                  v-for="item in shapeOptions"
+                  v-for="item in sortOptions"
                   :key="item"
                   :label="item"
                   :value="item">
                 </el-option>
               </el-select>
             </div>
-          </div>
-          <div class="option-item row">
-            <div class="col-md-12">
-              <label>Color:</label>
-              <el-input style="width: 300px" v-model="option.size.color" size="small" placeholder="输入颜色代码，英文逗号隔开"></el-input>
+            <div class="col-md-6">
+              <label>Width:</label>
+              <el-input v-model="option.value.width" size="small" placeholder="输入 n% 或 number"></el-input>
             </div>
           </div>
           <div class="option-item row">
             <div class="col-md-6">
-              <label style="width: auto">AreaColor:</label>
-              <el-switch
-                v-model="option.size.areaColor"
-                active-color="#409eff"
-                inactive-color="#dcdfe6">
-              </el-switch>
+              <label>Left:</label>
+              <el-input v-model="option.value.left" size="small" placeholder="输入 n% 或 number"></el-input>
+            </div>
+            <div class="col-md-6">
+              <label>Top:</label>
+              <el-input v-model="option.value.top" size="small" placeholder="输入 n% 或 number"></el-input>
+            </div>
+          </div>
+          <div class="option-item row">
+            <div class="col-md-12">
+              <label>Color:</label>
+              <el-input style="width: 300px" v-model="option.value.color" size="small" placeholder="输入颜色代码，英文逗号隔开"></el-input>
             </div>
           </div>
           <div class="option-item">
-            <el-button size="mini" @click="clearOption('size')">清除</el-button>
-            <el-button type="primary" size="mini" @click="applyOption('size')">应用</el-button>
+            <el-button size="mini" @click="clearOption('value')">清除</el-button>
+            <el-button type="primary" size="mini" @click="applyOption('value')">应用</el-button>
           </div>
         </div>
       </el-tab-pane>
@@ -109,7 +103,7 @@
 
 <script>
 export default {
-  name: 'RadarOption',
+  name: 'FunnelOption',
   data() {
     return {
       option: {
@@ -121,16 +115,17 @@ export default {
           left: '',
           right: ''
         },
-        size: {
-          radius: '',
-          center: '',
-          color: '',
-          areaColor: ''
+        value: {
+          sort: '',
+          width: '',
+          left: '',
+          top: '',
+          color: ''
         }
       },
       orientOptions: ['horizontal', 'vertical'],
       alignOptions: ['auto', 'left', 'right'],
-      shapeOptions: ['polygon', 'circle'],
+      sortOptions: ['descending', 'ascending', 'none']
     }
   },
   methods: {

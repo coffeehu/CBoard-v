@@ -144,6 +144,9 @@ let options = {
     createOption(seriesData) {
     	console.log('----seriesData-----', seriesData)
 
+      /*----------获得 option，用于调整图表样式----------*/
+      let styleOption = this.widget.widget.data.config.option || {};
+
       let option = {
         grid: {
           bottom: '15%',
@@ -172,6 +175,25 @@ let options = {
         calculable: true,
         series: parseSeries(seriesData.keys, seriesData.values, seriesData.data)
       };
+
+      /*----设置 legend----*/
+      if(styleOption.legend) {
+        for(let prop in styleOption.legend) {
+          if(styleOption.legend[prop] !== '') option.legend[prop] = styleOption.legend[prop];
+        }
+      }
+
+      /*----设置 color----*/
+      if(styleOption.value && styleOption.value.color) {
+        if(styleOption.value.color === '') {
+          /*option.color = null;
+          delete option.color;*/
+        }else {
+          let colorString = styleOption.value.color;
+          let colorArray = colorString.trim().split(',');
+          option.color = colorArray;
+        }
+      }
 
       function parseTitle(keys) {
         let title = [];
@@ -217,6 +239,7 @@ let options = {
             minSize: '0%',
             maxSize: '100%',
             //sort: 'descending',
+            top: '20%',
             gap: 2,
             label: {
                 normal: {
@@ -250,6 +273,29 @@ let options = {
             data: []
           };
           seriesItem.data = parseSeriesData(values, data, key.join('-'));
+
+          if(styleOption.value) {
+            //----设置排序---
+            if(styleOption.value.sort) {
+              seriesItem.sort = styleOption.value.sort;
+            }
+
+            //----设置width宽度---
+            if(styleOption.value.width) {
+              seriesItem.width = styleOption.value.width;
+            }
+
+            //----设置left左边距---
+            if(styleOption.value.left) {
+              seriesItem.left = ( parseFloat(seriesItem.left) +  parseFloat(styleOption.value.left) ) + '%';
+            }
+
+            //----设置top上边距---
+            if(styleOption.value.top) {
+              seriesItem.top = ( parseFloat(seriesItem.top) +  parseFloat(styleOption.value.top) ) + '%';
+            }
+
+          }
 
           series.push(seriesItem);
         })

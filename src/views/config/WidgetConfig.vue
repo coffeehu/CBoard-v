@@ -189,7 +189,6 @@
                     <div class="el-form-item__content">
 
                       <div v-for="(axisValue, index) in value" :key="index">
-                        <div>{{axisValue.cols}}</div>
                         <el-select v-model="axisValue.series_type" :class="['select-axis']">
                           <el-option 
                             v-for="item in valueAxisOption"
@@ -304,6 +303,8 @@ const optionMap = {
   line: 'BarOption',
   pie: 'PieOption',
   radar: 'RadarOption',
+  contrast: 'ContrastOption',
+  funnel: 'FunnelOption',
 }
 
 const valueAxisOptionMap = {
@@ -328,6 +329,8 @@ export default {
     BarOption: () => import('@/components/config/options/BarOption'),
     PieOption: () => import('@/components/config/options/PieOption'),
     RadarOption: () => import('@/components/config/options/RadarOption'),
+    ContrastOption: () => import('@/components/config/options/ContrastOption'),
+    FunnelOption: () => import('@/components/config/options/FunnelOption'),
   },
   created() {
     this.$store.dispatch('config/getWidgetList');
@@ -973,6 +976,10 @@ export default {
       for(let prop in option) {
         this.currentOption[prop] = option[prop];
       }
+      this.$message({
+          type: 'success',
+          message: '清除成功！可切换到预览查看'
+      });
     }
   }
 }

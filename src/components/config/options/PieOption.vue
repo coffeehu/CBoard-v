@@ -49,6 +49,7 @@
             </div>
           </div>
           <div class="option-item">
+            <el-button size="mini" @click="clearOption('legend')">清除</el-button>
             <el-button type="primary" size="mini" @click="applyOption('legend')">应用</el-button>
           </div>
         </div>
@@ -73,6 +74,7 @@
             </div>
           </div>
           <div class="option-item">
+            <el-button size="mini" @click="clearOption('size')">清除</el-button>
             <el-button type="primary" size="mini" @click="applyOption('size')">应用</el-button>
           </div>
         </div>
@@ -117,8 +119,9 @@ export default {
       obj[type] = {};
       for(let prop in this.option[type]) {
         obj[type][prop] = '';
+        this.option[type][prop] = '';
       }
-      this.$emit('apply-option', obj);
+      this.$emit('clear-option', obj);
     }
   }
 }

@@ -557,6 +557,9 @@ let options = {
     createContrastOption(seriesData) {
       console.log('----seriesData----', seriesData);
 
+      /*----------获得 option，用于调整图表样式----------*/
+      let styleOption = this.widget.widget.data.config.option || {};
+
       let series = parseSeries(seriesData.values, seriesData.keys, seriesData.data);
 
       //-----设置 min 的值-----
@@ -573,38 +576,90 @@ let options = {
       }
       //----设置 min END----
 
+      //----- 设置 category 和 value-----
+      let axisCategory = [
+        {
+            type : 'category',
+            axisTick : {show: false},
+            data: parseYData(seriesData.keys),
+            axisPointer : {
+              type : 'shadow'
+            }
+        }
+      ];
+      let axisValue = [
+        {
+            type : 'value',
+            min: min,
+        }
+      ];
+
       let option = {
-          tooltip : {
-              trigger: 'axis',
-              axisPointer : {            // 坐标轴指示器，坐标轴触发有效
-                  type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+          tooltip: {
+            axisPointer: {
+              type: 'cross',
+              label: {
+                backgroundColor: '#6a7985',
               }
+            },
+            trigger: 'axis'
           },
           legend: {
               data: parseLegendData(seriesData.values)
           },
-          grid: {
-              left: '3%',
-              right: '4%',
-              bottom: '3%',
-              containLabel: true
-          },
-          xAxis : [
-              {
-                  type : 'value',
-                  //max: '1234',
-                  min: min,
-              }
-          ],
-          yAxis : [
-              {
-                  type : 'category',
-                  axisTick : {show: false},
-                  data: parseYData(seriesData.keys)
-              }
-          ],
+          grid: parseGrid(styleOption),
+          xAxis : axisValue,
+          yAxis : axisCategory,
           series: series
       };
+
+      /*----设置 水平\垂直----*/
+      if(styleOption.value && styleOption.value.orient !== '') {
+        if(styleOption.value.orient === 'vertical') {
+          option.xAxis = axisCategory;
+          option.yAxis = axisValue;
+        }
+      }
+
+      /*----设置 legend----*/
+      if(styleOption.legend) {
+        for(let prop in styleOption.legend) {
+          if(styleOption.legend[prop] !== '') option.legend[prop] = styleOption.legend[prop];
+        }
+      }
+
+      /*----设置 color----*/
+      if(styleOption.value && styleOption.value.color) {
+        if(styleOption.value.color === '') {
+          /*option.color = null;
+          delete option.color;*/
+        }else {
+          let colorString = styleOption.value.color;
+          let colorArray = colorString.trim().split(',');
+          option.color = colorArray;
+        }
+      }
+
+      /*----设置 grid----*/
+      function parseGrid(styleOption) {
+        if(styleOption.grid) {
+          return {
+            top: styleOption.grid.top === '' ? '15%' : styleOption.grid.top,
+            left: styleOption.grid.left === '' ? '20' : styleOption.grid.left,
+            right: styleOption.grid.right === '' ? '20' : styleOption.grid.right,
+            bottom: styleOption.grid.bottom === '' ? '5%' : styleOption.grid.bottom,
+            containLabel: true
+          }
+        }else {
+          return {
+            top: '15%',
+            left: '50',
+            right: '50',
+            bottom: '15%',
+            containLabel: true
+          }
+        }
+      }
 
       function parseLegendData(values) {
         let legendData = [];
@@ -638,6 +693,13 @@ let options = {
                   fontSize: 12,
               },
               data: []
+          }
+
+          //设置 bar 的高宽
+          if(styleOption.value) {
+            if(styleOption.value.width !== '') seriesItem.barWidth = styleOption.value.width;
+            if(styleOption.value.maxWidth !== '') seriesItem.barMaxWidth = styleOption.value.maxWidth;
+            if(styleOption.value.minHeight !== '') seriesItem.barMinHeight = styleOption.value.minHeight;
           }
 
           keys.forEach(key => {

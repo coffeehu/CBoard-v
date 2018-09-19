@@ -1,6 +1,7 @@
 <template>
   <div>
     <el-tabs tab-position="left">
+
       <el-tab-pane label="Grid">
         <div class="option-wrapper">
           <div class="option-item row">
@@ -59,21 +60,21 @@
           <div class="option-item row">
             <div class="col-md-6">
               <label>Top:</label>
-              <el-input v-model="option.legend.top" size="small" placeholder="输入 n% 或 数字"></el-input>              
+              <el-input v-model="option.legend.top" size="small" placeholder="输入 n%/number/string"></el-input>              
             </div>
             <div class="col-md-6">
               <label>Bottom:</label>
-              <el-input v-model="option.legend.bottom" size="small" placeholder="输入 n% 或 数字"></el-input>
+              <el-input v-model="option.legend.bottom" size="small" placeholder="输入 n%/number/string"></el-input>
             </div>
           </div>
           <div class="option-item row">
             <div class="col-md-6">
               <label>Left:</label>
-              <el-input v-model="option.legend.left" size="small" placeholder="输入 n% 或 数字"></el-input>              
+              <el-input v-model="option.legend.left" size="small" placeholder="输入 n%/number/string"></el-input>              
             </div>
             <div class="col-md-6">
               <label>Right:</label>
-              <el-input v-model="option.legend.right" size="small" placeholder="输入 n% 或 数字"></el-input>
+              <el-input v-model="option.legend.right" size="small" placeholder="输入 n%/number/string"></el-input>
             </div>
           </div>
           <div class="option-item">
@@ -83,95 +84,44 @@
         </div>
       </el-tab-pane>
 
-      <el-tab-pane label="Category">
-        <div class="option-wrapper">
-          <div class="option-item row">
-            <div class="col-md-6">
-              <label>Rotate:</label>
-              <el-input v-model="option.category.rotate" size="small" placeholder="范围 90 至 -90"></el-input>
-            </div>
-          </div>
-          <div class="option-item">
-            <el-button size="mini" @click="clearOption('category')">清除</el-button>
-            <el-button type="primary" size="mini" @click="applyOption('category')">应用</el-button>
-          </div>
-        </div>
-      </el-tab-pane>
-
       <el-tab-pane label="Value">
-        <div class="option-wrapper">
-          <div class="option-item">
-            <label>Orient:</label>
-            <el-select v-model="option.value.orient" size="small" placeholder="请选择">
-              <el-option
-                v-for="item in orientOptions"
-                :key="item"
-                :label="item"
-                :value="item">
-              </el-option>
-            </el-select>                              
-          </div>
-          <div class="option-item">
-            <label>Color:</label>
-            <el-input style="width: 300px" v-model="option.value.color" size="small" placeholder="输入颜色代码，英文逗号隔开"></el-input>
-          </div>
-          <div class="option-item">
-            <el-button size="mini" @click="clearOption('value')">清除</el-button>
-            <el-button type="primary" size="mini" @click="applyOption('value')">应用</el-button>
-          </div>
-        </div>
-      </el-tab-pane>
-
-      <el-tab-pane label="Bar">
         <div class="option-wrapper">
           <div class="option-item row">
             <div class="col-md-6">
               <label>Width:</label>
-              <el-input v-model="option.bar.width" size="small" placeholder="输入数字"></el-input>
+              <el-input v-model="option.value.width" size="small" placeholder="输入数字"></el-input>
             </div>
             <div class="col-md-6">
               <label style="width: 80px">Max Width:</label>
-              <el-input v-model="option.bar.maxWidth" size="small" placeholder="输入数字"></el-input>
+              <el-input v-model="option.value.maxWidth" size="small" placeholder="输入数字"></el-input>
             </div>
           </div>
           <div class="option-item row">
             <div class="col-md-6">
               <label style="width:80px">Min Height:</label>
-              <el-input v-model="option.bar.minHeight" size="small" placeholder="输入数字"></el-input>
-            </div>        
-          </div>
-          <div class="option-item">
-            <el-button size="mini" @click="clearOption('bar')">清除</el-button>
-            <el-button type="primary" size="mini" @click="applyOption('bar')">应用</el-button>
-          </div>
-        </div>
-      </el-tab-pane>
-
-      <el-tab-pane label="Line">
-        <div class="option-wrapper">
-          <div class="option-item row">
+              <el-input v-model="option.value.minHeight" size="small" placeholder="输入数字"></el-input>
+            </div>
             <div class="col-md-6">
-              <label style="width: auto">BoundaryGap:</label>
-              <el-switch
-                v-model="option.line.boundaryGap"
-                active-color="#409eff"
-                inactive-color="#dcdfe6">
-              </el-switch>
+              <label>Orient:</label>
+              <el-select v-model="option.value.orient" size="small" placeholder="请选择">
+                <el-option
+                  v-for="item in orientOptions"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
             </div>
           </div>
           <div class="option-item row">
-            <div class="col-md-6">
-              <label style="width: auto">Smooth:</label>
-              <el-switch
-                v-model="option.line.smooth"
-                active-color="#409eff"
-                inactive-color="#dcdfe6">
-              </el-switch>
+            <div class="col-md-12">
+              <label>Color:</label>
+              <el-input style="width: 300px" v-model="option.value.color" size="small" placeholder="输入颜色代码，英文逗号隔开"></el-input>
             </div>
           </div>
           <div class="option-item">
-            <el-button size="mini" @click="clearOption('line')">清除</el-button>
-            <el-button type="primary" size="mini" @click="applyOption('line')">应用</el-button>
+            <el-button size="mini" @click="clearOption('value')">清除</el-button>
+            <el-button type="primary" size="mini" @click="applyOption('value')">应用</el-button>
           </div>
         </div>
       </el-tab-pane>
@@ -182,7 +132,7 @@
 
 <script>
 export default {
-  name: 'BarOption',
+  name: 'ContrastOption',
   data() {
     return {
       option: {
@@ -200,20 +150,11 @@ export default {
           left: '',
           right: ''
         },
-        category: {
-          rotate: ''
-        },
         value: {
-          orient: ''
-        },
-        bar: {
+          color: '',
           width: '',
           maxWidth: '',
           minHeight: ''
-        },
-        line: {
-          boundaryGap: '',
-          smooth: ''
         }
       },
       orientOptions: ['horizontal', 'vertical'],
