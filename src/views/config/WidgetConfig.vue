@@ -168,7 +168,7 @@
                                  :options="dragValueOptions"
                                  element="ul">
                         <li v-for="(col, index) in value[0].cols" 
-                            :key="col.col + index"
+                            :key="col.column"
                             @click="removeMeasure(index)"
                             class="moveable">
                           <span>
@@ -188,7 +188,8 @@
                     </label>
                     <div class="el-form-item__content">
 
-                      <div v-for="(axisValue, index) in value" :key="axisValue.series_type + index">
+                      <div v-for="(axisValue, index) in value" :key="index">
+                        <div>{{axisValue.cols}}</div>
                         <el-select v-model="axisValue.series_type" :class="['select-axis']">
                           <el-option 
                             v-for="item in valueAxisOption"
@@ -203,7 +204,7 @@
                                  :options="dragValueOptions"
                                  element="ul">
                             <li v-for="(col, index) in axisValue.cols" 
-                                :key="col.col"
+                                :key="col.column"
                                 @click="removeAxisMeasure(index, axisValue.cols)"
                                 class="moveable">
                               <span>
@@ -797,7 +798,9 @@ export default {
         name: '',
         categoryName: '',
         data: {
-          config: {},
+          config: {
+            
+          },
           datasetId: '',
           expressions: [],
           filterGroups: []
@@ -817,7 +820,12 @@ export default {
 
       this.column = this.currentNode.data.config.groups;
       this.row = this.currentNode.data.config.keys;
-      this.value = this.currentNode.data.config.values;
+      //this.value = this.currentNode.data.config.values;
+      this.value = [{
+        cols: [],
+        name: '',
+        series_type: ''
+      }]
     },
     handleTypeClick(type, index) {
       let typeValue = type.value;
@@ -949,6 +957,7 @@ export default {
     applyOption(option) {
       for(let prop in option) {
         //this.currentOption[prop] = option[prop];
+        if(!this.currentOption[prop]) this.currentOption[prop] = {};
         if(typeof option[prop] === 'object') {
           for(let p in option[prop]) {
             if(option[prop][p] !== '') this.currentOption[prop][p] = option[prop][p];
