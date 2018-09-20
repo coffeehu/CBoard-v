@@ -68,7 +68,7 @@ let options = {
         let height = parseFloat(this.height)+'px';
         return {height: height}
       }else {
-        //return {'min-height': '300px'}
+        return {'min-height': '250px'}
       }
     }
   },

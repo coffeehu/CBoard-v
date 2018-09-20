@@ -280,7 +280,7 @@ let options = {
         return 1;
       })
       let max = sortValueArray[0];
-      option.visualMap.max = max;
+      option.visualMap.max = Number(max) * 1.5;
 
       /*----设置 legend----*/
       if(styleOption.legend) {
