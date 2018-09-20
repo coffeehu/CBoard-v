@@ -39,6 +39,7 @@ export default {
     MapContent: () => import('./widgets/MapContent'),
     RadarContent: () => import('@/components/dashboard/widgets/RadarContent'), //雷达图
     FunnelContent: () => import('@/components/dashboard/widgets/FunnelContent'), //漏斗图
+    ScatterContent: () => import('@/components/dashboard/widgets/ScatterContent'),
     ChinaMapContent: () => import('@/components/dashboard/widgets/ChinaMapContent'),
   },
   created() {
@@ -67,6 +68,8 @@ export default {
           return 'FunnelContent';
         case 'chinaMap':
           return 'ChinaMapContent';
+        case 'scatter':
+          return 'ScatterContent';
         default:
           return 'ChartContent';
       }

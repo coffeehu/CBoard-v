@@ -296,7 +296,8 @@ const widgetTypeMap = {
   map: 'MapContent',
   radar: 'RadarContent',
   funnel: 'FunnelContent',
-  chinaMap: 'ChinaMapContent'
+  chinaMap: 'ChinaMapContent',
+  scatter: 'ScatterContent',
 }
 
 const optionMap = {
@@ -306,6 +307,7 @@ const optionMap = {
   contrast: 'ContrastOption',
   funnel: 'FunnelOption',
   kpi: 'KpiOption',
+  scatter: 'ScatterOption',
 }
 
 const valueAxisOptionMap = {
@@ -325,6 +327,7 @@ export default {
     MapContent: () => import('@/components/dashboard/widgets/MapContent'),
     RadarContent: () => import('@/components/dashboard/widgets/RadarContent'), //雷达图
     FunnelContent: () => import('@/components/dashboard/widgets/FunnelContent'), //漏斗图
+    ScatterContent: () => import('@/components/dashboard/widgets/ScatterContent'),
     ChinaMapContent: () => import('@/components/dashboard/widgets/ChinaMapContent'),
     //---option---
     BarOption: () => import('@/components/config/options/BarOption'),
@@ -333,6 +336,7 @@ export default {
     ContrastOption: () => import('@/components/config/options/ContrastOption'),
     FunnelOption: () => import('@/components/config/options/FunnelOption'),
     KpiOption: () => import('@/components/config/options/KpiOption'),
+    ScatterOption: () => import('@/components/config/options/ScatterOption'),
   },
   created() {
     this.$store.dispatch('config/getWidgetList');
