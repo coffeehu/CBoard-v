@@ -272,6 +272,7 @@ let options = {
         series: parseSeries(seriesData.groups, seriesData.keys, seriesData.values, seriesData.data)
       };
 
+
       /*----计算 value 的最大值----*/
       let sortValueArray = valueArray.filter(Boolean).sort((a, b) => {
         if(Number(a) > Number(b)) {

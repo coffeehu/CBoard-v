@@ -69,7 +69,11 @@ export default {
     KpiContent: () => import('@/components/dashboard/widgets/KpiContent'),
     ChartContent: () => import('@/components/dashboard/widgets/ChartContent'),
     TableContent: () => import('@/components/dashboard/widgets/TableContent'),
-    MapContent: () => import('@/components/dashboard/widgets/MapContent')
+    MapContent: () => import('@/components/dashboard/widgets/MapContent'),
+    RadarContent: () => import('@/components/dashboard/widgets/RadarContent'), //雷达图
+    FunnelContent: () => import('@/components/dashboard/widgets/FunnelContent'), //漏斗图
+    ScatterContent: () => import('@/components/dashboard/widgets/ScatterContent'),
+    ChinaMapContent: () => import('@/components/dashboard/widgets/ChinaMapContent'),
   },
   created() {
       this.dashboardTitle = this.$store.state.dashboard.boardData.name;
@@ -93,12 +97,24 @@ export default {
   methods: {
     currentComponent(widget) {
       switch(widget.widget.data.config.chart_type) {
+        case 'line':
+        case 'pie':
+        case 'contrast':
+          return 'ChartContent';
         case 'kpi':
           return 'KpiContent';
         case 'table':
           return 'TableContent';
         case 'map':
           return 'MapContent';
+        case 'radar':
+          return 'RadarContent';
+        case 'funnel':
+          return 'FunnelContent';
+        case 'chinaMap':
+          return 'ChinaMapContent';
+        case 'scatter':
+          return 'ScatterContent';
         default:
           return 'ChartContent';
       }
