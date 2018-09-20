@@ -4,10 +4,10 @@
     <dashboard-loading v-if="loading" :name="widget.name"></dashboard-loading>
 
     <div v-else 
-         :style="{'background-color': mBackground}"
+         :style="{'background-color': mBackground+'!important'}"
          :class="['small-box', style]">
       <div class="inner">
-        <h3>{{ value }}</h3>
+        <h3 :style="contentStyle">{{ value }}</h3>
         <p>{{ widget.name }}</p>
       </div>
       <div class="icon"></div>
@@ -61,7 +61,13 @@ export default {
       loading: true,
       widgetData: {},
   		value: '',
-  		style: ''
+  		style: '',
+      contentStyle: {
+        fontSize: '',
+        color: '',
+        textAlign: '',
+        lineHeight: ''
+      }
   	}
   },
   methods: {
@@ -69,6 +75,16 @@ export default {
       this.widgetData = this.widget.widget.data;
       const format = this.widgetData.config.values[0].format;
       const style = this.style = this.widgetData.config.values[0].style || 'bg-aqua';
+
+      /*----------获得 option，用于调整图表样式----------*/
+      let styleOption = this.widget.widget.data.config.option || {};
+
+      if(typeof styleOption === 'object' && typeof styleOption.font === 'object') {
+        if(styleOption.font.size) this.contentStyle.fontSize = parseFloat(styleOption.font.size) + 'px';
+        if(styleOption.font.align) this.contentStyle.textAlign = styleOption.font.align;
+        if(styleOption.font.color) this.contentStyle.color = styleOption.font.color;
+        if(styleOption.font.lineHeight) this.contentStyle.lineHeight = parseFloat(styleOption.font.lineHeight) + 'px';
+      }
 
       this.loading = true;
       this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters, reload: reload})

@@ -305,6 +305,7 @@ const optionMap = {
   radar: 'RadarOption',
   contrast: 'ContrastOption',
   funnel: 'FunnelOption',
+  kpi: 'KpiOption',
 }
 
 const valueAxisOptionMap = {
@@ -331,6 +332,7 @@ export default {
     RadarOption: () => import('@/components/config/options/RadarOption'),
     ContrastOption: () => import('@/components/config/options/ContrastOption'),
     FunnelOption: () => import('@/components/config/options/FunnelOption'),
+    KpiOption: () => import('@/components/config/options/KpiOption'),
   },
   created() {
     this.$store.dispatch('config/getWidgetList');

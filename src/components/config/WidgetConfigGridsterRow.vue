@@ -37,7 +37,7 @@
 
       <grid-layout
         :layout="widgets"
-        :col-num="parseInt(columnsNumber)"
+        :col-num=" Math.abs(parseInt(columnsNumber)) || 12"
         :row-height="30"
         :is-draggable="true"
         :is-resizable="true"
@@ -93,7 +93,7 @@ export default {
     this.setWidgets();
     this.rowPreviewBackground = this.rowData.background;
     this.columnsPreviewBackground = this.rowData.columnsBackground;
-    this.columnsNumber = this.rowData.columnsNumber || 12;
+    this.columnsNumber = Math.abs(parseInt( this.rowData.columnsNumber) ) || 12;
   },
   watch: {
     rowData() {
@@ -103,7 +103,7 @@ export default {
       this.rowData.widgets = this.widgets;
     },
     columnsNumber() {
-      this.rowData.columnsNumber = this.columnsNumber;
+      this.rowData.columnsNumber = Math.abs(this.columnsNumber || 12);
     }
   },
   computed: {
@@ -224,7 +224,7 @@ export default {
   height:100%;
   border-left: 1px solid rgb(210, 214, 222);
   border-right: 1px solid rgb(210, 214, 222);
-  border-top: 2px solid #3c8dbc;
+  border-top: 2px solid #3c8dbc!important;
 }
 .widget-item > div {
      position: absolute;
