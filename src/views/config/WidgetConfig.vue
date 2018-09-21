@@ -142,8 +142,17 @@
 
                   <!-- Filter -->
                   <div class="el-form-item">
-                    <label class="el-form-item__label">Filter:</label>
+                    <label class="el-form-item__label">
+                      Filter
+                      <i class="el-icon-circle-plus" style="cursor:pointer;margin-left:2px;" @click="addFilter"></i>
+                    </label>
                     <div class="el-form-item__content">
+                    <div class="drop-input">
+                      <div v-for="(filter, index) in filterInput" :key="filter.id" class="col-md-3" style="padding: 0">
+                        <param-selector :param="filter.param"></param-selector>
+                      </div>
+                    </div>
+                      
                       <!-- <draggable class="drop-input"
                                  v-model="filter" 
                                  :options="dragOptions" 
@@ -253,6 +262,67 @@
             <!-- 配置面板 END -->
 
        </div>
+
+
+      <!-- Filter 配置面板 -->
+      <el-dialog title="Filter" 
+                 :visible.sync="isFilterShow"
+                 custom-class="filter-config-dialog">
+          <div class="row">
+              <div class="col-md-12">
+                  <!-- <el-input v-model="paramName" placeholder="请输入名称"></el-input> -->
+                  <ul class="drop-input" style="min-height:40px;height:auto">
+                    <li v-for="(item, index) in filterData"
+                        @click="selectFilter(item)"
+                        :key="item.column"
+                        class="moveable">
+                      <span>
+                        <i class="schema-tree-icon blue-icon"></i>
+                        {{ item.label }}
+                      </span>
+                    </li>
+                  </ul>
+              </div>
+          </div>
+          <div class="row">
+              <div class="col-md-12">
+                <ul class="drop-input" style="min-height:40px;height:auto">
+                  <li v-for="(item, index) in selectedFilterData"
+                      @click="removeSelectedFilter(index)"
+                      :key="item.column"
+                      class="moveable">
+                    <span>
+                      <i class="schema-tree-icon blue-icon"></i>
+                      {{ item.label }}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+          </div>
+          <!-- <div class="row">
+              <div class="col-md-12">
+                  <label class="param-type-label">Param Type :</label>
+                  <el-select v-model="paramTypeValue" placeholder="请选择">
+                      <el-option
+                      v-for="item in paramTypes"
+                      :key="item"
+                      :label="item"
+                      :value="item">
+                      </el-option>
+                  </el-select>
+              </div>
+          </div> -->
+          <!-- param property config -->
+          <!-- <component :is="currentParamDetail" v-model="configDetail"></component> -->
+          <!-- param property config END -->
+          <div class="row">
+              <div class="col-md-12">
+                  <button type="button" class="btn btn-default pull-left" @click="cancelFilterConfig">取消</button>
+                  <button type="button" class="btn btn-primary pull-right" @click="submitFilterConfig">确定</button>
+              </div>
+          </div>
+      </el-dialog>
+
     </div>
 </template>
 
@@ -321,6 +391,7 @@ export default {
     DimensionTree: () => import('@/components/widgetConfig/DimensionTree.vue'),
     MeasureTree: () => import('@/components/widgetConfig/MeasureTree.vue'),
     draggable: () => import('vuedraggable'),
+    //---图表---
     KpiContent: () => import('@/components/dashboard/widgets/KpiContent'),
     ChartContent: () => import('@/components/dashboard/widgets/ChartContent'),
     TableContent: () => import('@/components/dashboard/widgets/TableContent'),
@@ -329,6 +400,10 @@ export default {
     FunnelContent: () => import('@/components/dashboard/widgets/FunnelContent'), //漏斗图
     ScatterContent: () => import('@/components/dashboard/widgets/ScatterContent'),
     ChinaMapContent: () => import('@/components/dashboard/widgets/ChinaMapContent'),
+    //---Filter---
+    ParamSelector: () => import('@/components/dashboard/params/ParamSelector'),
+    ParamSlider: () => import('@/components/dashboard/params/ParamSlider'),
+    DatePicker: () => import('@/components/dashboard/params/DatePicker'),
     //---option---
     BarOption: () => import('@/components/config/options/BarOption'),
     PieOption: () => import('@/components/config/options/PieOption'),
@@ -492,7 +567,12 @@ export default {
         "scatter": true, "gauge": true, "wordCloud": true, "treeMap": true,
         "heatMapCalendar": true, "heatMapTable": true, "liquidFill": true,
         "areaMap": true, "contrast": true,"chinaMap":true,"chinaMapBmap":true,"relation":true
-      }
+      },
+      //Filter 相关
+      isFilterShow: false,
+      filterData: [],
+      selectedFilterData: [],
+      filterInput: []
     }
   },
   computed: {
@@ -698,6 +778,18 @@ export default {
       // 设置 option
       config.option = this.currentOption;
 
+      /*filters 格式：
+      [
+        {
+          col: 'SALES_COUNTRY',
+          type: '=',
+          values: ['Mexico']
+        }
+      ]*/
+      config.filters = this.filters;
+
+      console.log('----this.filters----', this.filters);
+
       // 设置 values（对应 value 的值）
       for(let i=this.value.length-1; i>=0; i--) {
         this.value[i].cols.forEach(c => {
@@ -770,6 +862,10 @@ export default {
           name: 'measureConfig',
         }
       };
+    },
+    filters() {
+      this.loadComplete = false;
+      return this.$store.state.params.filters;
     }
   },
   methods: {
@@ -784,6 +880,32 @@ export default {
         this.column = node.data.config.groups;
         this.row = node.data.config.keys;
         this.value = node.data.config.values;
+        //this.filterInput = node.data.config.filters;
+        /*let schema = this.schemaToSelect(this.currentSchema);
+        this.filterData = [];
+        schema.forEach(item => {
+          let filterDataItem = {
+            label: item.column,
+            key: item.id
+          };
+
+          filterDataItem.param = {
+            cfg: {},
+            col:[{
+              column: item.column,
+              datasetId: this.currentNode.data.datasetId,
+              name: 'FoodMart_Sample'
+            }],
+            name: item.column,
+            paramType: 'selector',
+            type: '=',
+            values: [],
+            selects: []
+          };
+          this.filterData.push(filterDataItem);
+        })
+        console.log('-----this.filterData----', this.filterData)
+        console.log('-----this.filterInput----', node.data.config.filters)*/
 
         // 根据图表类型获得索引，根据索引展示 widget type
         let index = this.getIndexByType(node.data.config.chart_type);
@@ -908,6 +1030,66 @@ export default {
     removeAxisMeasure(index, data) {
       data.splice(index, 1);
     },
+
+    //-----------Filter 相关-------------------
+    addFilter() {
+      this.isFilterShow = true;
+      let schema = this.schemaToSelect(this.currentSchema);
+      this.filterData = [];
+      schema.forEach(item => {
+        let filterDataItem = {
+          label: item.column,
+          key: item.id
+        };
+
+        filterDataItem.param = {
+          cfg: {},
+          col:[{
+            column: item.column,
+            datasetId: this.currentNode.data.datasetId,
+            name: 'FoodMart_Sample'
+          }],
+          name: item.column,
+          paramType: 'selector',
+          type: '=',
+          values: [],
+          selects: []
+        };
+
+        this.filterData.push(filterDataItem);
+      })
+      console.log(11111111111111, schema)
+      console.log(2222222222222, this.filterData)
+    },
+    schemaToSelect(schema) {
+      var selects = [];
+      selects = selects.concat(schema.measure);
+      schema.dimension.forEach(e => {
+        if (e.type == 'level') {
+            e.columns.forEach(c => {
+              selects.push(c);
+            })
+        } else {
+            selects.push(e);
+        }
+      })
+      return selects.slice();
+    },
+    selectFilter(item) {
+      this.selectedFilterData.push(item);
+    },
+    removeSelectedFilter(index) {
+      this.selectedFilterData.splice(index, 1);
+    },
+    submitFilterConfig() {
+      this.isFilterShow = false;
+      this.filterInput = this.selectedFilterData;
+    },
+    cancelFilterConfig() {
+      this.isFilterShow = false;
+    },
+    //------------Filter END-----------------
+
     addValueAxis() {
       if(this.value.length >= this.valueAxisOption.length) return;
       let valueAxisItem = {
@@ -1139,6 +1321,11 @@ span:focus {
   box-shadow: none;
   border: none;
   border-top: 1px solid #dcdfe6;
+}
+
+/*Filter 弹出窗相关*/
+.filter-config-dialog .row {
+    margin-bottom: 15px;
 }
 
 </style>

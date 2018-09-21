@@ -175,6 +175,11 @@ let options = {
       //console.log('--------this.valuesConfig-------------', this.valuesConfig)
       //console.log('--------this.valuesConfig-------------', this.widget.widget.data.config)
 
+      //无 data 数据时，直接返回
+      if(Object.keys(data.data).length === 0) {
+        return {};
+      }
+
       /*------
         根据 this.widget.widget.data.config.values, 重新构造 data.values 数组
         1、主要是为了在每个 item 中，添加 series_type 字段
@@ -404,6 +409,11 @@ let options = {
         当 values 为 n 个，columns 为 m 个，pieChart 个数为 n*m 个
       */
 
+      //无 data 数据时，直接返回
+      if(Object.keys(seriesData.data).length === 0) {
+        return {};
+      }
+
       /*------
         根据 this.widget.widget.data.config.values, 重新构造 data.values 数组
         主要是为了在每个 item 中，添加 series_type 字段
@@ -556,6 +566,10 @@ let options = {
     },
     createContrastOption(seriesData) {
       console.log('----seriesData----', seriesData);
+      //无 data 数据时，直接返回
+      if(Object.keys(seriesData.data).length === 0) {
+        return {};
+      }
 
       /*----------获得 option，用于调整图表样式----------*/
       let styleOption = this.widget.widget.data.config.option || {};

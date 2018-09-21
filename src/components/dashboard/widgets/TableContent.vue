@@ -139,7 +139,7 @@ let options = {
 
           // 构建表格内容数据
           let realTableData = [];
-          const keysLength = keysData[0].length;
+          const keysLength = keysData[0] ? keysData[0].length : 0;
           for(let i=0; i<keysData.length; i++) {
             let colArr = [];
 
@@ -167,7 +167,7 @@ let options = {
 
           //构建表头数据
           let headTableData = [];
-          const groupsLength = groupsData[0].length;
+          const groupsLength = groupsData[0] ? groupsData[0].length : 0;
           for(let i=0; i<groupsLength+1; i++) {
             let colArr = [];
 

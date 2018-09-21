@@ -144,6 +144,11 @@ let options = {
     createOption(seriesData) {
     	console.log('----seriesData-----', seriesData)
 
+      //无 data 数据时，直接返回
+      if(Object.keys(seriesData.data).length === 0) {
+        return {};
+      }
+
       /*----------获得 option，用于调整图表样式----------*/
       let styleOption = this.widget.widget.data.config.option || {};
 
@@ -266,6 +271,12 @@ let options = {
 				let item = { name: key.join('-') };
 				indicator.push(item);
 			})
+      //无数据时，会返回一个空数组[]，此时echarts radar图会报错
+      if(indicator.length === 0) {
+        indicator.push({
+          name: 'empty'
+        })
+      }
 			return indicator;
 		}
 
@@ -298,7 +309,7 @@ let options = {
 			return _arr[0];
 		}
 
-		console.log('----option-----', option)
+		console.log('----radar option-----', option)
 
 		return option;
     }

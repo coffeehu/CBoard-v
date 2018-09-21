@@ -90,7 +90,11 @@ export default {
       this.$store.dispatch('dashboard/getWidgetData', {widgetData: this.widgetData, filters: this.filters, reload: reload})
         .then(() => {
           let data = this.$store.state.dashboard.widgetInfoData;
-          this.value = this.$numbro(data.data[0][0]).format(format);
+          if(data.data[0][0] === null || data.data[0][0] === undefined) {
+            this.value = 'No Data';
+          }else {
+            this.value = this.$numbro(data.data[0][0]).format(format);
+          }
           this.loading = false;
         })
     },

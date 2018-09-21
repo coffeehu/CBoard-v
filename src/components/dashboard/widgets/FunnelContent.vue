@@ -144,6 +144,11 @@ let options = {
     createOption(seriesData) {
     	console.log('----seriesData-----', seriesData)
 
+      //无 data 数据时，直接返回
+      if(Object.keys(seriesData.data).length === 0) {
+        return {};
+      }
+
       /*----------获得 option，用于调整图表样式----------*/
       let styleOption = this.widget.widget.data.config.option || {};
 
@@ -306,6 +311,7 @@ let options = {
       function parseSeriesData(values, data, key) {
         key = key || '';
       	let arr = [];
+
       	values.forEach(value => {
       		let item = {
       			name: value.name,
