@@ -1,3 +1,4 @@
+<!-- 看板设计页面 -->
 <template>
     <div class="content">
         <div class="row">

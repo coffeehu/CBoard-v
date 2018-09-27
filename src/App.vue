@@ -146,4 +146,9 @@ body {
   width: 30px!important;
   height: 30px;
 }
+/*图表设计页面 -- Filter 框 -- Date Picker 样式调整*/
+.filter-param .el-date-editor {
+  height: 28px;
+  line-height: 28px;
+}
 </style>

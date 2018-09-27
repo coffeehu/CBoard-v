@@ -1,3 +1,4 @@
+<!-- 看板设计页面-详情页面 -->
 <template>
     <div class="box">
         <div class="box-header with-border">

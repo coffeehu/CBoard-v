@@ -19,21 +19,18 @@ export default {
 		param: {
 			type: Object,
 			required: true
+		},
+		filterId: String,
+		currentValue: String
+	},
+	watch: {
+		param() {
+			console.log('watch param')
+			this.init();
 		}
 	},
 	created() {
-		this.options = [];
-		this.param.col.forEach(col => {
-			let params = {
-		      datasetId: col.datasetId,
-		      colmunName: col.column
-		    };
-		    this.$store.dispatch('params/getDimensionValues', params)
-		    	.then((data) => {
-		    		this.options = this.options.concat(data);
-		    	})
-		    	.catch(() => {});
-		});
+		this.init();
 	    /*this.options = this.param.selects;*/
 	},
 	data() {
@@ -46,10 +43,30 @@ export default {
 
 	},
 	methods: {
+		init() {
+			this.options = [];
+			this.value = this.currentValue;
+			this.param.col.forEach(col => {
+				let params = {
+			      datasetId: col.datasetId,
+			      colmunName: col.column
+			    };
+			    this.$store.dispatch('params/getDimensionValues', params)
+			    	.then((data) => {
+			    		this.options = this.options.concat(data);
+			    		if(this.currentValue !== undefined && this.currentValue !== null) {
+			    			this.selectChangeHandler();
+			    		}
+			    	})
+			    	.catch(() => {});
+			});
+		},
 		selectChangeHandler() {
 			let selectorFilter = {
 	            col: this.param.col[0].column,
 	            type: '=',
+	            filterId: this.filterId,
+	            paramType: 'ParamSelector',
 	            values: [this.value]
 	        };
 	        this.$store.commit('params/setFilter', selectorFilter);

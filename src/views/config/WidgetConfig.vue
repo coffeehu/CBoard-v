@@ -1,3 +1,4 @@
+<!-- 图表设计页面 -->
 <template>
     <div class="content">
        <div class="row">
@@ -147,23 +148,18 @@
                       <i class="el-icon-circle-plus" style="cursor:pointer;margin-left:2px;" @click="addFilter"></i>
                     </label>
                     <div class="el-form-item__content">
-                    <div class="drop-input">
-                      <div v-for="(filter, index) in filterInput" :key="filter.id" class="col-md-3" style="padding: 0">
-                        <param-selector :param="filter.param"></param-selector>
+                      <div class="drop-input filter-input">
+                        <div v-for="(filter, index) in filterInput" :key="filter.id" class="filter-item">
+                          <component
+                            class="filter-param"
+                            :is="getParamComponent(filter.param.paramType)"
+                            :param="filter.param"
+                            :filterId="filter.key"
+                            :currentValue="filter.value"></component>
+                            <i class="filter-del el-icon-delete" @click="removeFilterInput(index)"></i>
+                          <!-- <param-selector :param="filter.param" :filterId="filter.key" :currentValue="filter.value"></param-selector> -->
+                        </div>
                       </div>
-                    </div>
-                      
-                      <!-- <draggable class="drop-input"
-                                 v-model="filter" 
-                                 :options="dragOptions" 
-                                 element="ul">
-                        <li v-for="(col, index) in filter" :key="col.id" class="moveable">
-                          <span>
-                            <i class="schema-tree-icon blue-icon"></i>
-                            {{ col.alias || col.column || col.col }}
-                          </span>
-                        </li>
-                      </draggable> -->
                     </div>
                   </div>
 
@@ -266,6 +262,7 @@
 
       <!-- Filter 配置面板 -->
       <el-dialog title="Filter" 
+                 @close="filterCloseHandler" 
                  :visible.sync="isFilterShow"
                  custom-class="filter-config-dialog">
           <div class="row">
@@ -299,19 +296,19 @@
                 </ul>
               </div>
           </div>
-          <!-- <div class="row">
+          <div class="row">
               <div class="col-md-12">
                   <label class="param-type-label">Param Type :</label>
                   <el-select v-model="paramTypeValue" placeholder="请选择">
                       <el-option
-                      v-for="item in paramTypes"
-                      :key="item"
-                      :label="item"
-                      :value="item">
+                        v-for="item in paramTypes"
+                        :key="item"
+                        :label="item"
+                        :value="item">
                       </el-option>
                   </el-select>
               </div>
-          </div> -->
+          </div>
           <!-- param property config -->
           <!-- <component :is="currentParamDetail" v-model="configDetail"></component> -->
           <!-- param property config END -->
@@ -572,7 +569,9 @@ export default {
       isFilterShow: false,
       filterData: [],
       selectedFilterData: [],
-      filterInput: []
+      filterInput: [],
+      paramTypeValue: 'selector', //param type 值
+      paramTypes: ['selector', 'slider', 'datePicker'], //param type 列表
     }
   },
   computed: {
@@ -788,8 +787,6 @@ export default {
       ]*/
       config.filters = this.filters;
 
-      console.log('----this.filters----', this.filters);
-
       // 设置 values（对应 value 的值）
       for(let i=this.value.length-1; i>=0; i--) {
         this.value[i].cols.forEach(c => {
@@ -807,7 +804,6 @@ export default {
     // 当前预览的组件名
     currentPreview() {
       let type = this.widgetTypes[this.activeTypeIndex].value;
-      console.log(11111, type)
       return widgetTypeMap[type] ? widgetTypeMap[type] : 'ChartContent';
     },
     // 当前预览的组件数据
@@ -827,6 +823,10 @@ export default {
       widget.widget = widgetData;
 
       return widget;
+    },
+    // Filters
+    filters() {
+      return this.$store.state.params.filters;
     },
     // value 输入框的类型
     axisValueType() {
@@ -862,10 +862,6 @@ export default {
           name: 'measureConfig',
         }
       };
-    },
-    filters() {
-      this.loadComplete = false;
-      return this.$store.state.params.filters;
     }
   },
   methods: {
@@ -880,8 +876,9 @@ export default {
         this.column = node.data.config.groups;
         this.row = node.data.config.keys;
         this.value = node.data.config.values;
-        //this.filterInput = node.data.config.filters;
-        /*let schema = this.schemaToSelect(this.currentSchema);
+
+        //---Filter 相关----
+        let schema = this.schemaToSelect(this.currentSchema);
         this.filterData = [];
         schema.forEach(item => {
           let filterDataItem = {
@@ -902,10 +899,24 @@ export default {
             values: [],
             selects: []
           };
+
           this.filterData.push(filterDataItem);
         })
-        console.log('-----this.filterData----', this.filterData)
-        console.log('-----this.filterInput----', node.data.config.filters)*/
+
+        this.filterInput = [];
+        this.selectedFilterData = [];
+        let filters = node.data.config.filters;
+        if(filters && filters.length>0) {
+          filters.forEach(filter => {
+            this.filterData.forEach(f => {
+              if(filter.filterId === f.key) {
+                f.value = filter.values[0];
+                this.filterInput.push(f);
+                //this.selectedFilterData.push(f);
+              }
+            })
+          })
+        }
 
         // 根据图表类型获得索引，根据索引展示 widget type
         let index = this.getIndexByType(node.data.config.chart_type);
@@ -1034,32 +1045,6 @@ export default {
     //-----------Filter 相关-------------------
     addFilter() {
       this.isFilterShow = true;
-      let schema = this.schemaToSelect(this.currentSchema);
-      this.filterData = [];
-      schema.forEach(item => {
-        let filterDataItem = {
-          label: item.column,
-          key: item.id
-        };
-
-        filterDataItem.param = {
-          cfg: {},
-          col:[{
-            column: item.column,
-            datasetId: this.currentNode.data.datasetId,
-            name: 'FoodMart_Sample'
-          }],
-          name: item.column,
-          paramType: 'selector',
-          type: '=',
-          values: [],
-          selects: []
-        };
-
-        this.filterData.push(filterDataItem);
-      })
-      console.log(11111111111111, schema)
-      console.log(2222222222222, this.filterData)
     },
     schemaToSelect(schema) {
       var selects = [];
@@ -1078,15 +1063,44 @@ export default {
     selectFilter(item) {
       this.selectedFilterData.push(item);
     },
+    removeFilterInput(index) {
+      for(let i=this.filters.length-1; i>=0; i--) {
+        let filter = this.filters[i];
+        if(filter.filterId === this.filterInput[index].key) {
+          this.filters.splice(i, 1);
+        }
+      }
+      this.selectedFilterData.splice(index, 1);
+      this.filterInput.splice(index, 1);
+    },
     removeSelectedFilter(index) {
       this.selectedFilterData.splice(index, 1);
     },
     submitFilterConfig() {
       this.isFilterShow = false;
-      this.filterInput = this.selectedFilterData;
+      this.selectedFilterData.forEach(selected => {
+        selected.param.paramType = this.paramTypeValue;
+        this.filterInput.push(selected);
+      })
+      this.selectedFilterData = [];
     },
     cancelFilterConfig() {
       this.isFilterShow = false;
+    },
+    filterCloseHandler() {
+      this.selectedFilterData = [];
+    },
+    getParamComponent(paramName) {
+      switch(paramName) {
+        case 'slider':
+          return 'ParamSlider';
+        case 'selector':
+          return 'ParamSelector';
+        case 'datePicker':
+          return 'DatePicker';
+        default:
+          return 'ParamSelector';
+      }
     },
     //------------Filter END-----------------
 
@@ -1288,6 +1302,10 @@ span:focus {
 .drop-input.active {
   border-color: #3c8dbc;
 }
+.filter-input {
+  min-height: 40px;
+  height: auto;
+}
 
 .drop-input li {
   display: inline-block;
@@ -1327,5 +1345,38 @@ span:focus {
 .filter-config-dialog .row {
     margin-bottom: 15px;
 }
-
+.filter-item {
+  float: left;
+  font-size: 0px;
+  line-height: normal;
+  margin-right: 10px;
+}
+.filter-item .filter-param {
+  display: inline-block;
+  line-height: normal;
+  margin-top: 6px;
+  font-size: 12px;
+  vertical-align: middle;
+}
+/*filter 删除按钮*/
+.filter-item .filter-del {
+  display: inline-block;
+  line-height: normal;
+  margin-top: 6px;
+  height: 28px;
+  line-height: 28px;
+  font-size: 12px;
+  vertical-align: middle;
+  border-top: 1px solid #dcdfe6;
+  border-bottom: 1px solid #dcdfe6;
+  border-right: 1px solid #dcdfe6;
+  border-radius: 2px;
+  width: 18px;
+  text-align: center;
+  color: #555;
+  cursor: pointer;
+}
+.el-date-editor {
+  background-color: red;
+}
 </style>

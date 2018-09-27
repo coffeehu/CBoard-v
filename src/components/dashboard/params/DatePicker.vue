@@ -21,30 +21,20 @@ export default {
     param: {
       type: Object,
       required: true
-    }
+    },
+    filterId: String,
+    currentValue: String
   },
-  mounted() {
+  watch: {
+    param() {
+      this.init();
+    }
   },
   created() {
     this.valueFormat = this.param.cfg.format;
     this.width = this.param.cfg.width;
 
-    this.options = [];
-    this.param.col.forEach(col => {
-      let params = {
-          datasetId: col.datasetId,
-          colmunName: col.column
-        };
-        this.$store.dispatch('params/getDimensionValues', params)
-          .then((data) => {
-            this.options = this.options.concat(data);
-            if(this.options[0]) {
-              this.defaultValue = this.options[0];
-            }
-          })
-          .catch(() => {});
-    });
-
+    this.init();
   },
   data() {
   	return {
@@ -56,18 +46,39 @@ export default {
   	}
   },
   methods: {
+    init() {
+      this.options = [];
+      this.param.col.forEach(col => {
+        let params = {
+          datasetId: col.datasetId,
+          colmunName: col.column
+        };
+        this.$store.dispatch('params/getDimensionValues', params)
+          .then((data) => {
+            this.options = this.options.concat(data);
+            if(this.options[0]) {
+              this.defaultValue = this.options[0];
+            }
+          })
+          .catch(() => {});
+      });
+    },
     handleChange(value) {
       let filter;
       if(value) {
         filter = {
             col: this.param.col[0].column,
             type: '[a,b]',
+            filterId: this.filterId,
+            paramType: 'DatePicker',
             values: value
         };
       }else {
         filter = {
             col: this.param.col[0].column,
             type: '[a,b]',
+            filterId: this.filterId,
+            paramType: 'DatePicker',
             values: ''
         };
       }
