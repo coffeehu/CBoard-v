@@ -7,7 +7,8 @@ import api from '@/utils/http/api';
 
 const state = {
   widgetList: [],
-  datasetList: []
+  datasetList: [],
+  datasourceList: []
 }
 
 
@@ -50,6 +51,18 @@ const actions = {
           reject(error);
         })
     });
+  },
+  // 获得数据源列表，数据集管理页面用到
+  getDatasourceList(context) {
+    req.get(api.getDatasourceList)
+    .then(response => {
+      if(response.statusText === 'OK') {
+        context.commit('setDatasourceList', response.data);
+      }
+    })
+    .catch(error => {
+      console.log(error)
+    })
   }
 
 }
@@ -61,6 +74,9 @@ const mutations = {
   },
   setDatasetList(state, datasetList) {
     state.datasetList = datasetList;
+  },
+  setDatasourceList(state, datasourceList) {
+    state.datasourceList = datasourceList;
   }
 }
 

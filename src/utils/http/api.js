@@ -44,7 +44,10 @@ const api = {
 	saveNewWidget: baseurl + 'dashboard/saveNewWidget.do',
 	updateWidget: baseurl + 'dashboard/updateWidget.do',
 	deleteWidget: baseurl + 'dashboard/deleteWidget.do',
-	
+
+	/*---Dataset 数据集管理---*/
+	getDatasourceList: baseurl + 'dashboard/getDatasourceList.do',
+	getDatasetCategoryList: baseurl + 'dashboard/getDatasetCategoryList.do',
 	
 }
 

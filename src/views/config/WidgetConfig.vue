@@ -1047,7 +1047,7 @@ export default {
       this.isFilterShow = true;
     },
     schemaToSelect(schema) {
-      var selects = [];
+      let selects = [];
       selects = selects.concat(schema.measure);
       schema.dimension.forEach(e => {
         if (e.type == 'level') {

@@ -44,9 +44,17 @@ body {
   height: 100%;*/
   min-height: 100%;
 }
+/*公共样式*/
+.dashed-box {
+  border: 2px dashed #d2d6de;
+  min-height: 200px;
+  padding: 0;
+}
+
+
 .el-select .el-input.is-focus .el-input__inner,
 .el-input.is-active .el-input__inner, .el-input__inner:focus {
-  border-color: #3c8dbc;
+  /*border-color: #3c8dbc;*/
 }
 /*配置界面--preview 弹框*/
 .preview-config-modal {
