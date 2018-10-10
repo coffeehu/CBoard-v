@@ -785,7 +785,20 @@ export default {
           values: ['Mexico']
         }
       ]*/
-      config.filters = this.filters;
+      // TODO: filterInput 的数据转成 this.filters 格式，发现 filterInput 的数据格式有很多冗余和不合理，需要后续处理
+      let filters = [];
+      this.filterInput.forEach(filter => {
+        let item = {
+          col: filter.label,
+          filterId: filter.key,
+          paramType: filter.param.paramType,
+          type: '=',
+          values: [ filter.value ]
+        }
+        filters.push(item)
+      })
+      //config.filters = this.filters;
+      config.filters = filters;
 
       // 设置 values（对应 value 的值）
       for(let i=this.value.length-1; i>=0; i--) {

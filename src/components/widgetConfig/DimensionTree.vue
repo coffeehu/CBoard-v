@@ -14,6 +14,7 @@
             <i v-if="item.columns" class="schema-tree-icon hierarchy-icon"></i>
             <i v-else class="schema-tree-icon blue-icon"></i>
             {{ item.alias || item.column }}
+            <i v-if="edit" class="fa fa-trash-o" @click="del(index, treeData)"></i>
           </span>
 
           <draggable v-if="item.columns" v-model="item.columns" :options="dragOptions" element="ul">
@@ -21,6 +22,7 @@
               <span>
                 <i class="schema-tree-icon blue-icon"></i>
                 {{ col.alias || col.column }}
+                <i v-if="edit" class="fa fa-trash-o" @click="del(index, item.columns)"></i>
               </span>
             </li>
           </draggable>
@@ -42,6 +44,10 @@ export default {
       default() {
         return [];
       }
+    },
+    edit: {  //开启编辑（可以删除结构）
+      type: Boolean,
+      default: false
     }
   },
   components: {
@@ -61,6 +67,11 @@ export default {
         animation: 0,
         group: 'dimensionConfig',
       };
+    }
+  },
+  methods: {
+    del(index, arr) {
+      arr.splice(index, 1);
     }
   }
 }
@@ -116,6 +127,10 @@ export default {
 }
 .blue-icon {
   background: url(../../assets/imgs/schema/bullet_blue.png);
+}
+
+.fa-trash-o {
+  cursor: pointer;
 }
 
 </style>

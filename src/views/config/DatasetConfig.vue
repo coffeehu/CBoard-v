@@ -71,11 +71,23 @@
                 <div class="row">
                   <div class="col-md-6">
                     <div class="dashed-box dataset-collection">
-                      <span v-for="item in datasetCollection" :key="item">{{ item }}</span>
+                      <span v-for="item in datasetCollection"
+                       :key="item.name" 
+                       :class="{selected: item.selected}"
+                       @click="selectDataset(item)">{{ item.name }}</span>
                     </div>
                   </div>
                   <div class="col-md-6">
-                    <div class="dashed-box dataset-tree"></div>
+                    <div class="dashed-box dataset-tree">
+                      <dimension-tree v-if="currentDataset.data.schema.dimension.length > 0" :treeData="currentDataset.data.schema.dimension" :edit="true"></dimension-tree>
+                      <measure-tree v-if="currentDataset.data.schema.measure.length > 0" :treeData="currentDataset.data.schema.measure"></measure-tree>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-12" style="margin-top: 20px">
+                    <el-button type="primary" size="small" class="pull-right" @click="save">Save</el-button>
                   </div>
                 </div>
 
@@ -88,8 +100,14 @@
 </template>
 
 <script>
+import UUID from '@/utils/uuid.js';
+
 export default {
   name: 'DatasetConfig',
+  components: {
+    DimensionTree: () => import('@/components/widgetConfig/DimensionTree.vue'),
+    MeasureTree: () => import('@/components/widgetConfig/MeasureTree.vue')
+  },
   created() {
   	this.$store.dispatch('config/getDatasetList');
     this.$store.dispatch('config/getDatasourceList');
@@ -100,8 +118,9 @@ export default {
 	    	label: 'name'
 	    },
       datasetConfigVisible: false,
+      currentNode: null,
       currentDataset: null, //当前的 dataset，点击左侧目录node获得
-      datasetCollection: null, //点击 Load Data 加载后，虚线框内获得的字段
+      allDataset: [], //通过请求返回的所有的 dataset 字段
   	}
   },
   computed: {
@@ -153,15 +172,30 @@ export default {
         }
       })
       return selects;
-    }
+    },
+    datasetCollection() { //点击 Load Data 加载后，虚线框内获得的字段
+      let collection = [];
+      this.allDataset.forEach(item => {
+        let obj = { name: item };
+        if( this.existInSelected(item) ) {
+          obj.selected = true;
+        }else {
+          obj.selected = false;
+        }
+        collection.push(obj);
+      })
+      return collection;
+    },
   },
   methods: {
   	handleNodeClick(node) {
       if(node.children) {
         return;
       }
+      this.currentNode = node;
       this.datasetConfigVisible = true;
       this.currentDataset = node;
+      this.allDataset = [];
   		console.log(node)
   	},
     loadData() {
@@ -171,10 +205,57 @@ export default {
       };
       this.$store.dispatch('config/getColumns', params)
       .then(data => {
-        console.log(1111, data)
-        console.log(22222, this.datasetSelected)
-        this.datasetCollection = data;
+        this.allDataset = data;
       })
+    },
+    existInSelected(name) {
+      for(let i=0; i<this.datasetSelected.length; i++) {
+        if(name === this.datasetSelected[i].column) {
+          return true;
+        }
+      }
+      return false;
+    },
+    selectDataset(dataset) {
+      if(dataset.selected) {
+        return;
+      }else {
+        let id = UUID.generate();
+        let item = {
+          column: dataset.name,
+          type: 'column',
+          id: id
+        }
+        this.currentDataset.data.schema.dimension.push(item);
+        dataset.selected = true;
+      }
+    },
+    save() {
+      let params = {
+        json: JSON.stringify(this.currentNode)
+      };
+      this.$req.post(this.$api.updateDataset, params)
+        .then(res => {
+          if(res.status === 200) {
+            this.$message({
+                type: 'success',
+                message: '保存成功!'
+            });
+          }else {
+            this.$message({
+                type: 'error',
+                message: '保存失败!'
+            });
+          }
+        })
+        .catch(err => {
+          console.log('err', err)
+          this.$message({
+              type: 'error',
+              message: '保存失败!'
+          });
+        })
+
     }
   }
 }

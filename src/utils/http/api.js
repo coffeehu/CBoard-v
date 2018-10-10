@@ -48,6 +48,7 @@ const api = {
 	/*---Dataset 数据集管理---*/
 	getDatasourceList: baseurl + 'dashboard/getDatasourceList.do',
 	getDatasetCategoryList: baseurl + 'dashboard/getDatasetCategoryList.do',
+	updateDataset: baseurl + 'dashboard/updateDataset.do',
 	
 }
 
