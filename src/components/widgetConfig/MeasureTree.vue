@@ -6,7 +6,7 @@
         <b>Measure</b>
       </span>
 
-      <draggable v-model="value" :options="dragOptions"  element="ul">
+      <draggable v-model="value" :options="options"  element="ul">
         <li v-for="(item, index) in value" :key="item.column" class="moveable">
           <span>
             <i class="schema-tree-icon red-icon"></i>
@@ -30,6 +30,12 @@ export default {
       default() {
         return [];
       }
+    },
+    options: {
+      type: Object,
+      default() {
+        return {};
+      }
     }
   },
   components: {
@@ -39,24 +45,13 @@ export default {
     this.value = this.treeData
   },
   watch: {
-    treeData() {
-      this.value = this.treeData
+    value(value) {
+      this.$emit('input', value);
     }
   },
   data() {
     return {
       value: []
-    }
-  },
-  computed: {
-    dragOptions () {
-      return  {
-        animation: 0,
-        group: {
-          name: 'measureConfig',
-          pull: 'clone'
-        }
-      };
     }
   }
 }

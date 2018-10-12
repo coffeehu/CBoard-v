@@ -79,8 +79,17 @@
                   </div>
                   <div class="col-md-6">
                     <div class="dashed-box dataset-tree">
-                      <dimension-tree v-if="currentDataset.data.schema.dimension.length > 0" :treeData="currentDataset.data.schema.dimension" :edit="true"></dimension-tree>
-                      <measure-tree v-if="currentDataset.data.schema.measure.length > 0" :treeData="currentDataset.data.schema.measure"></measure-tree>
+                      <dimension-tree 
+                        v-if="currentDataset.data.schema.dimension.length > 0" 
+                        v-model="currentDimension"
+                        :treeData="currentDataset.data.schema.dimension"
+                        :options="dimensionOptions"
+                        :edit="true"></dimension-tree>
+                      <measure-tree 
+                        v-if="currentDataset.data.schema.measure.length > 0"
+                        v-model="currentMeasure"
+                        :treeData="currentDataset.data.schema.measure"
+                        :options="measureOptions"></measure-tree>
                     </div>
                   </div>
                 </div>
@@ -117,6 +126,16 @@ export default {
   		mainTreeProps: {
 	    	label: 'name'
 	    },
+      currentDimension: [],
+      currentMeasure: [],
+      dimensionOptions: {
+        animation: 0,
+        group: 'valueGroup',
+      },
+      measureOptions: {
+        animation: 0,
+        group: 'valueGroup',
+      },
       datasetConfigVisible: false,
       currentNode: null,
       currentDataset: null, //当前的 dataset，点击左侧目录node获得
@@ -199,9 +218,22 @@ export default {
   		console.log(node)
   	},
     loadData() {
+      /*const temp_sql = `SELECT    
+       b.the_year + 5 AS the_year, b.month_of_year, b.day_of_month,
+       date_add(b.the_date, interval 5 year) AS the_date,
+       r.SALES_DISTRICT, r.SALES_REGION, r.SALES_COUNTRY,
+       d.yearly_income, d.total_children, d.member_card, d.num_cars_owned, d.gender,
+       a.store_sales, a.store_cost, a.unit_sales
+  FROM foodmart2.sales_fact_sample a
+  JOIN foodmart2.time_by_day b ON a.time_id = b.time_id
+  JOIN foodmart2.store c ON a.store_id = c.store_id
+  JOIN foodmart2.region r ON c.REGION_ID = r.REGION_ID
+  JOIN foodmart2.customer d ON a.CUSTOMER_ID = d.CUSTOMER_ID
+ WHERE SALES_COUNTRY IS NOT NULL` // 线上预览，写死该语句。*/
       let params = {
         datasourceId: this.currentDataset.data.datasource,
         query: JSON.stringify( {sql: this.currentDataset.data.query.sql} )
+        //query: JSON.stringify( {sql: temp_sql} ) // 线上预览，写死该语句。
       };
       this.$store.dispatch('config/getColumns', params)
       .then(data => {
@@ -231,6 +263,9 @@ export default {
       }
     },
     save() {
+      //return //线上预览，禁用save
+      this.currentNode.data.schema.dimension = this.currentDimension;
+      this.currentNode.data.schema.measure = this.currentMeasure;
       let params = {
         json: JSON.stringify(this.currentNode)
       };

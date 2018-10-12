@@ -7,17 +7,17 @@
         <b>Dimension</b>
       </span>
 
-      <draggable v-model="value" :options="dragOptions" element="ul">
-        <li v-for="(item, index) in treeData" :key="item.id" :class="{'moveable': !item.columns}">
+      <draggable v-model="value" :options="options" element="ul">
+        <li v-for="(item, index) in value" :key="item.id" :class="{'moveable': !item.columns}">
           <span>
             <i v-if="item.columns" class="fa fa-caret-down"></i>
             <i v-if="item.columns" class="schema-tree-icon hierarchy-icon"></i>
             <i v-else class="schema-tree-icon blue-icon"></i>
             {{ item.alias || item.column }}
-            <i v-if="edit" class="fa fa-trash-o" @click="del(index, treeData)"></i>
+            <i v-if="edit" class="fa fa-trash-o" @click="del(index, value)"></i>
           </span>
 
-          <draggable v-if="item.columns" v-model="item.columns" :options="dragOptions" element="ul">
+          <draggable v-if="item.columns" v-model="item.columns" :options="options" element="ul">
             <li v-for="(col, index) in item.columns" :key="col.id" class="moveable">
               <span>
                 <i class="schema-tree-icon blue-icon"></i>
@@ -45,6 +45,12 @@ export default {
         return [];
       }
     },
+    options: {
+      type: Object,
+      default() {
+        return {};
+      }
+    },
     edit: {  //开启编辑（可以删除结构）
       type: Boolean,
       default: false
@@ -53,20 +59,20 @@ export default {
   components: {
     draggable: () => import('vuedraggable')
   },
+  watch: {
+    value(value) {
+      this.$emit('input', value);
+    },
+    treeData() {
+      this.value = this.treeData;
+    }
+  },
   created() {
     this.value = this.treeData;
   },
   data() {
     return {
       value: []
-    }
-  },
-  computed: {
-    dragOptions () {
-      return  {
-        animation: 0,
-        group: 'dimensionConfig',
-      };
     }
   },
   methods: {

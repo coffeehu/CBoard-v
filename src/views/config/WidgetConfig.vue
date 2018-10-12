@@ -28,8 +28,8 @@
                         </div>
                     </div>
                     <div class="panel-body">
-                          <dimension-tree v-if="currentSchema.dimension" :treeData="currentDimension"></dimension-tree>
-                          <measure-tree v-if="currentSchema.measure" :treeData="currentMeasure"></measure-tree>
+                          <dimension-tree v-if="currentSchema.dimension" :treeData="currentDimension" :options="dragOptions"></dimension-tree>
+                          <measure-tree v-if="currentSchema.measure" :treeData="currentMeasure" :options="dragMeasureOptions"></measure-tree>
                     </div>
                 </div>
             </div>
@@ -565,6 +565,13 @@ export default {
         "heatMapCalendar": true, "heatMapTable": true, "liquidFill": true,
         "areaMap": true, "contrast": true,"chinaMap":true,"chinaMapBmap":true,"relation":true
       },
+      dragMeasureOptions: {
+        animation: 0,
+        group: {
+          name: 'measureConfig',
+          pull: 'clone'
+        }
+      },
       //Filter 相关
       isFilterShow: false,
       filterData: [],
@@ -1042,6 +1049,7 @@ export default {
       });
     },
     removeDimension(index, type) {
+      console.log('---this.column---', this.column, index)
       if(type === 'col') {
         this.column.splice(index, 1);
       }else if(type === 'row') {
