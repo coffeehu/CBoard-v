@@ -27,7 +27,7 @@
                 <div class="col-md-12">
                     <div class="form-group">
                         <label>Category</label>
-                        <el-select v-model="category" placeholder="请选择" class="board-config--select">
+                        <el-select v-model="board.categoryId" placeholder="请选择" class="board-config--select">
                             <el-option
                               v-for="item in categoryList"
                               :key="item.id"
@@ -218,11 +218,20 @@ export default {
                 default:
                     return 'SelectorConfigDetail';
             }
+        },
+        currentCategory() {
+            let obj = { name:'', id:-1 };
+            this.categoryList.forEach(category => {
+                if(category.id == this.board.categoryId) {
+                    obj.name = category.name;
+                    obj.id = category.id;
+                }
+            })
+            return obj;
         }
 	},
 	data() {
         return {
-            category: '',
             name: '',
             rows: [],
             boardList: [],
@@ -257,7 +266,6 @@ export default {
                     }
                 }
                 this.rows = this.board.layout.rows;
-                this.category = this.board.categoryId;
                 this.boardType = '';
             }
             // 新增 Timelline Layout
@@ -271,7 +279,6 @@ export default {
                     }
                 }
                 this.rows = this.board.layout.rows;
-                this.category = this.board.categoryId;
                 this.boardType = 'timeline'; 
             }
             // 新增 Timelline Layout
@@ -285,14 +292,12 @@ export default {
                     }
                 }
                 this.rows = this.board.layout.rows;
-                this.category = this.board.categoryId;
                 this.boardType = 'gridster'; 
             }
             // 点击 tree item 切换配置页面
             else {
                 this.setBoardById(parseInt(id));
                 this.rows = this.board.layout.rows;
-                this.category = this.board.categoryId;
                 this.boardType = this.board.layout.type;
             }
             this.paramColumns = [];
@@ -355,6 +360,7 @@ export default {
             if(!this.board.categoryId) {
                 return;
             }
+            this.board.categoryName = this.currentCategory.name;
             let id = this.$route.params.id;
 
             const params = {
@@ -414,7 +420,7 @@ export default {
                     const id = this.$route.params.id;
                     let name = '';
                     for(let i=0,l=this.categoryList.length; i<l; i++) {
-                        if(this.categoryList[i].id === this.category) {
+                        if(this.categoryList[i].id === this.board.categoryId) {
                             name = this.categoryList[i].name;
                             break;
                         }

@@ -91,6 +91,13 @@ export default {
 			closeOnClickModal: false
 		})
 		.then(() => {
+      //-----线上预览，禁用----
+      this.$message({
+          type: 'warning',
+          message: '该功能已禁用'
+      }); 
+      return;
+      //-----线上预览END----
 			let param = {
 				id: category.id
 			}
@@ -186,7 +193,9 @@ export default {
 }
 .category-item {
 	padding: 10px 15px;
-	font-size: 16px;
+	font-size: 14px;
+  border-bottom: 1px solid #f4f4f4;
+  color: #333;
 }
 .category-item:hover {
 	background-color: #f7f7f7;
@@ -194,7 +203,7 @@ export default {
 .category-item i {
 	margin-right: 5px;
 	cursor: pointer;
-	color: #dd4b39;
+	color: #3c8dbc;
 }
 .box-footer button {
 	margin-left: 20px;

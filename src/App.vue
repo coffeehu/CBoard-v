@@ -159,4 +159,15 @@ body {
   height: 28px;
   line-height: 28px;
 }
+/*数据源管理页面*/
+.datasource .el-tree-node__content {
+  border-bottom: 1px solid #f4f4f4;
+  padding: 20px 0;
+}
+.datasource-form label {
+  margin-bottom: 0;
+}
+.datasource-form .el-form-item {
+  margin-bottom: 10px; 
+}
 </style>

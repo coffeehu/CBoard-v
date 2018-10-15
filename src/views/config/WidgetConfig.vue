@@ -9,7 +9,7 @@
                     <div class="box-header with-border">
                         <i class="fa fa-dashboard"></i><h3 class="box-title">Widget</h3>
                         <div class="box-tools pull-right">
-                            <i class="el-icon-circle-plus-outline" @click="addWidget"></i>
+                            <i class="fa fa-plus toolbar-icon" @click="addWidget"></i>
                         </div>
                     </div>
                     <div class="panel-body">
@@ -1219,8 +1219,7 @@ export default {
     padding: 10px 20px;
 }
 .box-tools > i {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 16px;
   cursor: pointer;
 }
 .box-header .el-icon-delete {

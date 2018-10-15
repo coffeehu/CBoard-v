@@ -21,6 +21,7 @@
   			    </div>
   			</div>
 
+        <!-- 配置面板 -->
   			<div class="col-md-9" v-if="datasetConfigVisible">
   				<div class="box">
               <div class="box-header with-border">
@@ -218,7 +219,7 @@ export default {
   		console.log(node)
   	},
     loadData() {
-      /*const temp_sql = `SELECT    
+     /* const temp_sql = `SELECT    
        b.the_year + 5 AS the_year, b.month_of_year, b.day_of_month,
        date_add(b.the_date, interval 5 year) AS the_date,
        r.SALES_DISTRICT, r.SALES_REGION, r.SALES_COUNTRY,
@@ -263,7 +264,6 @@ export default {
       }
     },
     save() {
-      //return //线上预览，禁用save
       this.currentNode.data.schema.dimension = this.currentDimension;
       this.currentNode.data.schema.measure = this.currentMeasure;
       let params = {

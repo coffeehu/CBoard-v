@@ -12,6 +12,7 @@ export default {
 
 <style>
 .content-wrapper {
+  position: relative;
   background-color: #ecf0f5;
   min-height: 837px!important;
 }

@@ -7,10 +7,6 @@
                 <div class="box box-solid">
                     <div class="box-header with-border">
                         <i class="fa fa-dashboard"></i><h3 class="box-title">Dashboard</h3>
-                        <div class="box-tools pull-right operateBox">
-                            <i class="fa fa-info toolbar-icon"></i>
-                            <i class="fa fa-copy toolbar-icon"></i>
-                        </div>
                     </div>
                     <div class="panel-body">
                         <el-tree :data="treeData" @node-click="handleNodeClick" @node-contextmenu="handleContextmenu"></el-tree>
@@ -167,6 +163,13 @@ export default {
           closeOnClickModal: false,
           customClass: 'preview-config-modal'
         }).then(() => {
+          //-----线上预览，禁用----
+          this.$message({
+              type: 'warning',
+              message: '该功能已禁用'
+          }); 
+          return;
+          //-----线上预览END----
           let id = this.currentTreeItem.id;
           let params = { id: id };
           this.$req.post(this.$api.deleteBoard, params)

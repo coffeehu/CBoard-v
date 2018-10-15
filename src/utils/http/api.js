@@ -3,6 +3,7 @@ const baseurl = '/api/'; // In Dev
 const api = {
 	//登录
 	//login: baseurl + 'login',
+	//getUserDetail: baseurl + 'commons/getUserDetail.do'
 
 	//获取目录
 	getMenuList: baseurl + 'commons/getMenuList.do',
@@ -49,6 +50,12 @@ const api = {
 	getDatasourceList: baseurl + 'dashboard/getDatasourceList.do',
 	getDatasetCategoryList: baseurl + 'dashboard/getDatasetCategoryList.do',
 	updateDataset: baseurl + 'dashboard/updateDataset.do',
+
+	/*---Dataset 数据源管理---*/
+	updateDatasource: baseurl + 'dashboard/updateDatasource.do',
+	//GET dashboard/getProviderList.do
+	//get : dashboard/getDatasourceParams.do?type=jdbc
+
 	
 }
 
