@@ -91,13 +91,6 @@ export default {
 			closeOnClickModal: false
 		})
 		.then(() => {
-      //-----线上预览，禁用----
-      this.$message({
-          type: 'warning',
-          message: '该功能已禁用'
-      }); 
-      return;
-      //-----线上预览END----
 			let param = {
 				id: category.id
 			}

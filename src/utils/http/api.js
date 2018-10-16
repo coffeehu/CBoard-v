@@ -53,7 +53,9 @@ const api = {
 
 	/*---Dataset 数据源管理---*/
 	updateDatasource: baseurl + 'dashboard/updateDatasource.do',
-	//GET dashboard/getProviderList.do
+	getProviderList: baseurl + 'dashboard/getProviderList.do',
+	addDatasource: baseurl + 'dashboard/saveNewDatasource.do',
+	deleteDatasource: baseurl + 'dashboard/deleteDatasource.do',
 	//get : dashboard/getDatasourceParams.do?type=jdbc
 
 	

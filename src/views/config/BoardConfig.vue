@@ -163,13 +163,6 @@ export default {
           closeOnClickModal: false,
           customClass: 'preview-config-modal'
         }).then(() => {
-          //-----线上预览，禁用----
-          this.$message({
-              type: 'warning',
-              message: '该功能已禁用'
-          }); 
-          return;
-          //-----线上预览END----
           let id = this.currentTreeItem.id;
           let params = { id: id };
           this.$req.post(this.$api.deleteBoard, params)

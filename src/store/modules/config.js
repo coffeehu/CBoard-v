@@ -8,7 +8,8 @@ import api from '@/utils/http/api';
 const state = {
   widgetList: [],
   datasetList: [],
-  datasourceList: []
+  datasourceList: [],
+  providerList: []
 }
 
 
@@ -67,6 +68,18 @@ const actions = {
           reject(error);
         })
     })
+  },
+  getProviderList(context) {
+    return new Promise((resolve, reject) => {
+      req.get(api.getProviderList)
+        .then(response => {
+          context.commit('setProviderList', response.data);
+          resolve(response.data);
+        })
+        .catch(error => {
+          reject(error)
+        })
+    })
   }
 
 }
@@ -81,6 +94,9 @@ const mutations = {
   },
   setDatasourceList(state, datasourceList) {
     state.datasourceList = datasourceList;
+  },
+  setProviderList(state, payload) {
+    state.providerList = payload;
   }
 }
 
