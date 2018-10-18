@@ -5,6 +5,7 @@
     <el-dialog
       :title="dialogName"
       :visible.sync="visible"
+      :append-to-body="true"
       @close="handleDialogClose"
       width="80%"
       center>

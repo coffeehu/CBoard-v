@@ -26,33 +26,55 @@
 
   			<div class="col-md-9" v-if="visible">
   				<div class="box">
-	         		<div class="box-header with-border">
-	            		<h3 class="box-title" style="font-weight: bold">{{ datasourceForm.name }}</h3>
-	        		</div>
-	        		<div class="box-body datasource-form">
-	        			<div class="el-form-item">
-	        				<label class="el-form-item__label">Data Source Type</label>
-	        				<div class="el-form-item__content">
-	        					<el-select v-model="type" :disabled="!eidtable" style="width: 100%">
-	        						<el-option 
-	        							v-for="provider in providerList"
-	        							:key="provider"
-	        							:label="provider"
-	        							:value="provider"></el-option>
-	        					</el-select>
-	        				</div>
-	        			</div>
-	        			<!-- <jdbc-form v-model="datasourceForm" ref="datasourceForm"></jdbc-form> -->
-	        			<component v-show="type !== ''" :is="currentForm" v-model="datasourceForm" ref="datasourceForm"></component>
-	        			<div class="el-form-item">
-	        				<el-button @click="save" style="float:right;margin-left:10px;" type="primary">Save</el-button>
-	        				<el-button style="float:right">Test</el-button>
-	        			</div>
-	        		</div>
-	        	</div>
-	        </div>
-
+         		<div class="box-header with-border">
+            		<h3 class="box-title" style="font-weight: bold">{{ datasourceForm.name }}</h3>
+        		</div>
+        		<div class="box-body datasource-form">
+        			<div class="el-form-item">
+        				<label class="el-form-item__label">Data Source Type</label>
+        				<div class="el-form-item__content">
+        					<el-select v-model="type" :disabled="!eidtable" style="width: 100%">
+        						<el-option 
+        							v-for="provider in providerList"
+        							:key="provider"
+        							:label="provider"
+        							:value="provider"></el-option>
+        					</el-select>
+        				</div>
+        			</div>
+        			<!-- <jdbc-form v-model="datasourceForm" ref="datasourceForm"></jdbc-form> -->
+        			<component v-show="type !== ''" :is="currentForm" v-model="datasourceForm" ref="datasourceForm"></component>
+        			<div class="el-form-item">
+        				<el-button @click="save" style="float:right;margin-left:10px;" type="primary">Save</el-button>
+        				<el-button @click="test" style="float:right">Test</el-button>
+        			</div>
+        		</div>
+        	</div>
+        </div>
 		</div>
+
+    <el-dialog
+      title="Test" 
+      @close="closeTestHandler" 
+      :visible.sync="isTestShow"
+      :modal-append-to-body="false">
+      <div class="test-content">
+        <div class="test-label">Sql Text</div>
+        <div class="test-input">
+          <el-input v-model="testSql" type="textarea"></el-input>
+        </div>        
+      </div>
+      <div class="test-footer">
+        <el-button @click="submitTest" class="pull-right" size="small" type="primary" style="margin-left:20px;">test</el-button>
+        <el-button @click="cancelTest" class="pull-right" size="small">cancel</el-button>
+      </div>
+      <el-alert
+        @close="closeAlerteHandler"
+        v-if="testResponse.visible"
+        :title="testResponse.title"
+        :type="testResponse.type">
+      </el-alert>
+    </el-dialog>
 	</div>
 </template>
 
@@ -77,7 +99,14 @@ export default {
   		eidtable: false,
   		type: '',
   		datasourceForm: {},
-  		flag: 'edit' // 用于判断 save 按钮执行的是【添加】还是【更新】
+  		flag: 'edit', // 用于判断 save 按钮执行的是【添加】还是【更新】
+      isTestShow: false,
+      testSql: '',
+      testResponse: {
+        title: '',
+        type: '',
+        visible: false
+      }
   	}
   },
   computed: {
@@ -210,7 +239,62 @@ export default {
   					})
   			}
   		})
-  	}
+  	},
+    // 弹出 Test 窗口
+    test() {
+      this.$refs['datasourceForm'].$children[0].validate(valid => {
+        if(valid) {
+          this.resetTest();
+          this.isTestShow = true;
+          this.currentDatasource.config = this.datasourceForm;
+          this.currentDatasource.name = this.datasourceForm.name;
+          this.currentDatasource.type = this.datasourceForm.type;
+        }
+      })
+    },
+    // 提交 test
+    submitTest() {
+      let sqlObj = {
+        sql: this.testSql
+      }
+      let params = {
+        datasource: JSON.stringify(this.currentDatasource),
+        query: JSON.stringify(sqlObj)
+      }
+      this.$req.post(this.$api.test, params)
+        .then(res => {
+          console.log(res)
+          if(res.data.status === '1') {
+            this.testResponse.title = 'Success';
+            this.testResponse.type = 'success';
+          }else {
+            this.testResponse.title = res.data.msg;
+            this.testResponse.type = 'error';
+          }
+          this.testResponse.visible = true;
+        })
+        .catch(err => {
+          console.log(err)
+          this.testResponse.title = 'Error';
+          this.testResponse.type = 'error';
+          this.testResponse.visible = true;
+        })
+    },
+    // 关闭 Test 窗口
+    cancelTest() {
+      this.isTestShow = false;
+    },
+    closeTestHandler() {
+      this.isTestShow = false;
+    },
+    closeAlerteHandler() {
+      this.testResponse.visible = false;
+    },
+    // 重置 Test 窗口的值
+    resetTest() {
+      this.testSql = '';
+      this.testResponse.visible = false;
+    }
   }
 }
 </script>
@@ -240,5 +324,19 @@ export default {
 	margin-right: 5px;
 	cursor: pointer;
 	color: #3c8dbc;
+}
+.test-content,
+.test-footer {
+  overflow: hidden;
+}
+.test-content .test-label {
+  float: left;
+  width: 80px;
+}
+.test-content .test-input {
+  overflow: hidden;
+}
+.test-footer {
+  margin: 20px 0;
 }
 </style>

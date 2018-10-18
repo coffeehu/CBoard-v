@@ -8,9 +8,9 @@
   			    <div class="box box-solid">
   			        <div class="box-header with-border">
   			            <i class="fa fa-dashboard"></i><h3 class="box-title">Dataset</h3>
-  			            <!-- <div class="box-tools pull-right">
-  			                <i class="el-icon-circle-plus-outline"></i>
-  			            </div> -->
+  			            <div class="box-tools pull-right">
+                        <i class="fa fa-plus toolbar-icon" @click="add"></i>
+                    </div>
   			        </div>
   			        <div class="panel-body">
   			            <el-tree 
@@ -26,6 +26,7 @@
   				<div class="box">
               <div class="box-header with-border">
                 <h3 class="box-title" style="font-weight: bold">{{ currentDataset.name }}</h3>
+                <i class="pull-right el-icon-delete" @click="del"></i>
               </div>
 
               <div class="box-body">
@@ -81,13 +82,11 @@
                   <div class="col-md-6">
                     <div class="dashed-box dataset-tree">
                       <dimension-tree 
-                        v-if="currentDataset.data.schema.dimension.length > 0" 
                         v-model="currentDimension"
                         :treeData="currentDataset.data.schema.dimension"
                         :options="dimensionOptions"
                         :edit="true"></dimension-tree>
                       <measure-tree 
-                        v-if="currentDataset.data.schema.measure.length > 0"
                         v-model="currentMeasure"
                         :treeData="currentDataset.data.schema.measure"
                         :options="measureOptions"></measure-tree>
@@ -137,10 +136,10 @@ export default {
         animation: 0,
         group: 'valueGroup',
       },
-      datasetConfigVisible: false,
-      currentNode: null,
+      datasetConfigVisible: false, //配置面板的隐藏和显示
       currentDataset: null, //当前的 dataset，点击左侧目录node获得
       allDataset: [], //通过请求返回的所有的 dataset 字段
+      flag: 'update' // save 按钮基于 flag 的值判断是更新还是新增操作。update-更新，add-新增
   	}
   },
   computed: {
@@ -195,15 +194,26 @@ export default {
     },
     datasetCollection() { //点击 Load Data 加载后，虚线框内获得的字段
       let collection = [];
+      let datasetSelected = this.datasetSelected;
       this.allDataset.forEach(item => {
         let obj = { name: item };
-        if( this.existInSelected(item) ) {
+        if( existInSelected(item, datasetSelected) ) {
           obj.selected = true;
         }else {
           obj.selected = false;
         }
         collection.push(obj);
       })
+
+      function existInSelected(name, datasetSelected) {
+        for(let i=0; i<datasetSelected.length; i++) {
+          if(name === datasetSelected[i].column) {
+            return true;
+          }
+        }
+        return false;
+      }
+
       return collection;
     },
   },
@@ -212,12 +222,56 @@ export default {
       if(node.children) {
         return;
       }
-      this.currentNode = node;
+      this.flag = 'update';
       this.datasetConfigVisible = true;
       this.currentDataset = node;
       this.allDataset = [];
   		console.log(node)
   	},
+    add() {
+      this.flag = 'add';
+      let datasourceId = this.datasetList[0] ? this.datasourceList[0].id : -1;
+      this.currentDataset = {
+        categoryName: 'Default Category',
+        name: '',
+        data: {
+          expressions: [],
+          filters: [],
+          schema: {
+            dimension: [],
+            measure: []
+          },
+          query: {},
+          datasource: datasourceId
+        }
+      }
+      this.datasetConfigVisible = true;
+    },
+    del() {
+      this.$confirm('是否删除该数据集?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        closeOnClickModal: false,
+        customClass: 'preview-config-modal'
+      }).then(() => {
+         this.$req.post(this.$api.deleteDataset, {id: this.currentDataset.id})
+          .then(res => {
+            console.log(res)
+            this.$message({
+                type: 'success',
+                message: '删除成功'
+            });
+            this.datasetConfigVisible = false;
+            this.$store.dispatch('config/getDatasetList');
+          }).catch(err => {
+            this.$message({
+                type: 'error',
+                message: '删除失败'
+            });
+          })
+      }).catch(err => {})
+    },
     loadData() {
      /* const temp_sql = `SELECT    
        b.the_year + 5 AS the_year, b.month_of_year, b.day_of_month,
@@ -241,14 +295,6 @@ export default {
         this.allDataset = data;
       })
     },
-    existInSelected(name) {
-      for(let i=0; i<this.datasetSelected.length; i++) {
-        if(name === this.datasetSelected[i].column) {
-          return true;
-        }
-      }
-      return false;
-    },
     selectDataset(dataset) {
       if(dataset.selected) {
         return;
@@ -264,22 +310,34 @@ export default {
       }
     },
     save() {
-      this.currentNode.data.schema.dimension = this.currentDimension;
-      this.currentNode.data.schema.measure = this.currentMeasure;
+      this.currentDataset.data.schema.dimension = this.currentDimension;
+      this.currentDataset.data.schema.measure = this.currentMeasure;
+
+      let url = '';
+      let message = {};
+      if(this.flag === 'update') {
+        url = this.$api.updateDataset;
+        message = { success: '保存成功', error: '保存失败' };
+      }else if(this.flag === 'add') {
+        url = this.$api.addDataset;
+        message = { success: '新增成功', error: '新增失败' };
+      }
+
       let params = {
-        json: JSON.stringify(this.currentNode)
+        json: JSON.stringify(this.currentDataset)
       };
-      this.$req.post(this.$api.updateDataset, params)
+      this.$req.post(url, params)
         .then(res => {
           if(res.status === 200) {
             this.$message({
                 type: 'success',
-                message: '保存成功!'
+                message: message.success
             });
+            this.$store.dispatch('config/getDatasetList');
           }else {
             this.$message({
                 type: 'error',
-                message: '保存失败!'
+                message: message.error
             });
           }
         })
@@ -287,7 +345,7 @@ export default {
           console.log('err', err)
           this.$message({
               type: 'error',
-              message: '保存失败!'
+              message: message.success
           });
         })
 
@@ -299,6 +357,18 @@ export default {
 <style scoped>
 .panel-body {
   padding: 10px 20px;
+}
+.box-tools {
+  top: 11px!important;
+}
+.box-tools i {
+  font-size: 16px;
+  cursor: pointer;
+}
+.box-header .el-icon-delete {
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
 }
 /*表单样式*/
 .el-form-item__label {

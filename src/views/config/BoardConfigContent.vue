@@ -113,7 +113,8 @@
             </draggable>
 
             <!-- Add Param 配置面板 -->
-            <el-dialog title="Param" 
+            <el-dialog title="Param"
+                       :modal-append-to-body="false"
                        :visible.sync="isParamConfigShow" 
                        custom-class="param-config-dialog">
                 <div class="row">
@@ -159,6 +160,7 @@
 
             <!-- Widget 配置面板（Gridster Layout 下使用） -->
             <el-dialog title="Param" 
+                       :modal-append-to-body="false"
                        :visible.sync="isWidgetConfigShow" 
                        custom-class="widget-config-dialog">
                        <gridster-widget-config

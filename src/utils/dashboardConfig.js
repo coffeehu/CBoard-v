@@ -38,7 +38,6 @@ export function injectFilter(widget, filters) {
         //widget.config.boardFilters.push(otherFilter);
         if(filters) {
             widget.config.boardFilters = widget.config.boardFilters.concat(filters);
-            //console.log(1111111111, widget.config.boardFilters)
         }
     }
 
@@ -64,10 +63,14 @@ function getDimensionConfig(array) {
     if (array) {
         array.forEach(function (e) {
             if (e.group === undefined) {
-                result.push({columnName: e.col, filterType: e.type, values: e.values, id: e.id});
+                let name = e.col || e.column;
+                let type = e.type === 'column' ? 'eq' : e.type;
+                result.push({columnName: name, filterType: type, values: e.values || [], id: e.id});
             } else {
                 e.filters.forEach(function (f) {
-                    result.push({columnName: f.col, filterType: f.type, values: f.values});
+                    let name = f.col || f.column;
+                    let type = f.type === 'column' ? 'eq' : f.type;
+                    result.push({columnName: name, filterType: f.type, values: f.values || []});
                 });
             }
         });

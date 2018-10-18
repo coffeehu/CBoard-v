@@ -7,7 +7,7 @@
         <b>Dimension</b>
       </span>
 
-      <draggable v-model="value" :options="options" element="ul">
+      <draggable v-model="value" :options="options" element="ul"  style="min-height: 20px">
         <li v-for="(item, index) in value" :key="item.id" :class="{'moveable': !item.columns}">
           <span>
             <i v-if="item.columns" class="fa fa-caret-down"></i>
@@ -68,6 +68,7 @@ export default {
     }
   },
   created() {
+    console.log(11111111,this.treeData)
     this.value = this.treeData;
   },
   data() {

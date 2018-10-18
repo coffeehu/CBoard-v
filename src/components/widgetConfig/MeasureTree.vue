@@ -6,7 +6,7 @@
         <b>Measure</b>
       </span>
 
-      <draggable v-model="value" :options="options"  element="ul">
+      <draggable v-model="value" :options="options" element="ul" style="min-height: 20px">
         <li v-for="(item, index) in value" :key="item.column" class="moveable">
           <span>
             <i class="schema-tree-icon red-icon"></i>
@@ -47,6 +47,9 @@ export default {
   watch: {
     value(value) {
       this.$emit('input', value);
+    },
+    treeData() {
+      this.value = this.treeData;
     }
   },
   data() {

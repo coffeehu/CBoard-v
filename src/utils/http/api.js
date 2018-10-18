@@ -50,12 +50,15 @@ const api = {
 	getDatasourceList: baseurl + 'dashboard/getDatasourceList.do',
 	getDatasetCategoryList: baseurl + 'dashboard/getDatasetCategoryList.do',
 	updateDataset: baseurl + 'dashboard/updateDataset.do',
+	addDataset: baseurl + 'dashboard/saveNewDataset.do',
+	deleteDataset: baseurl + 'dashboard/deleteDataset.do',
 
 	/*---Dataset 数据源管理---*/
 	updateDatasource: baseurl + 'dashboard/updateDatasource.do',
 	getProviderList: baseurl + 'dashboard/getProviderList.do',
 	addDatasource: baseurl + 'dashboard/saveNewDatasource.do',
 	deleteDatasource: baseurl + 'dashboard/deleteDatasource.do',
+	test: baseurl + 'dashboard/test.do',
 	//get : dashboard/getDatasourceParams.do?type=jdbc
 
 	

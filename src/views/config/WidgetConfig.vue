@@ -264,6 +264,7 @@
       <el-dialog title="Filter" 
                  @close="filterCloseHandler" 
                  :visible.sync="isFilterShow"
+                 :modal-append-to-body="false"
                  custom-class="filter-config-dialog">
           <div class="row">
               <div class="col-md-12">
@@ -817,8 +818,6 @@ export default {
 
       config.values = this.value;
 
-      console.log('-----config----', config)
-
       return config;
     },
     // 当前预览的组件名
@@ -841,7 +840,6 @@ export default {
       widgetData.data.config = this.currentWidgetConfig;
 
       widget.widget = widgetData;
-
       return widget;
     },
     // Filters
@@ -1049,7 +1047,6 @@ export default {
       });
     },
     removeDimension(index, type) {
-      console.log('---this.column---', this.column, index)
       if(type === 'col') {
         this.column.splice(index, 1);
       }else if(type === 'row') {
@@ -1217,6 +1214,7 @@ export default {
 }
 .panel-body {
     padding: 10px 20px;
+    font-size: 13px;
 }
 .box-tools > i {
   font-size: 16px;

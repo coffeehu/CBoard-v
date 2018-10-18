@@ -79,13 +79,15 @@ function parseData(data, config) {
   for(let i=0,l=data.columnList.length; i<l; i++) {
     let col = data.columnList[i];
     for(let j=0; j<config.keys.length; j++) {
-      if(config.keys[j].col === col.name) {
+      let name = config.keys[j].col || config.keys[j].column; // 有时候有 col 字段，有时候为 colunm 字段。如新增的数据集，为 column 字段
+      if(name === col.name) {
         keysIndexArr.push(col.index);
       }
     }
 
     for(let k=0; k<config.groups.length; k++) {
-      if(config.groups[k].col === col.name) {
+      let name = config.groups[k].col || config.groups[k].column; // 有时候有 col 字段，有时候为 colunm 字段。如新增的数据集，为 column 字段
+      if(name === col.name) {
         groupsIndexArr.push(col.index);
       }
     }
