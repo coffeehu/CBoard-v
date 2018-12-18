@@ -12,7 +12,7 @@ export default {
     this.$store.dispatch('menu/getBoardList');
     this.$store.dispatch('menu/getMenuList')
       .then(() => {
-        //console.log('-----routes----', this.$store.state.menu.routes)
+        console.log('-----routes----', this.$store.state.menu.routes)
         this.$router.addRoutes(this.routes);
         this.$router.beforeEach((to, from, next) => {
           this.$req.abort();

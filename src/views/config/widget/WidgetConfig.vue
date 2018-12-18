@@ -1258,49 +1258,49 @@ span:focus {
   outline: none;
 }
 /*######### Widget Type Icon 样式 ##############*/
-.cLine{  background-image: url(../../assets/imgs/widgets/line-active.png);  }
-.cLine.disabled{background-image: url(../../assets/imgs/widgets/line.png);}
-.cContrast{  background-image: url(../../assets/imgs/widgets/contrast-active.png);  }
-.cContrast.disabled{background-image: url(../../assets/imgs/widgets/contrast.png); }
+.cLine{  background-image: url(../../../assets/imgs/widgets/line-active.png);  }
+.cLine.disabled{background-image: url(../../../assets/imgs/widgets/line.png);}
+.cContrast{  background-image: url(../../../assets/imgs/widgets/contrast-active.png);  }
+.cContrast.disabled{background-image: url(../../../assets/imgs/widgets/contrast.png); }
 /*.cBar{  background-image: url(../imgs/bar-active.png);  }*/
 /*.cBar.disabled{background-image: url(../imgs/bar.png);  }*/
-.cScatter{  background-image: url(../../assets/imgs/widgets/scatter-active.png);  }
-.cScatter.disabled{  background-image: url(../../assets/imgs/widgets/scatter.png);  }
-.cPie{  background-image: url(../../assets/imgs/widgets/pie-active.png);  }
-.cPie.disabled{  background-image: url(../../assets/imgs/widgets/pie.png);  }
-.cFunnel{  background-image: url(../../assets/imgs/widgets/funnel-active.png);  }
-.cFunnel.disabled{  background-image: url(../../assets/imgs/widgets/funnel.png);  }
+.cScatter{  background-image: url(../../../assets/imgs/widgets/scatter-active.png);  }
+.cScatter.disabled{  background-image: url(../../../assets/imgs/widgets/scatter.png);  }
+.cPie{  background-image: url(../../../assets/imgs/widgets/pie-active.png);  }
+.cPie.disabled{  background-image: url(../../../assets/imgs/widgets/pie.png);  }
+.cFunnel{  background-image: url(../../../assets/imgs/widgets/funnel-active.png);  }
+.cFunnel.disabled{  background-image: url(../../../assets/imgs/widgets/funnel.png);  }
 
-.cKpi{  background-image: url(../../assets/imgs/widgets/kpi-active.png);  }
-.cKpi.disabled{  background-image: url(../../assets/imgs/widgets/kpi.png);  }
-.cSankey{  background-image: url(../../assets/imgs/widgets/sankey-active.png);  }
-.cSankey.disabled{  background-image: url(../../assets/imgs/widgets/sankey.png);  }
-.cRadar{  background-image: url(../../assets/imgs/widgets/radar-active.png);  }
-.cRadar.disabled{  background-image: url(../../assets/imgs/widgets/radar.png);  }
-.cTable{  background-image: url(../../assets/imgs/widgets/table-active.png);  }
-.cTable.disabled{  background-image: url(../../assets/imgs/widgets/table.png);  }
-.cMap{  background-image: url(../../assets/imgs/widgets/map-active.png);  }
-.cMap.disabled{  background-image: url(../../assets/imgs/widgets/map.png);  }
-.cGauge{ background-image: url(../../assets/imgs/widgets/gauge-active.png); }
-.cGauge.disabled{ background-image: url(../../assets/imgs/widgets/gauge.png); }
-.cWordCloud{ background-image: url(../../assets/imgs/widgets/wordCloud-active.png); }
-.cWordCloud.disabled{ background-image: url(../../assets/imgs/widgets/wordCloud.png); }
-.cTreeMap{ background-image: url(../../assets/imgs/widgets/treeMap-active.png); }
-.cTreeMap.disabled{ background-image: url(../../assets/imgs/widgets/treeMap.png); }
-.cAreaMap{ background-image: url(../../assets/imgs/widgets/areaMap-active.png);}
-.cAreaMap.disabled{ background-image: url(../../assets/imgs/widgets/areaMap.png);}
-.cHeatMapCalendar{ background-image: url(../../assets/imgs/widgets/heatMapCalendar-active.png); }
-.cHeatMapCalendar.disabled{ background-image: url(../../assets/imgs/widgets/heatMapCalendar.png); }
-.cHeatMapTable{ background-image: url(../../assets/imgs/widgets/heatMapTable-active.png); }
-.cHeatMapTable.disabled{ background-image: url(../../assets/imgs/widgets/heatMapTable.png); }
-.cLiquidFill{ background-image: url(../../assets/imgs/widgets/liquidFill-active.png); }
-.cLiquidFill.disabled{ background-image: url(../../assets/imgs/widgets/liquidFill.png); }
-.cChinaMap{ background-image: url(../../assets/imgs/widgets/chinaMap-active.png); }
-.cChinaMap.disabled{ background-image: url(../../assets/imgs/widgets/chinaMap.png); }
-.cChinaMapBmap{ background-image: url(../../assets/imgs/widgets/chinaMapBmap-active.png); }
-.cChinaMapBmap.disabled{ background-image: url(../../assets/imgs/widgets/chinaMapBmap.png); }
-.cRelation{ background-image: url(../../assets/imgs/widgets/relation-active.png); }
-.cRelation.disabled{ background-image: url(../../assets/imgs/widgets/relation.png); }
+.cKpi{  background-image: url(../../../assets/imgs/widgets/kpi-active.png);  }
+.cKpi.disabled{  background-image: url(../../../assets/imgs/widgets/kpi.png);  }
+.cSankey{  background-image: url(../../../assets/imgs/widgets/sankey-active.png);  }
+.cSankey.disabled{  background-image: url(../../../assets/imgs/widgets/sankey.png);  }
+.cRadar{  background-image: url(../../../assets/imgs/widgets/radar-active.png);  }
+.cRadar.disabled{  background-image: url(../../../assets/imgs/widgets/radar.png);  }
+.cTable{  background-image: url(../../../assets/imgs/widgets/table-active.png);  }
+.cTable.disabled{  background-image: url(../../../assets/imgs/widgets/table.png);  }
+.cMap{  background-image: url(../../../assets/imgs/widgets/map-active.png);  }
+.cMap.disabled{  background-image: url(../../../assets/imgs/widgets/map.png);  }
+.cGauge{ background-image: url(../../../assets/imgs/widgets/gauge-active.png); }
+.cGauge.disabled{ background-image: url(../../../assets/imgs/widgets/gauge.png); }
+.cWordCloud{ background-image: url(../../../assets/imgs/widgets/wordCloud-active.png); }
+.cWordCloud.disabled{ background-image: url(../../../assets/imgs/widgets/wordCloud.png); }
+.cTreeMap{ background-image: url(../../../assets/imgs/widgets/treeMap-active.png); }
+.cTreeMap.disabled{ background-image: url(../../../assets/imgs/widgets/treeMap.png); }
+.cAreaMap{ background-image: url(../../../assets/imgs/widgets/areaMap-active.png);}
+.cAreaMap.disabled{ background-image: url(../../../assets/imgs/widgets/areaMap.png);}
+.cHeatMapCalendar{ background-image: url(../../../assets/imgs/widgets/heatMapCalendar-active.png); }
+.cHeatMapCalendar.disabled{ background-image: url(../../../assets/imgs/widgets/heatMapCalendar.png); }
+.cHeatMapTable{ background-image: url(../../../assets/imgs/widgets/heatMapTable-active.png); }
+.cHeatMapTable.disabled{ background-image: url(../../../assets/imgs/widgets/heatMapTable.png); }
+.cLiquidFill{ background-image: url(../../../assets/imgs/widgets/liquidFill-active.png); }
+.cLiquidFill.disabled{ background-image: url(../../../assets/imgs/widgets/liquidFill.png); }
+.cChinaMap{ background-image: url(../../../assets/imgs/widgets/chinaMap-active.png); }
+.cChinaMap.disabled{ background-image: url(../../../assets/imgs/widgets/chinaMap.png); }
+.cChinaMapBmap{ background-image: url(../../../assets/imgs/widgets/chinaMapBmap-active.png); }
+.cChinaMapBmap.disabled{ background-image: url(../../../assets/imgs/widgets/chinaMapBmap.png); }
+.cRelation{ background-image: url(../../../assets/imgs/widgets/relation-active.png); }
+.cRelation.disabled{ background-image: url(../../../assets/imgs/widgets/relation.png); }
 
 .el-form-item {
   margin-bottom: 5px;

@@ -5,8 +5,8 @@ import Layout from '@/views/layout/Layout';
 Vue.use(Router)
 
 const Dashboard = () => import('@/views/dashboard/Dashboard');
-const BoardConfig = () => import('@/views/config/BoardConfig');
-const BoardConfigContent = () => import('@/views/config/BoardConfigContent');
+const BoardConfig = () => import('@/views/config/board/BoardConfig');
+const BoardConfigContent = () => import('@/views/config/board/BoardConfigContent');
 
 export default new Router({
   routes: [
@@ -41,13 +41,14 @@ export default new Router({
         }
       ]
     },*/
-    {
+    /*{
       path: '/config',
       name: 'config',
       component: Layout,
       children: [
         {
           path: 'board',
+          name: 'BoardConfig',
           component: BoardConfig,
           children: [
             {
@@ -55,6 +56,18 @@ export default new Router({
               component: BoardConfigContent
             }
           ]
+        }
+      ]
+    },*/
+    {
+      path: '/config',
+      name: 'config',
+      component: Layout,
+      children: [
+        {
+          path: 'board',
+          name: 'BoardConfig',
+          component: BoardConfig
         }
       ]
     },

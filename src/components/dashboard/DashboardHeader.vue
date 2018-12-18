@@ -29,6 +29,8 @@
 </template>
 
 <script>
+const BoardConfig = () => import('@/views/config/board/BoardConfig');
+
 export default {
   name: 'DashboardHeader',
   props: {
@@ -48,7 +50,9 @@ export default {
     //跳转到配置页面
     editDashBorad() {
         let id = this.$route.params.id;
-        this.$router.push({ path: `/config/board/${id}` }) 
+        //this.$router.push({ path: `/config/board/${id}` }) 
+        //this.$router.push({ path: '/config/board', query: { boardId: id } }) 
+        this.$router.push({ name: 'BoardConfig', params: { boardId: id } })
     }
   }
 }

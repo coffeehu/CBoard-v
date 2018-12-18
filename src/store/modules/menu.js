@@ -26,6 +26,7 @@ function formatMenuList(data) {
 
 function formatRoutes(menuList) {
   let routes = [];
+  console.log('---menuList---', menuList)
   for(let i=0,l=menuList.length; i<l; i++) {
     let menu = menuList[i];
     let route = {
@@ -40,7 +41,8 @@ function formatRoutes(menuList) {
       let _path = path.substring(0,1).toUpperCase() + path.substring(1);
       let _code = menu.menuCode.substring(0,1).toUpperCase() + menu.menuCode.substring(1);
       let fileName = _path + _code + '.vue';
-      const mRoute = () => import(`@/views/${menu.menuCode}/${fileName}`);
+      console.log(menu.menuCode+'/'+path+'/'+fileName)
+      const mRoute = () => import(`@/views/${menu.menuCode}/${path}/${fileName}`);
       let childRoute = {
         path: path,
         component: mRoute
@@ -52,10 +54,10 @@ function formatRoutes(menuList) {
 }
 
 const state = {
-  categoryList: [],
-  boardList: [],
-  menuList: [],
-  routes: []
+  categoryList: null,
+  boardList: null,
+  menuList: null,
+  routes: null
 }
 
 
@@ -66,6 +68,9 @@ const actions = {
 
   //这两个获得的是 dashboard 菜单栏的菜单数据
   getCategoryList(context) {
+    if(state.categoryList !== null) {
+        return;
+      }
 
       req.get(api.getCategoryList)
         .then((response) => {
@@ -80,6 +85,11 @@ const actions = {
   },
   getBoardList(context) {
     return new Promise((resolve, reject) => {
+      if(state.boardList !== null) {
+        resolve(state.boardList);
+        return;
+      }
+
       req.get(api.getBoardList)
         .then((response) => {
           if(response.statusText === 'OK') {
@@ -97,6 +107,11 @@ const actions = {
   // 【配置】和【管理】菜单栏的菜单数据
   getMenuList(context) {
     return new Promise((resolve, reject) => {
+      if(state.menuList !== null) {
+        resolve(state.menuList);
+        return;
+      }
+      
       req.get(api.getMenuList)
         .then((response) => {
           if(response.statusText === 'OK') {

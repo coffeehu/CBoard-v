@@ -9,7 +9,10 @@
                         <i class="fa fa-dashboard"></i><h3 class="box-title">Dashboard</h3>
                     </div>
                     <div class="panel-body">
-                        <el-tree :data="treeData" @node-click="handleNodeClick" @node-contextmenu="handleContextmenu"></el-tree>
+                        <el-tree 
+                          :data="treeData" 
+                          @node-click="handleNodeClick" 
+                          @node-contextmenu="handleContextmenu"></el-tree>
                     </div>
                 </div>
             </div>
@@ -47,7 +50,11 @@
 
             <!-- 配置面板 -->
             <div class="col-md-9">
-                <router-view />
+                <!-- <router-view /> -->
+                <board-config-content
+                  v-if="contentVisble"
+                  :id="boardId"
+                  :categoryId="categoryId"></board-config-content>
             </div>
 
         </div>
@@ -60,7 +67,7 @@ import domUtils from '@/utils/dom.js';
 export default {
     name: 'BoardConfig',
     components: {
-      BoardConfigContent: () => import('@/views/config/BoardConfigContent')
+      BoardConfigContent: () => import('@/views/config/board/BoardConfigContent')
     },
     created() {
       /*
@@ -81,6 +88,16 @@ export default {
       this.$store.dispatch('config/getWidgetList');
       // 获取所有 dataset 列表数据
       this.$store.dispatch('config/getDatasetList');
+    },
+    mounted() {
+       //由看板页面跳转过来时的处理
+      let boardId = this.$route.params.boardId;
+      this.$nextTick(() => {
+        if(boardId !== undefined) {
+          this.boardId = boardId;
+          this.contentVisble = true;
+        }
+      })
     },
     computed: {
       boardList() {
@@ -111,12 +128,16 @@ export default {
                   }
               }
           }
+          console.log('----treeData---', treeData)
           return treeData;
       },
     },
     data() {
         return {
             //boardList: [],
+            contentVisble: false,
+            boardId: null,
+            categoryId: null,
             showTreeAdd: false,
             showTreeDel: false,
             treeOperationTop: '',
@@ -130,7 +151,10 @@ export default {
         this.showTreeAdd = false;
         this.showTreeDel = false;
         if(!data.children) {
-          this.$router.push({path: `/config/board/${data.id}`});
+          console.log('--data--', data)
+          this.contentVisble = true;
+          this.boardId = data.id + '';
+          //this.$router.push({path: `/config/board/${data.id}`});
         }
       },
       // 鼠标右键点击目录节点
@@ -153,7 +177,9 @@ export default {
         })
       },
       addLayout(type) {
-        this.$router.push({path: `/config/board/${type}`, query: { categoryId: this.currentTreeItem.id }});
+        this.boardId = type;
+        this.categoryId = this.currentTreeItem.id;
+        //this.$router.push({path: `/config/board/${type}`, query: { categoryId: this.currentTreeItem.id }});
       },
       delLayout() {
         this.$confirm('是否确认删除？', '警告', {
