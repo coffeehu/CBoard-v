@@ -18,5 +18,21 @@ Vue + Vue Router + Vuex + Element-UI
 如可以定制更复杂的布局、调整背景色：  
 ![image](./doc/gridster.png)
 
-## 进度
-由于时间有限，仅完成部分功能。后续持续完善中...
+## 部署
+### （前提）Step 0：部署 CBoard 后台
+请根据 CBoard 的官方文档部署好完整的项目，确保能访问。
+[github](https://github.com/TuiQiao/CBoard)
+[安装与配置](https://peter_zhang921.gitee.io/cboard_docsify/#/zh-cn/manual/install)
+
+### Step 1: 编译打包 CBoard-v
+clone 本项目，  
+npm install,  
+npm run build  
+
+生成文件index.html 和目录static
+
+### Step 2: 
+将目录 static 加入cboard根目录下，  
+将 index.html 改名为 starter.html 替换cboard根目录下原来的文件。
+
+### 开发调试
