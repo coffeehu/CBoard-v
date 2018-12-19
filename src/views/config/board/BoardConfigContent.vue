@@ -85,7 +85,7 @@
 
             <!-- widget 配置栏 -->
             <div v-if="boardType === 'gridster'">
-                <div v-for="(row, index) in rows" :key="row.flag">
+                <div v-for="(row, index) in board.layout.rows" :key="row.flag">
                     <widget-config-gridster-row v-if="row.type === 'widget'" :index="index" 
                                        :rowData="row"
                                        @open-widget-config="widgetConfigHandler"
@@ -97,9 +97,9 @@
                                        @edit-param="editParamHandler"></widget-config-param>
                 </div>
             </div>
-            <draggable v-else v-model="rows" @end="rowDragEnd">
+            <draggable v-else v-model="board.layout.rows">
                 <transition-group type="transition" name="flip-list" tag="div">
-                    <div v-for="(row, index) in rows" :key="row.flag">
+                    <div v-for="(row, index) in board.layout.rows" :key="row.flag">
                         <widget-config-row v-if="row.type === 'widget'" :index="index" 
                         				   :rowData="row" 
                         				   @remove-row="removeRow"></widget-config-row>
@@ -179,14 +179,6 @@ export default {
         id: String,
         categoryId: Number
     },
-    watch: {
-        id(val) {
-            console.log('----id---', val)
-        },
-        categoryId(val) {
-            console.log('---categoryId---', val)
-        }
-    },
 	components: {
         draggable: () => import('vuedraggable'),
         WidgetConfig: () => import('@/components/config/WidgetConfig'),
@@ -197,23 +189,6 @@ export default {
         DatePickerConfigDetail: () => import('@/components/config/params/DatePickerConfigDetail'),
         SliderConfigDetail: () => import('@/components/config/params/SliderConfigDetail'),
         SelectorConfigDetail: () => import('@/components/config/params/SelectorConfigDetail')
-    },
-    created() {
-        /*this.$store.dispatch('menu/getBoardList')
-            .then(() => {
-                const id = this.$route.params.id;
-                const categoryId = this.$route.query.categoryId;
-                console.log('---$route---', this.$route)
-                console.log('---categoryId---', categoryId)
-                this.initData(id, categoryId);
-            })
-            .catch(() => {})*/
-    },
-    beforeRouteUpdate (to, from, next) {
-        /*const id = to.params.id;
-        const categoryId = to.query.categoryId;
-        this.initData(id, categoryId);
-        next();*/
     },
 	computed: {
 		categoryList() {
@@ -226,43 +201,38 @@ export default {
             return this.$store.state.config.datasetList;
         },
         board() {
-            let board = [];
+            let board = { //设置一个初始值，因为语法模块用到了 board.layout.rows，避免报错
+                layout: {
+                    rows: []
+                }
+            };
             let boardId = this.id;
             let categoryId = this.categoryId;
 
-            if(boardId === 'grid') {
-                board = {
-                    categoryId: categoryId,
-                    name: '',
-                    layout: {
-                        rows: []
-                    }
-                }
-                this.rows = board.layout.rows;
+            if(boardId === 'grid') { //新增 Grid Layout
+                board = this.mboard;
+                board.categoryId = categoryId;
+                board.name = '';
+                this.$set(board, 'layout', {});
+                this.$set(board.layout, 'rows', []);
                 this.boardType = '';
-            }else if(boardId === 'timeline') {
-                board = {
-                    categoryId: categoryId,
-                    name: '',
-                    layout: {
-                        rows: [],
-                        type: 'timeline'
-                    }
-                }
-                this.rows = board.layout.rows;
+            } else if(boardId === 'timeline') { //新增 Timeline Layout
+                board = this.mboard;
+                board.categoryId = categoryId;
+                board.name = '';
+                this.$set(board, 'layout', {});
+                board.layout.type = 'timeline';
+                this.$set(board.layout, 'rows', []);
                 this.boardType = 'timeline'; 
-            }else if(boardId === 'gridster') {
-                board = {
-                    categoryId: categoryId,
-                    name: '',
-                    layout: {
-                        rows: [],
-                        type: 'gridster'
-                    }
-                }
-                this.rows = board.layout.rows;
+            } else if(boardId === 'gridster') { //新增 Gridster Layout
+                board = this.mboard;
+                board.categoryId = categoryId;
+                board.name = '';
+                this.$set(board, 'layout', {});
+                board.layout.type = 'gridster';
+                this.$set(board.layout, 'rows', []);
                 this.boardType = 'gridster'; 
-            }else {
+            } else { //选中目录 item，展示对应布局
                 boardId = Number(boardId);
                 this.boardList = this.$store.state.menu.boardList;
                 for(let i=0,l=this.boardList.length; i<l; i++) {
@@ -271,11 +241,12 @@ export default {
                       break;
                   }
                 }
-                for(let i=0,l=board.layout.rows.length; i<l; i++) {
-                    board.layout.rows[i].flag = 'hehe' + i;
+                if(board.layout) {
+                    for(let i=0,l=board.layout.rows.length; i<l; i++) {
+                        board.layout.rows[i].flag = 'hehe' + i;
+                    }
+                    this.boardType = board.layout.type;
                 }
-                this.boardType = board.layout.type;
-                this.rows = board.layout.rows;
             }
 
             console.log('----board----', board)
@@ -305,9 +276,8 @@ export default {
 	data() {
         return {
             name: '',
-            rows: [],
             boardList: [],
-            //board: {},
+            mboard: {}, // 新增布局时的 board 对象，目的是需要一个响应式的对象
             boardType: '',
             //--------- Add Param 配置数据 -----------
             isParamConfigShow: false,
@@ -326,66 +296,6 @@ export default {
         }
     },
     methods: {
-        initData(id, categoryId) {
-            this.isError = false;
-            // 新增 Grid Layout
-            if(id === 'grid') {
-                this.board = {
-                    categoryId: categoryId,
-                    name: '',
-                    layout: {
-                        rows: []
-                    }
-                }
-                this.rows = this.board.layout.rows;
-                this.boardType = '';
-            }
-            // 新增 Timelline Layout
-            else if(id === 'timeline') {
-                this.board = {
-                    categoryId: categoryId,
-                    name: '',
-                    layout: {
-                        rows: [],
-                        type: 'timeline'
-                    }
-                }
-                this.rows = this.board.layout.rows;
-                this.boardType = 'timeline'; 
-            }
-            // 新增 Timelline Layout
-            else if(id === 'gridster') {
-                this.board = {
-                    categoryId: categoryId,
-                    name: '',
-                    layout: {
-                        rows: [],
-                        type: 'gridster'
-                    }
-                }
-                this.rows = this.board.layout.rows;
-                this.boardType = 'gridster'; 
-            }
-            // 点击 tree item 切换配置页面
-            else {
-                this.setBoardById(parseInt(id));
-                this.rows = this.board.layout.rows;
-                this.boardType = this.board.layout.type;
-            }
-            this.paramColumns = [];
-        },
-        setBoardById(id) {
-            this.boardList = this.$store.state.menu.boardList;
-            for(let i=0,l=this.boardList.length; i<l; i++) {
-              if(this.boardList[i].id === id) {
-                  this.board = this.boardList[i];
-                  break;
-              }
-            }
-            for(let i=0,l=this.board.layout.rows.length; i<l; i++) {
-                this.board.layout.rows[i].flag = 'hehe' + i;
-            }
-        },
     	//添加行
     	addRow() {
     		const row = {type: 'widget', widgets: []};
@@ -433,7 +343,8 @@ export default {
                 return;
             }
             this.board.categoryName = this.currentCategory.name;
-            let id = this.$route.params.id;
+            
+            let id = this.id;
 
             const params = {
                 json: JSON.stringify(this.board)
@@ -449,10 +360,6 @@ export default {
                         });
                         let id = response.data.id;
                         this.$store.dispatch('menu/getBoardList')
-                        .then(() => {
-                          this.$router.push({path: `/config/board/${id}`});
-                        })
-                        .catch(() => {})
                     }
                 })
             }else {
@@ -502,9 +409,6 @@ export default {
             }).catch(() => {
                       
             });
-        },
-        rowDragEnd(evt) {
-            this.board.layout.rows = this.rows;
         },
         // 获得 params 数据源列表，储存到 this.paramColumns
         getParamColumns(callback) {

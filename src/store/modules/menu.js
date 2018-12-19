@@ -68,10 +68,6 @@ const actions = {
 
   //这两个获得的是 dashboard 菜单栏的菜单数据
   getCategoryList(context) {
-    if(state.categoryList !== null) {
-        return;
-      }
-
       req.get(api.getCategoryList)
         .then((response) => {
           if(response.statusText === 'OK') {
@@ -85,11 +81,6 @@ const actions = {
   },
   getBoardList(context) {
     return new Promise((resolve, reject) => {
-      if(state.boardList !== null) {
-        resolve(state.boardList);
-        return;
-      }
-
       req.get(api.getBoardList)
         .then((response) => {
           if(response.statusText === 'OK') {
@@ -107,11 +98,6 @@ const actions = {
   // 【配置】和【管理】菜单栏的菜单数据
   getMenuList(context) {
     return new Promise((resolve, reject) => {
-      if(state.menuList !== null) {
-        resolve(state.menuList);
-        return;
-      }
-      
       req.get(api.getMenuList)
         .then((response) => {
           if(response.statusText === 'OK') {

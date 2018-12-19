@@ -179,6 +179,7 @@ export default {
       addLayout(type) {
         this.boardId = type;
         this.categoryId = this.currentTreeItem.id;
+        this.contentVisble = true;
         //this.$router.push({path: `/config/board/${type}`, query: { categoryId: this.currentTreeItem.id }});
       },
       delLayout() {
@@ -199,10 +200,6 @@ export default {
                     message: '删除成功!'
                 });
                 this.$store.dispatch('menu/getBoardList')
-                .then(() => {
-                  this.$router.push({path: '/config/board'});
-                })
-                .catch(() => {})
               }
           })
         }).catch(() => {});
