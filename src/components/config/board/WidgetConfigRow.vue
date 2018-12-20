@@ -57,8 +57,8 @@ export default {
     }
   },
   components: {
-    WidgetConfig: () => import('@/components/config/WidgetConfig'),
-    WidgetConfigColumn: () => import('@/components/config/WidgetConfigColumn'),
+    WidgetConfig: () => import('@/components/config/board/WidgetConfig'),
+    WidgetConfigColumn: () => import('@/components/config/board/WidgetConfigColumn'),
     draggable: () => import('vuedraggable')
   },
   created() {

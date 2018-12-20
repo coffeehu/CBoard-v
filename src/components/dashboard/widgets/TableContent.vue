@@ -125,6 +125,7 @@ let options = {
     },
     initByWidget(reload) {
       this.widgetData = this.widget.widget.data;
+      if(this.widgetData.config.values.length === 0) return;
       const format = this.widgetData.config.values[0].format;
       const style = this.style = this.widgetData.config.values[0].style;
 

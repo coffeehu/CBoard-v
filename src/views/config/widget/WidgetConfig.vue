@@ -894,6 +894,11 @@ export default {
         this.column = node.data.config.groups;
         this.row = node.data.config.keys;
         this.value = node.data.config.values;
+        if(this.value.length === 0) { //防止undefined报错的处理
+          this.value.push({
+            cols: []
+          })
+        }
 
         //---Filter 相关----
         let schema = this.schemaToSelect(this.currentSchema);

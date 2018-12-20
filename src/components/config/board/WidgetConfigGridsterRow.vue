@@ -85,7 +85,7 @@ export default {
     }
   },
   components: {
-    WidgetConfig: () => import('@/components/config/WidgetConfig'),
+    WidgetConfig: () => import('@/components/config/board/WidgetConfig'),
     GridLayout,
     GridItem
   },

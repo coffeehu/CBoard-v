@@ -50,7 +50,7 @@ export default {
     }
   },
   components: {
-    WidgetConfigRow: () => import('@/components/config/WidgetConfigRow')
+    WidgetConfigRow: () => import('@/components/config/board/WidgetConfigRow')
   },
   created() {
     console.log(123123, this.widgetData)

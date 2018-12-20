@@ -181,14 +181,21 @@ export default {
     },
 	components: {
         draggable: () => import('vuedraggable'),
-        WidgetConfig: () => import('@/components/config/WidgetConfig'),
-        GridsterWidgetConfig: () => import('@/components/config/GridsterWidgetConfig'),
-        WidgetConfigParam: () => import('@/components/config/WidgetConfigParam'),
-        WidgetConfigRow: () => import('@/components/config/WidgetConfigRow'),
-        WidgetConfigGridsterRow: () => import('@/components/config/WidgetConfigGridsterRow'),
+        GridsterWidgetConfig: () => import('@/components/config/board/GridsterWidgetConfig'),
+        WidgetConfigParam: () => import('@/components/config/board/WidgetConfigParam'),
+        WidgetConfigRow: () => import('@/components/config/board/WidgetConfigRow'),
+        WidgetConfigGridsterRow: () => import('@/components/config/board/WidgetConfigGridsterRow'),
         DatePickerConfigDetail: () => import('@/components/config/params/DatePickerConfigDetail'),
         SliderConfigDetail: () => import('@/components/config/params/SliderConfigDetail'),
         SelectorConfigDetail: () => import('@/components/config/params/SelectorConfigDetail')
+    },
+    created() {
+        this.boardId = this.id;
+    },
+    watch: {
+        id(val) {
+            this.boardId = val;
+        }
     },
 	computed: {
 		categoryList() {
@@ -206,7 +213,7 @@ export default {
                     rows: []
                 }
             };
-            let boardId = this.id;
+            let boardId = this.boardId;
             let categoryId = this.categoryId;
 
             if(boardId === 'grid') { //新增 Grid Layout
@@ -278,6 +285,7 @@ export default {
             name: '',
             boardList: [],
             mboard: {}, // 新增布局时的 board 对象，目的是需要一个响应式的对象
+            boardId: null,
             boardType: '',
             //--------- Add Param 配置数据 -----------
             isParamConfigShow: false,
@@ -344,7 +352,7 @@ export default {
             }
             this.board.categoryName = this.currentCategory.name;
             
-            let id = this.id;
+            let id = this.boardId;
 
             const params = {
                 json: JSON.stringify(this.board)
@@ -359,6 +367,7 @@ export default {
                             message: '保存成功!'
                         });
                         let id = response.data.id;
+                        this.boardId = id;
                         this.$store.dispatch('menu/getBoardList')
                     }
                 })
@@ -382,7 +391,7 @@ export default {
     	},
         // 预览--即跳的对应的 dashboard 页面
         previewConfig() {
-            let id = this.id;
+            let id = this.boardId;
             if(id === 'grid' || id === 'timeline') {
                 this.$message({
                     type: 'warning',
@@ -396,7 +405,7 @@ export default {
               customClass: 'preview-config-modal'
             }).then(() => {
                 this.saveConfig(() => {
-                    const id = this.id;
+                    const id = this.boardId;
                     let name = '';
                     for(let i=0,l=this.categoryList.length; i<l; i++) {
                         if(this.categoryList[i].id === this.board.categoryId) {
@@ -441,7 +450,7 @@ export default {
 
             if(datasetIdList.length === 0) {
                 this.$message({
-                  message: '添加了 Column 面板后，参数数据源才会有数据',
+                  message: '添加了 Widget 面板后，参数数据源才会有数据',
                   type: 'warning'
                 });
                 return;
@@ -475,6 +484,7 @@ export default {
             if( this.paramColumns.length === 0 ) {
                 this.getParamColumns();   
             }
+            this.paramName = '';
             this.isParamConfigShow = true;
             this.paramCol = [];
         },
