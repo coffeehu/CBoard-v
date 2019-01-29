@@ -53,7 +53,7 @@ export default {
     WidgetConfigRow: () => import('@/components/config/board/WidgetConfigRow')
   },
   created() {
-    console.log(123123, this.widgetData)
+    
   },
   computed: {
     // 列宽度样式，如 'col-md-6'
