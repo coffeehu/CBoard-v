@@ -1,6 +1,6 @@
 <template>
   <div class="content">
-    
+
     <dashboard-header :dashboardTitle="dashboardTitle"></dashboard-header>
 
     <div v-for="(row,index) in layoutData.rows">

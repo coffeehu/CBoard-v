@@ -2,6 +2,8 @@
   <div>
 
     <div v-for="widget in widgets" :class="'col-md-'+widget.width">
+
+      <!-- 这里考虑到二级嵌套的情况——行里有列，列里又有行列的情况。（一般用得少） -->
       <div v-if="widget.type === 'column'">
         <div v-for="(row,index) in widget.rows">
           <div v-if="row.type === 'widget'">
@@ -9,6 +11,8 @@
           </div>
         </div>
       </div>
+
+      <!-- 一级嵌套：直接渲染组件作为列 -->
       <component v-else
                  :is="currentComponent(widget)" 
                  :widget="widget" 

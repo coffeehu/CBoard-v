@@ -239,7 +239,11 @@ export default {
                 board.layout.type = 'gridster';
                 this.$set(board.layout, 'rows', []);
                 this.boardType = 'gridster'; 
-            } else { //选中目录 item，展示对应布局
+            } 
+            /*else if(boardId === 'map') {
+
+            } */
+            else { //选中目录 item，展示对应布局
                 boardId = Number(boardId);
                 this.boardList = this.$store.state.menu.boardList;
                 for(let i=0,l=this.boardList.length; i<l; i++) {
@@ -385,9 +389,7 @@ export default {
                         }
                     }
                 })
-            }
-    		
-    		
+            }    		
     	},
         // 预览--即跳的对应的 dashboard 页面
         previewConfig() {

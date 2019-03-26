@@ -193,6 +193,7 @@ export default {
         if(widget.id === value) {
           this.widget.name = widget.name;
           this.widgetId = this.widget.widgetId = widget.id;
+          console.log(this.widget.name, this.widgetId)
           break;
         }
       }

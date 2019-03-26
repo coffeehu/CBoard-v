@@ -1,3 +1,4 @@
+<!-- 看板组件最外层的框 -->
 <template>
     <div class="box box-solid" :style="{'background-color': mBackground}">
         <div class="box-header">
