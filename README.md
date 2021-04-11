@@ -53,9 +53,8 @@ module.exports = {
 
 ```
 
-2、需要修改 JSESSIONID。下载chrome插件 editthiscookie；  
+2、访问已搭好的 CBoard 项目登录，获得 JSESSIONID 值； 
 
-3、访问已搭好的 CBoard 项目登录，获得 JSESSIONID 值；  
-
-4、npm install && npm run dev  
-访问页面，修改 JSESSIONID 为上一步获得的值后，刷新即可访问。
+3、npm install && npm run dev  
+使用Chrome浏览器访问页面，在Application中写入Cookie：name 为 "JSESSIONID", value 为上一步获得的值。
+刷新即可访问。
